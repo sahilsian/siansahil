@@ -1,0 +1,26 @@
+[
+  {
+    "category": { "name": "all" },
+    "layoutTitle": "Artwork",
+    "layoutDescription": "View through all of my artwork, or filter your search by category.",
+    "seo": {}
+  },
+  {
+    "category": { "name": "Plein air" },
+    "layoutTitle": "Plein air Artwork",
+    "layoutDescription": "All of my paintings painted in plein air (outdoors from life).",
+    "seo": {}
+  },
+  {
+    "category": { "name": "Drawings" },
+    "layoutTitle": "Drawings",
+    "layoutDescription": "All of my drawings from life or image.",
+    "seo": {}
+  },
+  {
+    "category": { "name": "Photography" },
+    "layoutTitle": "Photography",
+    "layoutDescription": "Check out all the cool pics I've taken over the years.",
+    "seo": {}
+  }
+]

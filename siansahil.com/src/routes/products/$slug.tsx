@@ -1,5 +1,5 @@
 import {createFileRoute} from '@tanstack/react-router'
-import {queryProduct} from "@/lib/data/queries/queries.ts";
+import {getProduct} from "@/lib/content";
 import ProductRenderer from "@/components/renderers/productRenderer";
 
 export const Route = createFileRoute('/products/$slug')({
@@ -7,21 +7,13 @@ export const Route = createFileRoute('/products/$slug')({
     loader: async ({context, params}) => {
         const { slug } = params;
 
-        const filters: any = {
-            slug: {
-                eq: slug
-            }
-        };
-
         const product = await context.queryClient.ensureQueryData({
-            queryFn: async () => {
-                return await queryProduct({ data: {filters} })
-            },
-            queryKey: ["product", slug, filters]
+            queryFn: () => getProduct(slug),
+            queryKey: ["product", slug]
         })
 
         return {
-            product: product.products[0]
+            product
         }
     },
     head: ({loaderData}) => {

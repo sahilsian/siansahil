@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {queryForm} from "@/lib/data/queries/queries.ts";
+import {getForm} from "@/lib/content";
 import FormRenderer from "@/components/renderers/formRenderer";
 
 export const Route = createFileRoute('/forms/$id')({
@@ -7,13 +7,11 @@ export const Route = createFileRoute('/forms/$id')({
     loader: async ({context, params}) => {
         const { id } = params;
         const form = await context.queryClient.ensureQueryData({
-            queryFn: async () => {
-                return await queryForm({ data: { documentId: id } })
-            },
+            queryFn: () => getForm(id),
             queryKey: ["form", id]
         })
         return {
-            form: form.form
+            form
         }
     },
     head: ({loaderData}) => {

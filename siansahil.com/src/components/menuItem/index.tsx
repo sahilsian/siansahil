@@ -7,14 +7,15 @@ export interface MenuItemProps {
     slug: string;
     category: string;
     lg?: boolean
+    search?: Record<string, string>
 }
-const MenuItem = ({displayName, slug, lg}:MenuItemProps) => {
+const MenuItem = ({displayName, slug, lg, search}:MenuItemProps) => {
 
     return (
         <div>
             <Link
                 to={slug}
-                search={{}}
+                search={search || {}}
                 params={{}}
             >
                 <Typography underline={lg} level={lg ? "4" :"button"} value={displayName}>

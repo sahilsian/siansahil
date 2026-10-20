@@ -1,0 +1,12 @@
+{
+  "title": "Sahil Sian",
+  "description": "",
+  "footerMenuItems": [
+    { "id": 1, "displayName": "Home", "slug": "/", "category": "About" },
+    { "id": 2, "displayName": "Artwork", "slug": "/products", "category": "Art", "search": { "category": "all" } },
+    { "id": 3, "displayName": "Plein air", "slug": "/products", "category": "Art", "search": { "category": "Plein air" } },
+    { "id": 4, "displayName": "Drawings", "slug": "/products", "category": "Art", "search": { "category": "Drawings" } },
+    { "id": 5, "displayName": "Photography", "slug": "/products", "category": "Art", "search": { "category": "Photography" } },
+    { "id": 6, "displayName": "Contact", "slug": "/contact", "category": "About" }
+  ]
+}

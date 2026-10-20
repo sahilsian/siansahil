@@ -1,7 +1,6 @@
 import {createFileRoute} from '@tanstack/react-router'
-import {queryCategories, queryProductCollection} from "@/lib/data/queries/queries.ts";
+import {getCategories, getProducts, STANDARD_PAGINATION} from "@/lib/content";
 import CollectionRenderer from "@/components/renderers/collectionRenderer";
-import {STANDARD_PAGINATION} from "@/lib/data/queries/gql.ts";
 import {pageSEO} from "@/components/seo/interfaces.ts";
 
 export const Route = createFileRoute('/products/')({
@@ -24,49 +23,38 @@ export const Route = createFileRoute('/products/')({
 
         const categoryFilter = (category && category !== "all") ? category : null;
 
-        const filters: any = {
-            title: {
-                contains: title || ""
-            }
+        const filters = {
+            title: title || "",
+            category: categoryFilter,
         };
 
-        if (categoryFilter) {
-            filters.category = {
-                name: {
-                    eqi: categoryFilter
-                }
-            };
-        }
-
         const categories = await context.queryClient.ensureQueryData({
-            queryFn: queryCategories,
+            queryFn: getCategories,
             queryKey: ["categories"]
         })
 
         const products = await context.queryClient.fetchQuery({
-            queryFn: () => queryProductCollection({
-                data: {pagination, filters}
-            }),
+            queryFn: () => getProducts({pagination, filters}),
             queryKey: ["products", page, pageSize, title, categoryFilter],
         })
 
         const selectedCategory =
-            categories.categories.find(
+            categories.find(
                 (obj: any) =>
                     category && obj.category.name === category
             ) ??
-            categories.categories.find(
+            categories.find(
                 (obj: any) => obj.category.name === 'all'
             )
 
-        return {products: products.products_connection, categories: categories.categories, selectedCategory: selectedCategory}
+        return {products, categories, selectedCategory}
     },
     head: ({ loaderData }) => {
-        const seo:pageSEO = loaderData?.selectedCategory.seo ?? {
+        const seo:pageSEO = loaderData?.selectedCategory?.seo ?? {
             title: 'Fluentclicks.com',
             description: 'Fluentclicks uses AI to generate leads that speak fluently to your business processes.',
             canonical: 'siansahil.com',
-            OGImage: { url: '' },
+            OGImage: { url: '', width: 0, height: 0, alternativeText: '', name: '' },
         }
 
         return {

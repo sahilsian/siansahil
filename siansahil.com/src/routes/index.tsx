@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { queryHome } from "@/lib/data/queries/queries.ts";
+import { getHome } from "@/lib/content";
 import BlockRenderer from "@/components/renderers/blockRenderer";
 import {pageSEO} from "@/components/seo/interfaces.ts";
 
@@ -9,11 +9,11 @@ export const Route = createFileRoute('/')(
             try {
                 const home = await context.queryClient.ensureQueryData({
                     queryKey: ['home'],
-                    queryFn: queryHome
+                    queryFn: getHome
                 })
                 return {
-                    home: home.home,
-                    seo: home.home.seo
+                    home,
+                    seo: home.seo
                 }
             } catch (error) {
                 console.error(error)
@@ -28,7 +28,7 @@ export const Route = createFileRoute('/')(
                 title: 'Fluentclicks.com',
                 description: 'Fluentclicks uses AI to generate leads that speak fluently to your business processes.',
                 canonical: 'siansahil.com',
-                OGImage: { url: '' },
+                OGImage: { url: '', width: 0, height: 0, alternativeText: '', name: '' },
             }
 
             return {
@@ -55,10 +55,7 @@ export const Route = createFileRoute('/')(
 function HomePage() {
     const { home } = Route.useLoaderData();
     const blocks:any[] = [
-        home.wrapper.hero,
-        home.wrapper.art_primary,
-        home.wrapper.art_secondary,
-        home.wrapper.software_feature,
+        home!.wrapper.hero,
     ]
     return (
         <div>

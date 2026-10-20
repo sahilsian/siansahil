@@ -1,5 +1,6 @@
 import CollectionLayout from "@/layouts/collection";
 import {PageInfoProps} from "@/components/pagination";
+import type {pageSEO} from "@/components/seo/interfaces.ts";
 
 interface CollectionRendererProps {
     blocks?: any[];
@@ -13,6 +14,10 @@ export interface CollectionCategory {
     category: { name: string }
     layoutTitle: string
     layoutDescription: string
+    // structuredData is omitted: pageSEO types it as the global `JSON`
+    // interface (parse/stringify), which TanStack Router's loader-data
+    // serializability check rejects.
+    seo: Omit<pageSEO, 'structuredData'>
 }
 
 // Collection Factory

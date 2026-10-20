@@ -1,6 +1,4 @@
 import {createServerFn} from "@tanstack/react-start";
-import {SUBMIT_FORM} from "@/lib/data/mutations/gql.ts";
-import {getGqlClient} from "@/lib/data/gqlServerClient.ts";
 import {z} from "zod";
 
 const FieldSubmissionSchema = z.object({
@@ -25,25 +23,67 @@ const SubmissionInputSchema = z.object({
     metadata: MetadataSchema,
 })
 
+// Submission recipient. Not a secret, so it's fine as a literal — the
+// secret is the Resend API key below.
+const SUBMISSION_RECIPIENT = "sahilsiantech@gmail.com";
+
+const formatFieldValue = (value: string | boolean | string[]): string => {
+    if (Array.isArray(value)) return value.join(", ");
+    return String(value);
+};
+
+// Replaces the old Strapi `createSubmission` GraphQL mutation. Submissions
+// now go out as an email via Resend instead of being stored in the CMS.
+// Requires RESEND_API_KEY to be set as a Cloudflare Worker secret
+// (`wrangler secret put RESEND_API_KEY`) — it must never be a VITE_-prefixed
+// var, since those get bundled into client-visible code.
 export const submitForm = createServerFn()
     .inputValidator(SubmissionInputSchema)
     .handler(async ({ data }) => {
-        const client = getGqlClient();
+        const apiKey = process.env.RESEND_API_KEY;
+        if (!apiKey) {
+            throw new Error("RESEND_API_KEY is not configured");
+        }
 
-        const submissionData = {
-            form: data.formId,
-            payload: JSON.stringify(data.payload),
-            metadata: JSON.stringify(data.metadata),
-        };
+        const fieldLines = data.payload.fields
+            .map((field) => `${field.fieldName}: ${formatFieldValue(field.value)}`)
+            .join("\n");
+
+        const text = [
+            `New form submission (form: ${data.formId})`,
+            "",
+            fieldLines,
+            "",
+            "---",
+            `Submitted: ${data.metadata.submittedAt}`,
+            `User agent: ${data.metadata.userAgent}`,
+            data.metadata.referrer ? `Referrer: ${data.metadata.referrer}` : undefined,
+        ].filter(Boolean).join("\n");
 
         try {
-            const result = await client.request(SUBMIT_FORM, {
-                data: submissionData
+            const response = await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${apiKey}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    from: "Portfolio contact form <onboarding@resend.dev>",
+                    to: [SUBMISSION_RECIPIENT],
+                    subject: `New submission — form ${data.formId}`,
+                    text,
+                }),
             });
 
+            if (!response.ok) {
+                throw new Error(`Resend API responded with ${response.status}`);
+            }
+
+            const result = await response.json() as { id?: string };
+
             return {
-                success: true,
-                submission: result.createSubmission,
+                success: true as const,
+                submission: result,
             };
         } catch (error) {
             throw new Error('Failed to submit form');

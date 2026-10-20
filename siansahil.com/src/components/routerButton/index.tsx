@@ -30,7 +30,7 @@ const Button = ({ button }: Props) => {
             <a href={route} target="_blank" rel="noopener noreferrer">
                 <button className={`${classes} ${ctx.isProcessing && "bg-[#E3E3E3] text-gray-500"}`}>
                     {icon && <Icon size={icon.size} icon={icon.component} />}
-                    <Typography button level="button" value={label} />
+                    <Typography button={variant === "primary"} level="button" value={label} />
                 </button>
             </a>
         );
@@ -41,7 +41,7 @@ const Button = ({ button }: Props) => {
         <Link to={route || "/"}>
             <button className={`${classes}  ${ctx.isProcessing && "bg-[#E3E3E3] text-gray-500"}`}>
                 {icon && <Icon size={icon.size} icon={icon.component} />}
-                <Typography button level="button" value={label} />
+                <Typography button={variant === "primary"} level="button" value={label} />
             </button>
         </Link>
     );

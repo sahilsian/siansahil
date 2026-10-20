@@ -25,7 +25,7 @@ const CollectionLayout = ({collection, pageInfo, type, categories}:CollectionPro
     ) || {}
 
     return (
-        <div className={`Collection ${type} lg:px-22 px-6 bg-[#EDEDED] relative`}>
+        <div className={`Collection ${type} lg:px-22 px-6 bg-[#EDEDED] relative min-h-screen`}>
             <Background></Background>
             <Content categoryKey={currentCategory} controlMachine={controlMachine} title={layoutTitle} description={layoutDescription}></Content>
             <List categories={categories} controlMachine={controlMachine} pageInfo={pageInfo} collection={collection}></List>

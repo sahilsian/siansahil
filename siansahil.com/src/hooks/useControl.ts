@@ -1,5 +1,5 @@
 import {useReducer} from "react";
-import {STANDARD_PAGINATION} from "@/lib/data/queries/gql.ts";
+import {STANDARD_PAGINATION} from "@/lib/content";
 import {useSearch} from "@tanstack/react-router";
 
 // (Q, Σ, δ, q₀, F)

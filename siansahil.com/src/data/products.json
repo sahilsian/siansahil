@@ -1,0 +1,95 @@
+[
+  {
+    "title": "Bridgewater, Nova Scotia",
+    "slug": "bridgewater-nova-scotia",
+    "category": { "name": "Drawings" },
+    "image": {
+      "url": "/bridgewater-nova-scotia.png",
+      "width": 3460,
+      "height": 3460,
+      "alternativeText": "Bridgewater, Nova Scotia — graphite on paper",
+      "name": "bridgewater-nova-scotia.png"
+    },
+    "description": "Imagine a rainy day in Nova Scotia.",
+    "tabs": [
+      { "title": "Description", "richDescription": "Imagine a rainy day in Nova Scotia." },
+      { "title": "Details", "richDescription": "**Material:** Graphite on Paper\n\n**Created:** 2024" }
+    ],
+    "dateCreated": "2024",
+    "material": "Graphite on Paper"
+  },
+  {
+    "title": "Two Headed Dog",
+    "slug": "two-headed-dog",
+    "category": { "name": "Drawings" },
+    "image": {
+      "url": "/two-headed-dog.png",
+      "width": 3460,
+      "height": 3972,
+      "alternativeText": "Two Headed Dog — charcoal on paper",
+      "name": "two-headed-dog.png"
+    },
+    "description": "Imagine a dog, shaking it's head!",
+    "tabs": [
+      { "title": "Description", "richDescription": "Imagine a dog, shaking it's head!" },
+      { "title": "Details", "richDescription": "**Material:** Charcoal on Paper" }
+    ],
+    "material": "Charcoal on Paper"
+  },
+  {
+    "title": "Robson & Granville",
+    "slug": "robson-granville",
+    "category": { "name": "Plein air" },
+    "image": {
+      "url": "/Robson-Granville.JPG",
+      "width": 4032,
+      "height": 3024,
+      "alternativeText": "Robson & Granville — plein air",
+      "name": "Robson-Granville.JPG"
+    },
+    "description": "Robson & Granville is Sahil Sian's third plein air painting painted between October 10th and 19th.",
+    "tabs": [
+      { "title": "Description", "richDescription": "Robson & Granville is Sahil Sian's third plein air painting painted between October 10th and 19th." },
+      { "title": "Details", "richDescription": "" }
+    ],
+    "dateCreated": "2026"
+  },
+  {
+    "title": "Science World, Late September",
+    "slug": "science-world",
+    "category": { "name": "Plein air" },
+    "image": {
+      "url": "/Science-world.jpg",
+      "width": 1290,
+      "height": 2194,
+      "alternativeText": "Science World, Late September — plein air",
+      "name": "Science-world.jpg"
+    },
+    "description": "Science World, Late September was painted by Sahil Sian between September 26th and October 3rd in complete Plein air. His performance was witnessed by residents of False Creek, \"Vancouverites\" and viewers across the world.",
+    "tabs": [
+      { "title": "Description", "richDescription": "Science World, Late September was painted by Sahil Sian between September 26th and October 3rd in complete Plein air. His performance was witnessed by residents of False Creek, \"Vancouverites\" and viewers across the world." },
+      { "title": "Details", "richDescription": "**Oil on Canvas**, 24x30 in.\n\nOriginal, Signed." }
+    ],
+    "dateCreated": "2026",
+    "material": "Oil on Canvas"
+  },
+  {
+    "title": "Granville Island, September Weekend",
+    "slug": "granville-island",
+    "category": { "name": "Plein air" },
+    "image": {
+      "url": "/Granville-Island.JPG",
+      "width": 4032,
+      "height": 3024,
+      "alternativeText": "Granville Island, September Weekend — plein air",
+      "name": "Granville-Island.JPG"
+    },
+    "description": "Granville Island, September Weekend was painted by Sahil Sian between September 19th and 20th in complete Plein air. His performance was witnessed by visitors and patrons of Granville Island.",
+    "tabs": [
+      { "title": "Description", "richDescription": "Granville Island, September Weekend was painted by Sahil Sian between September 19th and 20th in complete Plein air. His performance was witnessed by visitors and patrons of Granville Island." },
+      { "title": "Details", "richDescription": "**Oil on Canvas**, 16x20 in.\n\nOriginal, Signed." }
+    ],
+    "dateCreated": "2026",
+    "material": "Oil on Canvas"
+  }
+]

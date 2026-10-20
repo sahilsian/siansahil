@@ -19,6 +19,7 @@ const BlockRenderer = ({blocks}:BlockRendererProps) => {
                         image={block.hero_image}
                         profile={block.profile_image}
                         primary={block.primary}
+                        secondary={block.secondary}
                     />
                 }
                 case "feature": {
@@ -29,6 +30,7 @@ const BlockRenderer = ({blocks}:BlockRendererProps) => {
                         title={block.title}
                         description={block.description}
                         primary={block.primary}
+                        secondary={block.secondary}
                     />
                 }
                 case "featureReversed": {
@@ -39,6 +41,7 @@ const BlockRenderer = ({blocks}:BlockRendererProps) => {
                         title={block.title}
                         description={block.description}
                         primary={block.primary}
+                        secondary={block.secondary}
                     />
                 }
                 case "statement": {

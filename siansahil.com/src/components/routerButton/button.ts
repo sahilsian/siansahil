@@ -5,7 +5,7 @@ export const getButtonType = (type: ButtonType): string => {
 
     const variant = {
         primary: "border bg-[#191515] text-white",
-        secondary: "border border-[#C2D6EE]",
+        secondary: "border bg-[#FFFFFF] border-[#C2D6EE] text-[#000000]",
     }[type];
 
     return `${common} ${variant}`;

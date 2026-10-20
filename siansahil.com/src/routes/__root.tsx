@@ -8,12 +8,11 @@ import appCss from '../styles.css?url'
 import type { QueryClient } from "@tanstack/react-query"
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query"
 import type { TRPCRouter } from "@/integrations/trpc/router.ts"
-import { queryFooter, queryMenu, queryRootSEO, queryStyles } from "@/lib/data/queries/queries.ts"
+import { getFooter, getMenu, getRootSeo, getStyles } from "@/lib/content"
 import Menu from "@/components/menu"
 import Footer from "@/components/footer"
 import type { StylesContextProps } from "@/contexts/styles/stylesProvider.tsx"
 import type { rootSEO } from "@/components/seo/interfaces.ts"
-import { getStrapiRoot } from "@/lib/data/gqlServerClient.ts"
 import Providers from "@/decorators/providers"
 import RouterSync from "@/components/routerSync"
 import Typography from "@/components/typography";
@@ -27,46 +26,43 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     loader: async ({ context }) => {
         const rootSEO = await context.queryClient.ensureQueryData({
             queryKey: ['seo', 'root'],
-            queryFn: queryRootSEO,
-        })
-
-        const strapiRoot = await context.queryClient.ensureQueryData({
-            queryKey: ['strapiRoot'],
-            queryFn: getStrapiRoot,
+            queryFn: getRootSeo,
         })
 
         const stylesData = await context.queryClient.ensureQueryData({
             queryKey: ['styles'],
-            queryFn: queryStyles,
+            queryFn: getStyles,
         })
 
         const menu = await context.queryClient.ensureQueryData({
             queryKey: ['menu'],
-            queryFn: queryMenu,
+            queryFn: getMenu,
         })
 
         const footer = await context.queryClient.ensureQueryData({
             queryKey: ['footer'],
-            queryFn: queryFooter,
+            queryFn: getFooter,
         })
 
-        const styles: StylesContextProps = stylesData.style
+        const styles: StylesContextProps = stylesData
 
         return {
-            rootSEO: rootSEO.rootSeo,
+            rootSEO,
             styles,
-            menu: menu.menu,
-            footer: footer.footer,
-            strapiRoot,
+            menu,
+            footer,
         }
     },
 
     head: ({ loaderData }) => {
         const rootSEO: rootSEO = loaderData?.rootSEO ?? {
+            siteName: 'Fluentclicks.com',
             siteTitle: 'Fluentclicks.com',
             siteDescription: 'Fluentclicks uses AI to generate leads that speak fluently to your business processes.',
+            siteKeywords: '',
             canonicalDomain: 'siansahil.com',
-            siteOGImage: { url: '' },
+            siteOGImage: { url: '', width: 0, height: 0, alternativeText: '', name: '' },
+            robots: 'index,follow',
         }
 
         return {
@@ -100,9 +96,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     const styles = loaderData?.styles
     const menu = loaderData?.menu
     const footer = loaderData?.footer
-    const strapiRoot = loaderData?.strapiRoot
 
-    if (!styles || !menu || !footer || !strapiRoot) {
+    if (!styles || !menu || !footer) {
         return (
             <html lang="en">
             <head>
@@ -144,11 +139,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         </head>
 
         <body>
-        <Providers styles={styles} strapiRoot={strapiRoot}>
+        <Providers styles={styles}>
             <RouterSync />
-            <Menu backgroundColor={styles.menuHex} title={menu.title} menuItems={menu.mainMenuItems}></Menu>
+            <Menu backgroundColor={"#ffffff"} title={menu.title} menuItems={menu.mainMenuItems}></Menu>
             {children}
-            <Footer backgroundColor={styles.menuHex} title={footer.title} description={footer.description} menuItems={footer.footerMenuItems}></Footer>
+            <Footer title={footer.title} description={footer.description} menuItems={footer.footerMenuItems}></Footer>
         </Providers>
 
         <Scripts />

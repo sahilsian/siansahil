@@ -1,5 +1,3 @@
-import {useStrapiURL} from "@/hooks/useStrapiURL.ts";
-
 export interface StrapiImage {
     url: string;
     width: number;
@@ -16,13 +14,9 @@ interface ImageProps {
     objectPosition?: "top" | "right" | "bottom" | "left";
 }
 
-const toImageProps = (img: StrapiImage, strapiRoot: string) => {
-    const src = img.url.startsWith('https')
-        ? img.url
-        : `${strapiRoot}${img.url}`;
-
+const toImageProps = (img: StrapiImage) => {
     return {
-        src,
+        src: img.url,
         width: img.width,
         height: img.height,
         alt: img.alternativeText || img.caption || img.name,
@@ -36,8 +30,7 @@ const Image = ({
                    className = "IMG"
                }: ImageProps) => {
 
-    const strapiRoot = useStrapiURL();
-    const props = toImageProps(image, strapiRoot);
+    const props = toImageProps(image);
     return (
         <img
             className={className}

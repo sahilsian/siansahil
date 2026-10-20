@@ -1,0 +1,9 @@
+{
+  "siteName": "Sahil SIan",
+  "siteTitle": "Sahil Sian",
+  "siteDescription": "Sahil Sian's Artwork Portfolio",
+  "siteKeywords": "",
+  "siteOGImage": { "url": "https://placehold.co/1200x630?text=Open+Graph+Image", "width": 1200, "height": 630, "alternativeText": "Placeholder Open Graph image", "name": "og-placeholder.svg" },
+  "canonicalDomain": "siansahil.com",
+  "robots": "index,follow"
+}

@@ -3,7 +3,7 @@ import {PropsWithChildren} from "react";
 import Typography from "@/components/typography";
 import Pagination from "@/components/pagination";
 import {useNavigate, useSearch} from "@tanstack/react-router";
-import {STANDARD_PAGINATION} from "@/lib/data/queries/gql.ts";
+import {STANDARD_PAGINATION} from "@/lib/content";
 import SearchInput from "@/components/searchInput";
 import {ControlInterface, Views} from "@/hooks/useControl.ts";
 import CategoryInput from "@/components/categoryInput";

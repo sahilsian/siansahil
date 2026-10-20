@@ -1,0 +1,22 @@
+{
+  "wrapper": {
+    "hero": {
+      "id": 1,
+      "title": "Sahil Sian",
+      "description": "I am an artist, painter and software engineer. I like drawing, systems, architecture and art.",
+      "primary": { "id": 1, "variant": "primary", "label": "Portfolio", "target": "internal", "route": "/products" },
+      "secondary": { "id": 5, "variant": "secondary", "label": "Contact", "target": "internal", "route": "/contact" },
+      "hero_image": { "url": "/sahil_sian_hero.png", "width": 3240, "height": 4468, "alternativeText": "Sahil Sian", "name": "sahil_sian_hero.png" },
+      "profile_image": { "url": "/profile.jpg", "width": 4032, "height": 3024, "alternativeText": "Sahil Sian", "name": "profile.jpg" },
+      "variation": { "variation": "hero" }
+    }
+  },
+  "seo": {
+    "title": "Sahil Sian",
+    "description": "I am an artist, painter and software engineer. I like drawing, systems, architecture and art.",
+    "keywords": "",
+    "OGImage": { "url": "/sahil_sian_hero.png", "width": 3240, "height": 4468, "alternativeText": "Sahil Sian", "name": "sahil_sian_hero.png" },
+    "canonical": "siansahil.com",
+    "robots": "index,follow"
+  }
+}

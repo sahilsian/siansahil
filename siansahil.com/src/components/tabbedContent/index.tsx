@@ -12,7 +12,7 @@ export interface Tab {
 }
 
 const TabbedContent = ({ tabs }: TabbedContentProps) => {
-    if (!tabs) return null;
+    if (!tabs || tabs.length === 0) return null;
 
     const [activeTitle, setActiveTitle] = useState(tabs[0].title);
     return (

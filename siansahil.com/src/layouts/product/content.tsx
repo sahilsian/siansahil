@@ -6,6 +6,7 @@ import {useRouter} from "@tanstack/react-router";
 import {StrapiImage} from "@/components/image";
 import {useAppState} from "@/hooks/useAppState.ts";
 import Spinner from "@/components/spinner";
+import {getButtonType} from "@/components/routerButton/button.ts";
 
 interface ContentProps {
     type?: string;
@@ -55,6 +56,18 @@ export const Content = ({title, description, image, tabs, material, dateCreated}
                     {/*<div>*/}
                     {/*    <Typography level={"6"} value={`${type}/${slug}`}></Typography>*/}
                     {/*</div>*/}
+                    <Spacer height={"20px"}></Spacer>
+                    <div className={"ControlGroup flex gap-4"}>
+                        <button disabled className={`${getButtonType("primary")} opacity-50 cursor-not-allowed`}>
+                            <Typography button level="button" value="Purchase Original" />
+                        </button>
+                        <button disabled className={`${getButtonType("secondary")} opacity-50 cursor-not-allowed`}>
+                            <Typography level="button" value="Prints" />
+                        </button>
+                    </div>
+                    <div className={"italic"}>
+                        <Typography level={"6"} value={"Shop coming soon."}></Typography>
+                    </div>
                     <Spacer height={"20px"}></Spacer>
                     <div>
                         <TabbedContent tabs={tabs}></TabbedContent>

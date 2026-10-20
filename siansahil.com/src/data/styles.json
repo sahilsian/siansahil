@@ -1,0 +1,11 @@
+{
+  "backgroundHex": "#ffffff",
+  "menuHex": "#ffffff",
+  "primaryHex": "#000000",
+  "secondaryHex": "#000000",
+  "textPrimaryHex": "#000000",
+  "textSecondaryHex": "#666666",
+  "wrapperHex": "#ffffff",
+  "textButtonHex": "#ffffff",
+  "iconActiveHex": "#FFFFE0"
+}

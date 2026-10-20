@@ -12,21 +12,10 @@
   "main": "@tanstack/react-start/server-entry",
   "observability": {
     "enabled": true
-  },
-  "vars": {
-    "VITE_STRAPI_GRAPHQL_URL": "https://jubilant-card-ee713de168.strapiapp.com/graphql",
-    "VITE_STRAPI_ROOT": "https://jubilant-card-ee713de168.strapiapp.com",
-    "VITE_STRAPI_URL": "https://jubilant-card-ee713de168.strapiapp.com/api"
-  },
-  "env": {
-    "dev": {
-      "vars": {
-        "VITE_STRAPI_GRAPHQL_URL": "http://localhost:1337/graphql",
-        "VITE_STRAPI_ROOT": "http://localhost:1337",
-        "VITE_STRAPI_URL": "http://localhost:1337/api"
-      }
-    }
   }
+  // Form submissions need RESEND_API_KEY at runtime — set it with
+  // `wrangler secret put RESEND_API_KEY` (never as a "vars" entry or a
+  // VITE_-prefixed var, since those get bundled into client-visible code).
   /**
    * Smart Placement
    * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

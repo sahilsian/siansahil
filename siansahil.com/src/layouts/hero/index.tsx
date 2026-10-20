@@ -13,10 +13,11 @@ interface HeroLayoutProps {
     title: string,
     description: string
     primary: ButtonData
+    secondary?: ButtonData
 }
-const HeroLayout = ({variation, image, title, description, profile, primary}:HeroLayoutProps) => {
+const HeroLayout = ({variation, image, title, description, profile, primary, secondary}:HeroLayoutProps) => {
     return (
-        <Screen classOverride={"min-h-screen"}>
+        <Screen classOverride={"min-h-[920px] overflow-hidden"}>
             <div className={"flex w-full h-full flex-1 "}>
                 <div className={`Hero h-full flex flex-1 ${variation}`}>
                     {/*absolute stack*/}
@@ -29,6 +30,7 @@ const HeroLayout = ({variation, image, title, description, profile, primary}:Her
                         title={title}
                         description={description}
                         primary={primary}
+                        secondary={secondary}
                     />
                 </div>
             </div>

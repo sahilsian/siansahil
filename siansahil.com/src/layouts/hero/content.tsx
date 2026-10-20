@@ -9,8 +9,9 @@ interface ContentProps {
     description: string;
     profile: StrapiImage;
     primary: ButtonData,
+    secondary?: ButtonData,
 }
-export const Content = ({title="Test", description="Test", profile, primary}:ContentProps) => {
+export const Content = ({title="Test", description="Test", profile, primary, secondary}:ContentProps) => {
     const ctx = useAppState()
 
     return (
@@ -30,6 +31,7 @@ export const Content = ({title="Test", description="Test", profile, primary}:Con
                 <Typography value={description} level={"p"}></Typography>
                 <div className={"ControlGroup flex gap-4 mt-4"}>
                     <Button button={primary} ></Button>
+                    {secondary && <Button button={secondary}></Button>}
                 </div>
 
             </div>
