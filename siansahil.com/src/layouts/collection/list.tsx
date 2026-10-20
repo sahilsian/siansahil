@@ -26,7 +26,6 @@ export const List = ({controlMachine, collection, pageInfo, categories}: ListPro
                         disabled={controlMachine.state.mode === "LOADING"}
                         key={item.slug}
                         slug={item.slug}
-                        documentId={item.documentId}
                         title={item.title}
                         clickable={true}
                         description={item.description}
@@ -46,7 +45,6 @@ export const List = ({controlMachine, collection, pageInfo, categories}: ListPro
                     disabled={controlMachine.state.mode === "LOADING"}
                     key={item.slug}
                     slug={item.slug}
-                    documentId={item.documentId}
                     title={item.title}
                     clickable={true}
                     description={item.description}
