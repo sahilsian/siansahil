@@ -17,7 +17,7 @@ interface HeroLayoutProps {
 }
 const HeroLayout = ({variation, image, title, description, profile, primary, secondary}:HeroLayoutProps) => {
     return (
-        <Screen classOverride={"min-h-[920px] overflow-hidden"}>
+        <Screen classOverride={"min-h-screen overflow-hidden"}>
             <div className={"flex w-full h-full flex-1 "}>
                 <div className={`Hero h-full flex flex-1 ${variation}`}>
                     {/*absolute stack*/}
