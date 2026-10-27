@@ -1,1 +1,59 @@
-{}
+{
+  "contact": {
+    "documentId": "contact",
+    "title": "Contact",
+    "description": "Shoot me an email at sahilsiantech@gmail.com, or leave your details below and I'll reach out.",
+    "successMessage": "Thanks! I'll be in touch soon.",
+    "image": { "url": "/profile.jpg", "width": 4032, "height": 3024, "alternativeText": "Sahil Sian", "name": "profile.jpg" },
+    "fields": [
+      { "id": "name", "name": "Name", "placeholder": "Your full name", "required": true, "metadata": { "fieldType": "text" } },
+      { "id": "email", "name": "Email", "placeholder": "you@example.com", "required": true, "metadata": { "fieldType": "email" } },
+      { "id": "phone", "name": "Phone", "placeholder": "(604) 555 5555", "metadata": { "fieldType": "tel" } },
+      { "id": "contact_method", "name": "Preferred contact method", "options": ["Email", "Phone", "Text"], "metadata": { "fieldType": "radio" } },
+      { "id": "location", "name": "Location", "placeholder": "City / region", "required": true, "metadata": { "fieldType": "text" } },
+      { "id": "submit", "name": "Send", "metadata": { "fieldType": "submit" } }
+    ]
+  },
+  "commission": {
+    "documentId": "commission",
+    "title": "Commission a Painting",
+    "description": "Work with me on creating a piece, or providing an artistic performance that brings in some magic!",
+    "successMessage": "Thanks! Your commission request was sent — I'll be in touch soon.",
+    "fields": [
+      { "id": "name", "section": "Contact", "name": "Name", "placeholder": "Your full name", "required": true, "metadata": { "fieldType": "text" } },
+      { "id": "email", "section": "Contact", "name": "Email", "placeholder": "you@example.com", "required": true, "metadata": { "fieldType": "email" } },
+      { "id": "phone", "section": "Contact", "name": "Phone", "placeholder": "(604) 555-0123", "metadata": { "fieldType": "tel" } },
+      { "id": "contact_method", "section": "Contact", "name": "Preferred contact method", "options": ["Email", "Phone", "Text"], "metadata": { "fieldType": "radio" } },
+      { "id": "location", "section": "Contact", "name": "Location", "placeholder": "City / region", "required": true, "metadata": { "fieldType": "text" } },
+
+      { "id": "subject_type", "section": "The Piece", "name": "Subject", "options": ["Location", "Private place", "From a photo", "Other"], "required": true, "metadata": { "fieldType": "radio" } },
+      { "id": "subject_description", "section": "The Piece", "name": "Describe the subject", "placeholder": "What should the painting show? Any details that matter to you?", "required": true, "metadata": { "fieldType": "textarea" } },
+      { "id": "reference_photos", "section": "The Piece", "name": "Reference photos", "accept": "image/*", "multiple": true, "maxFiles": 5, "maxFileSizeMB": 5, "required": true, "metadata": { "fieldType": "file" } },
+      { "id": "painting_method", "section": "The Piece", "name": "Painting method", "options": ["On location", "From reference", "No preference"], "metadata": { "fieldType": "radio" } },
+      { "id": "mood", "section": "The Piece", "name": "Mood", "placeholder": "Energetic disco fun realistic impressionist kinda like listening to a specific song. Dump some words at me!", "metadata": { "fieldType": "textarea" } },
+      { "id": "artistic_freedom", "section": "The Piece", "name": "Artistic freedom", "min": 1, "max": 5, "defaultValue": 3, "minLabel": "Match the photo", "maxLabel": "Artist's interpretation", "metadata": { "fieldType": "range" } },
+
+      { "id": "size_description", "section": "Format", "name": "Size", "placeholder": "Approximate dimensions, or the space it will hang in. Inches preferred.", "metadata": { "fieldType": "textarea" } },
+      { "id": "orientation", "section": "Format", "name": "Orientation", "options": ["Landscape", "Portrait", "Square"], "metadata": { "fieldType": "radio" } },
+      { "id": "framing", "section": "Format", "name": "Framing", "options": ["Unframed", "Framed"], "metadata": { "fieldType": "radio" } },
+
+      { "id": "deadline", "section": "Logistics", "name": "Deadline", "required": true, "note": "Disclaimer: Please set deadlines at least 3 months in advance. I only do artwork part time at the moment, so please be courteous :)", "metadata": { "fieldType": "date" } },
+      { "id": "occasion", "section": "Logistics", "name": "Occasion", "placeholder": "Wedding, anniversary, housewarming…", "metadata": { "fieldType": "text" } },
+      { "id": "is_gift", "section": "Logistics", "name": "This is a gift", "metadata": { "fieldType": "checkbox" } },
+      { "id": "recipient_name", "section": "Logistics", "name": "Recipient's name", "placeholder": "Who is it for?", "showIf": { "fieldId": "is_gift", "equals": true }, "metadata": { "fieldType": "text" } },
+      { "id": "fulfillment", "section": "Logistics", "name": "Fulfillment", "options": ["Pickup", "Local delivery (Lower Mainland)", "Shipping"], "metadata": { "fieldType": "radio" } },
+      { "id": "shipping_address", "section": "Logistics", "name": "Shipping address", "placeholder": "Street, city, province/state, postal code, country", "showIf": { "fieldId": "fulfillment", "equals": "Shipping" }, "metadata": { "fieldType": "textarea" } },
+      { "id": "budget", "section": "Logistics", "name": "Budget (CAD)", "placeholder": "Select a range", "options": ["Under $500", "$500 – $1,000", "$1,000 – $2,000", "$2,000 – $3,500", "$3,500+"], "metadata": { "fieldType": "dropdown" } },
+
+      { "id": "ack_deposit", "section": "Terms", "name": "I understand a deposit is required before work begins.", "required": true, "metadata": { "fieldType": "checkbox" } },
+      { "id": "ack_revisions", "section": "Terms", "name": "I understand revisions are limited once the painting is underway.", "required": true, "metadata": { "fieldType": "checkbox" } },
+      { "id": "ack_turnaround", "section": "Terms", "name": "I understand turnaround depends on the size and complexity of the piece.", "required": true, "metadata": { "fieldType": "checkbox" } },
+      { "id": "reproduction_rights", "section": "Terms", "name": "Reproduction rights", "options": ["Allow prints of this piece", "Keep it a private piece (surcharge applies)"], "required": true, "metadata": { "fieldType": "radio" } },
+
+      { "id": "referral_source", "section": "Optional", "name": "How did you hear about me?", "placeholder": "Select one", "options": ["Cafe", "Instagram", "Word of mouth", "Other"], "metadata": { "fieldType": "dropdown" } },
+      { "id": "notes", "section": "Optional", "name": "Anything else?", "placeholder": "Questions, ideas, or anything I should know", "metadata": { "fieldType": "textarea" } },
+
+      { "id": "submit", "name": "Send request", "metadata": { "fieldType": "submit" } }
+    ]
+  }
+}

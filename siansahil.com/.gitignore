@@ -11,6 +11,9 @@ count.txt
 .output
 .vinxi
 todos.json
+siansahil.com/.env.development
+siansahil.com/.env.production
+siansahil.com/.dev.vars
 
 # Local Netlify folder
 .netlify

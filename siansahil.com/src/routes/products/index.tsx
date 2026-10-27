@@ -2,6 +2,7 @@ import {createFileRoute} from '@tanstack/react-router'
 import {getCategories, getProducts, STANDARD_PAGINATION} from "@/lib/content";
 import CollectionRenderer from "@/components/renderers/collectionRenderer";
 import {pageSEO} from "@/components/seo/interfaces.ts";
+import {getShopifyProductsByHandles} from "@/lib/shopify";
 
 export const Route = createFileRoute('/products/')({
     validateSearch: (search: Record<string, unknown>) => {
@@ -37,6 +38,22 @@ export const Route = createFileRoute('/products/')({
             queryFn: () => getProducts({pagination, filters}),
             queryKey: ["products", page, pageSize, title, categoryFilter],
         })
+
+        const handles = products.nodes
+            .map((product) => product.shopifyHandle)
+            .filter((handle): handle is string => !!handle)
+
+        const shopByHandle = handles.length > 0
+            ? await context.queryClient.ensureQueryData({
+                queryFn: () => getShopifyProductsByHandles({ data: { handles } }),
+                queryKey: ["shopifyProducts", handles.join(",")]
+            })
+            : {}
+
+        products.nodes = products.nodes.map((product) => ({
+            ...product,
+            shop: product.shopifyHandle ? shopByHandle[product.shopifyHandle] ?? null : null,
+        }))
 
         const selectedCategory =
             categories.find(

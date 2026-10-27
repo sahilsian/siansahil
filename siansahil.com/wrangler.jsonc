@@ -12,6 +12,10 @@
   "main": "@tanstack/react-start/server-entry",
   "observability": {
     "enabled": true
+  },
+  "vars": {
+    "VITE_SHOPIFY_STORE_DOMAIN": "shop.siansahil.com",
+    "VITE_SHOPIFY_STOREFRONT_TOKEN": "6a3f7e3dc9d9e74ad9acab21a9f30bdf"
   }
   // Form submissions need RESEND_API_KEY at runtime — set it with
   // `wrangler secret put RESEND_API_KEY` (never as a "vars" entry or a

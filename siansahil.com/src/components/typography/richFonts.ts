@@ -9,8 +9,10 @@ export const RICH_FONT_STYLES_MAP: Record<Font, string> = {
     "4": "text-[1rem] font-medium leading-[1.4] font-serif",
     "5": "text-[0.9rem] font-medium leading-[1.5] font-serif",
     "6": "text-[0.8rem] font-medium leading-[1.5] font-serif",
+    "small": "text-[0.7rem] font-medium leading-[1.5] font-serif",
     "p": "text-[0.95rem] md:text-[1.1rem] font-normal font-serif mb-5",
     "button": "text-[0.95rem] cursor-pointer font-normal font-serif underline",
+    "button_purchase": "text-[0.95rem] cursor-pointer font-bold font-serif underline",
 };
 
 export const getRichFontStyles = (value: Font) => RICH_FONT_STYLES_MAP[value] || "";

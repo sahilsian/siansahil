@@ -21,67 +21,151 @@ export type Mode =
     | 'error'
     | 'loading'
 
-export type FieldTypes = 'text' | 'textarea' | 'email' | 'dropdown'
+export type FieldTypes = 'text' | 'textarea' | 'email' | 'tel' | 'date' | 'dropdown' | 'radio' | 'checkbox' | 'file' | 'range'
+
+export type FieldValue = string | boolean | File[]
 
 export interface FormProps {
     documentId: string
     title: string
     description: string
-    image: StrapiImage
+    image?: StrapiImage
     fields: Fields[]
+    successMessage?: string
+}
+
+// A field with showIf is hidden — and skipped by validation and submission —
+// unless the referenced field's current value equals `equals`.
+interface FieldCondition {
+    fieldId: string
+    equals: string | boolean
 }
 
 interface ComponentFormBase {
     id: string;
     name: string;
-    className: string;
+    className?: string;
+    section?: string;
+    showIf?: FieldCondition;
+    note?: string;
 }
 
 export interface ComponentFormTextField extends ComponentFormBase {
-    disabled: boolean;
-    placeholder: string;
+    disabled?: boolean;
+    placeholder?: string;
     metadata: {
         fieldType: 'text'
     }
-    required:boolean
+    required?: boolean
 }
 
 export interface ComponentFormDropdownField extends ComponentFormBase {
-    label: string
-    options: []
+    options: string[]
+    placeholder?: string
+    disabled?: boolean
     metadata: {
         fieldType: 'dropdown'
     }
-    required:boolean
+    required?: boolean
 }
 
 export interface ComponentFormTextareaField extends ComponentFormBase {
-    disabled: boolean;
-    placeholder: string;
+    disabled?: boolean;
+    placeholder?: string;
     metadata: {
         fieldType: 'textarea'
     }
-    required:boolean
+    required?: boolean
 }
 
 export interface ComponentFormEmailField extends ComponentFormBase {
-    disabled: boolean;
-    placeholder: string;
+    disabled?: boolean;
+    placeholder?: string;
     metadata: {
         fieldType: 'email'
     }
-    required:boolean
+    required?: boolean
+}
+
+export interface ComponentFormTelField extends ComponentFormBase {
+    disabled?: boolean;
+    placeholder?: string;
+    metadata: {
+        fieldType: 'tel'
+    }
+    required?: boolean
+}
+
+export interface ComponentFormDateField extends ComponentFormBase {
+    disabled?: boolean;
+    metadata: {
+        fieldType: 'date'
+    }
+    required?: boolean
+}
+
+export interface ComponentFormRadioField extends ComponentFormBase {
+    options: string[]
+    disabled?: boolean;
+    metadata: {
+        fieldType: 'radio'
+    }
+    required?: boolean
+}
+
+export interface ComponentFormCheckboxField extends ComponentFormBase {
+    disabled?: boolean;
+    metadata: {
+        fieldType: 'checkbox'
+    }
+    required?: boolean
+}
+
+export interface ComponentFormFileField extends ComponentFormBase {
+    disabled?: boolean;
+    accept?: string;
+    multiple?: boolean;
+    maxFiles?: number;
+    maxFileSizeMB?: number;
+    metadata: {
+        fieldType: 'file'
+    }
+    required?: boolean
+}
+
+export interface ComponentFormRangeField extends ComponentFormBase {
+    disabled?: boolean;
+    min: number;
+    max: number;
+    step?: number;
+    defaultValue?: number;
+    minLabel: string;
+    maxLabel: string;
+    metadata: {
+        fieldType: 'range'
+    }
 }
 
 export interface ComponentFormSubmitField extends ComponentFormBase {
-    disabled: boolean;
-    placeholder: string;
+    disabled?: boolean;
+    placeholder?: string;
     metadata: {
         fieldType: 'submit'
     }
 }
 
-export type Fields = ComponentFormTextField | ComponentFormDropdownField | ComponentFormTextareaField | ComponentFormEmailField | ComponentFormSubmitField
+export type Fields =
+    ComponentFormTextField
+    | ComponentFormDropdownField
+    | ComponentFormTextareaField
+    | ComponentFormEmailField
+    | ComponentFormTelField
+    | ComponentFormDateField
+    | ComponentFormRadioField
+    | ComponentFormCheckboxField
+    | ComponentFormFileField
+    | ComponentFormRangeField
+    | ComponentFormSubmitField
 
 // State
 
@@ -93,10 +177,10 @@ interface State {
     error?: string
 }
 
-interface FieldState {
+export interface FieldState {
     config: Fields
     id: string
-    value: string
+    value: FieldValue
     error?: string
     touched: boolean
     dirty: boolean
@@ -123,7 +207,7 @@ type Action_WriteField = {
     type: ACTIONS_LIST.WRITE_FIELD
     cargo: {
         fieldID: string
-        value: string
+        value: FieldValue
     }
 }
 
@@ -192,7 +276,8 @@ const transitionFunc = (state:State, action:Action): State => {
 
             const newFieldValue:FieldState = {
                 ...originalField,
-                value: action.cargo.value
+                value: action.cargo.value,
+                error: undefined
             }
 
             // avoid directly mutating the state
@@ -295,7 +380,7 @@ const transitionFunc = (state:State, action:Action): State => {
 export interface FormControlInterface {
     state:State,
     isProcessing: boolean,
-    writeField: (fieldID:string, value:string) => void
+    writeField: (fieldID:string, value:FieldValue) => void
     submitForm: () => void
     setPristine: () => void
     setDirty: () => void
@@ -312,6 +397,21 @@ interface FormControlProps {
     formSchema: FormProps
 }
 
+const getInitialValue = (field: Fields): FieldValue => {
+    switch (field.metadata.fieldType) {
+        case 'checkbox':
+            return false
+        case 'file':
+            return []
+        case 'range': {
+            const range = field as ComponentFormRangeField
+            return String(range.defaultValue ?? Math.round((range.min + range.max) / 2))
+        }
+        default:
+            return ""
+    }
+}
+
 const initializeForm = (formSchema:FormProps):State => {
     const fields = new Map<string, FieldState>
     console.log(formSchema)
@@ -319,7 +419,7 @@ const initializeForm = (formSchema:FormProps):State => {
         fields.set(field.id, {
             id: field.id,
             config: field,
-            value: "",
+            value: getInitialValue(field),
             touched: false,
             dirty: false
         })
@@ -334,9 +434,27 @@ const initializeForm = (formSchema:FormProps):State => {
     }
 }
 
-const validateField = (field: Fields, value: string): string | undefined => {
-    if ("required" in field && field.required && !value.trim()) {
-        return `${field.name} is required`
+export const isFieldVisible = (field: Fields, fields: Map<string, FieldState>): boolean => {
+    if (!field.showIf) return true
+    return fields.get(field.showIf.fieldId)?.value === field.showIf.equals
+}
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const isEmpty = (value: FieldValue): boolean => {
+    if (typeof value === "boolean") return !value
+    if (Array.isArray(value)) return value.length === 0
+    return !value.trim()
+}
+
+const validateField = (field: Fields, value: FieldValue): string | undefined => {
+    if ("required" in field && field.required && isEmpty(value)) {
+        return field.metadata.fieldType === 'checkbox'
+            ? "Please check this box to continue"
+            : `${field.name} is required`
+    }
+    if (field.metadata.fieldType === 'email' && typeof value === 'string' && value.trim() && !EMAIL_PATTERN.test(value.trim())) {
+        return "Please enter a valid email address"
     }
     return undefined
 }
@@ -345,7 +463,8 @@ const validateForm = (fields: Map<string, FieldState>): Map<string, string> => {
     const errors = new Map<string, string>()
 
     fields.forEach((fieldState, fieldId) => {
-        const error = validateField(fieldState.config, fieldState.value as string)
+        if (!isFieldVisible(fieldState.config, fields)) return
+        const error = validateField(fieldState.config, fieldState.value)
         if (error) {
             errors.set(fieldId, error)
         }
@@ -353,19 +472,50 @@ const validateForm = (fields: Map<string, FieldState>): Map<string, string> => {
     return errors
 }
 
-const buildSubmissionPayload = (state: State) => {
-    const fields = Array
-        .from(state.runtimeFields.entries())
-        .filter(([_, fieldState]) => fieldState.config.metadata.fieldType !== 'submit')
-        .map(([_, fieldState]) => ({
-            fieldId: fieldState.config.id,
-            fieldName: fieldState.config.name,
-            fieldType: fieldState.config.metadata.fieldType as 'text' | 'email' | 'textarea' | 'dropdown',
-            value: fieldState.value,
-        }));
+const readFileAsBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    // result is a data URL ("data:image/jpeg;base64,....") — keep only the base64 part
+    reader.onload = () => resolve(String(reader.result).split(",")[1] ?? "")
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
+})
+
+const toSubmissionValue = async (fieldState: FieldState) => {
+    const {config, value} = fieldState
+
+    if (Array.isArray(value)) {
+        return Promise.all(value.map(async (file) => ({
+            filename: file.name,
+            contentType: file.type,
+            content: await readFileAsBase64(file),
+        })))
+    }
+
+    if (config.metadata.fieldType === 'range') {
+        const range = config as ComponentFormRangeField
+        return `${value} of ${range.max} (${range.min} = ${range.minLabel}, ${range.max} = ${range.maxLabel})`
+    }
+
+    return value
+}
+
+const buildSubmissionPayload = async (state: State) => {
+    const submittableFields = Array
+        .from(state.runtimeFields.values())
+        .filter((fieldState) => fieldState.config.metadata.fieldType !== 'submit')
+        .filter((fieldState) => isFieldVisible(fieldState.config, state.runtimeFields))
+
+    const fields = await Promise.all(submittableFields.map(async (fieldState) => ({
+        fieldId: fieldState.config.id,
+        fieldName: fieldState.config.name,
+        fieldType: fieldState.config.metadata.fieldType as FieldTypes,
+        section: fieldState.config.section,
+        value: await toSubmissionValue(fieldState),
+    })));
 
     return {
         formId: state.formSchema.documentId,
+        formTitle: state.formSchema.title,
         payload: {
             fields: fields,
         },
@@ -389,7 +539,7 @@ export const useFormControl = ({formSchema}:FormControlProps):FormControlInterfa
         if (state.mode === 'submitting') {
             const submitToStrapi = async () => {
                 try {
-                    const submissionPayload = buildSubmissionPayload(state)
+                    const submissionPayload = await buildSubmissionPayload(state)
 
                     const result = await submitForm({
                         data: submissionPayload
@@ -414,7 +564,7 @@ export const useFormControl = ({formSchema}:FormControlProps):FormControlInterfa
     return {
         state,
         isProcessing,
-        writeField: (fieldID:string, value:string) => dispatch({type: ACTIONS_LIST.WRITE_FIELD, cargo: { fieldID, value }}),
+        writeField: (fieldID:string, value:FieldValue) => dispatch({type: ACTIONS_LIST.WRITE_FIELD, cargo: { fieldID, value }}),
         submitForm: () => dispatch({type: ACTIONS_LIST.SUBMIT_FORM}),
         setPristine: () => dispatch({type: ACTIONS_LIST.SET_PRISTINE}),
         setDirty: () => dispatch({type: ACTIONS_LIST.SET_DIRTY}),

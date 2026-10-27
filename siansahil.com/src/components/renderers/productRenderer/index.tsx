@@ -1,14 +1,16 @@
 import ProductLayout from "@/layouts/product";
 import BlockRenderer from "@/components/renderers/blockRenderer";
 import {Product} from "@/lib/data/interfaces.ts";
+import {ShopifyProductData} from "@/lib/shopify";
 
 interface ProductRendererProps {
     product: Product;
     blocks?: any[];
     type: string;
+    shop?: ShopifyProductData | null;
 }
 
-const ProductRenderer = ({blocks, product, type}:ProductRendererProps) => {
+const ProductRenderer = ({blocks, product, type, shop}:ProductRendererProps) => {
     return <div>
         <ProductLayout
             type={type}
@@ -19,6 +21,7 @@ const ProductRenderer = ({blocks, product, type}:ProductRendererProps) => {
             tabs={product.tabs}
             dateCreated={product.dateCreated}
             material={product.material}
+            shop={shop}
         ></ProductLayout>
         <BlockRenderer blocks={blocks}></BlockRenderer>
     </div>

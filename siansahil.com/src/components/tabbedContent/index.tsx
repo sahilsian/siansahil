@@ -24,8 +24,8 @@ const TabbedContent = ({ tabs }: TabbedContentProps) => {
                         onClick={() => setActiveTitle(tab.title)}
                         className={`px-5 py-1 rounded-t-2xl transition-colors ${
                             activeTitle === tab.title
-                                ? 'bg-black text-white'
-                                : 'border-1 hover:bg-gray-300'
+                                ? 'border-1 border-black text-black'
+                                : 'border-1 border-gray-300 text-gray-400 hover:text-gray-600'
                         }`}
                     >
                         <Typography level="button" value={tab.title} />

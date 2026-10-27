@@ -6,12 +6,15 @@ interface DropdownInputProps {
     handleChange: (e:ChangeEvent<HTMLSelectElement>) => void,
     disabled: boolean
     options?: DropdownOptionProps[]
+    placeholder?: string
+    className?: string
 }
-const DropdownInput = ({value, handleChange, disabled, options}:DropdownInputProps) => {
+const DropdownInput = ({value, handleChange, disabled, options, placeholder, className}:DropdownInputProps) => {
     return (
         <div>
             <div >
-                <select value={value} onChange={handleChange} disabled={disabled}>
+                <select value={value} onChange={handleChange} disabled={disabled} className={className}>
+                    {placeholder !== undefined && <option value="" disabled>{placeholder}</option>}
                     {options && options.map((option) => {
                         return <DropdownOption key={option.name} name={option.name}></DropdownOption>
                     })}

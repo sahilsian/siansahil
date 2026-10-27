@@ -1,9 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
-import Screen from "@/components/screen";
-import Typography from "@/components/typography";
+import {getForm} from "@/lib/content";
+import FormRenderer from "@/components/renderers/formRenderer";
 
 export const Route = createFileRoute('/contact')({
     component: RouteComponent,
+    loader: async ({context}) => {
+        const form = await context.queryClient.ensureQueryData({
+            queryFn: () => getForm("contact"),
+            queryKey: ["form", "contact"]
+        })
+        return {
+            form
+        }
+    },
     head: () => {
         return {
             meta: [
@@ -15,13 +24,14 @@ export const Route = createFileRoute('/contact')({
 })
 
 function RouteComponent() {
+    const { form } = Route.useLoaderData()
     return (
-        <Screen classOverride={"min-h-screen"}>
-            <div className={"w-full flex justify-center items-center text-center px-6"}>
-                <a href={"mailto:sahilsiantech@gmail.com"}>
-                    <Typography level={"2"} underline value={"Shoot me an email at sahilsiantech@gmail.com"}></Typography>
-                </a>
-            </div>
-        </Screen>
+        <div>
+            <FormRenderer
+                type={"layout"}
+                form={form}
+            >
+            </FormRenderer>
+        </div>
     )
 }

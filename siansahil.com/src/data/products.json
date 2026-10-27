@@ -41,55 +41,59 @@
     "slug": "robson-granville",
     "category": { "name": "Plein air" },
     "image": {
-      "url": "/Robson-Granville.JPG",
-      "width": 4032,
-      "height": 3024,
+      "url": "/robson_granville.JPG",
+      "width": 4000,
+      "height": 6000,
       "alternativeText": "Robson & Granville — plein air",
-      "name": "Robson-Granville.JPG"
+      "name": "robson_granville.JPG"
     },
     "description": "Robson & Granville is Sahil Sian's third plein air painting painted between October 10th and 19th.",
     "tabs": [
-      { "title": "Description", "richDescription": "Robson & Granville is Sahil Sian's third plein air painting painted between October 10th and 19th." },
-      { "title": "Details", "richDescription": "" }
+      { "title": "Description", "richDescription": "When I started this painting, I wanted two things: a technical challenge and a painting that feels grand. This isn't New York, we don't have those crazy large screens on buildings and I feel like our city does sleep to some degree. But we do have Robson & Granville. I approached Vancouver's entertainment hot spot with ambition. I wanted something difficult, I knew that if I want to be an incredible painter I need to throw myself into the worst of the waters.\n\nRobson & Granville is busy. Lots of people from lots of corners of the world traverse these streets. I sat center, a performance without music. I started the painting off with my underpainting technique inspired by Richard Schmidt, and mapped out every important shape I could. At one point I felt a little whimsical, looking to make twists and perspectives that only a painting could ever map.\n\nI did find myself going a little overboard, and if anything that's ever helped me it's baby steps. I kept that whimsical perspective twist to a minimum, and focused on the objective: architecture and likeness. I knew that I wasn't going to be able to get everything right, I mean, there's just so much going on! I studied the likeness of that Best Buy/Marshalls building. I wanted the viewer to be able to see something abstract and cramped up and still make things out like \"Oh that's an elevator!\" or \"Oh that's an escalator\".\n\nAs I continued the painting into the skies I noticed that it would be impossible to paint out the screens without some sort of vice. I took a photo, and painted only the screens. I moved higher and higher, got into the tall buildings in the back. As we moved higher into the canvas things got a lot more blue.\n\nThe hardest part of this painting was the perspective shift of having a horizontal plane as the crosswalks, and being able to create some movement around the composition. I worked from imagination, building shapes learned from figure drawing classes. This time around, I spent a lot of time figuring out proportion, because it would be detrimental if I made the figures too tiny.\n\nIt all came together well, and I came out of those streets with a painting that makes you want to dance, get in the groove and feel the magic on the street." },
+      { "title": "Details", "richDescription": "**Oil on Canvas**, 18x24 in.\n\nOriginal, Signed." }
     ],
-    "dateCreated": "2026"
+    "dateCreated": "2026",
+    "material": "Oil on Canvas",
+    "shopifyHandle": "robson-granville"
   },
   {
     "title": "Science World, Late September",
     "slug": "science-world",
     "category": { "name": "Plein air" },
     "image": {
-      "url": "/Science-world.jpg",
-      "width": 1290,
-      "height": 2194,
+      "url": "/science_world.JPG",
+      "width": 6000,
+      "height": 4000,
       "alternativeText": "Science World, Late September — plein air",
-      "name": "Science-world.jpg"
+      "name": "science_world.JPG"
     },
     "description": "Science World, Late September was painted by Sahil Sian between September 26th and October 3rd in complete Plein air. His performance was witnessed by residents of False Creek, \"Vancouverites\" and viewers across the world.",
     "tabs": [
-      { "title": "Description", "richDescription": "Science World, Late September was painted by Sahil Sian between September 26th and October 3rd in complete Plein air. His performance was witnessed by residents of False Creek, \"Vancouverites\" and viewers across the world." },
+      { "title": "Description", "richDescription": "I started this painting on whim during my pre-painting \"scouting\" trip. Normally this means I go around, look for a good composition and start my underpainting. I originally planned on painting into downtown, but right before approaching the main street, Science World station I changed my mind.\n\nI've always been fascinated by wonky, crazy architecture. Things that feel science fiction, but exist right above you. That's exactly how some might describe Science World. It's literally just a ball in the sky! Except the ball is an intricate dome, representing a marvel of geometry for False Creek residents to stare at through their windows.\n\nCoincidentally, False Creek was having its annual dragon boat racing competition. There's probably a more suitable name for it, but nevertheless I was in for a treat. Hundreds of dragon boat patrons were lined up to battle for a golden prize. Competitors were smashing their paddles into the docks, roaring themselves down into war. I liked this, it raised morale as I took on a very different challenge.\n\nI finished the underpainting in Venetian red and transparent red oxide with mixes of ultramarine blue. This was a technique I learned for monochromatic underpainting taught by Richard Schmidt in his book *Alla Prima 2*.\n\nAs I worked my way towards the ball, every brush stroke made me channel my inner Sargent. I found myself trailing forwards and backwards, articulating every line of color thrown onto the sphere. Occasionally I'd turn my back around and find an audience watching my moves.\n\nFor a painting that makes you feel immersed, I think I got it. Some days I find myself staring at its finished product in my room, it really just sucks me in." },
       { "title": "Details", "richDescription": "**Oil on Canvas**, 24x30 in.\n\nOriginal, Signed." }
     ],
     "dateCreated": "2026",
-    "material": "Oil on Canvas"
+    "material": "Oil on Canvas",
+    "shopifyHandle": "science-world-late-september"
   },
   {
     "title": "Granville Island, September Weekend",
     "slug": "granville-island",
     "category": { "name": "Plein air" },
     "image": {
-      "url": "/Granville-Island.JPG",
-      "width": 4032,
-      "height": 3024,
+      "url": "/granville_island.JPG",
+      "width": 6000,
+      "height": 4000,
       "alternativeText": "Granville Island, September Weekend — plein air",
-      "name": "Granville-Island.JPG"
+      "name": "granville_island.JPG"
     },
     "description": "Granville Island, September Weekend was painted by Sahil Sian between September 19th and 20th in complete Plein air. His performance was witnessed by visitors and patrons of Granville Island.",
     "tabs": [
-      { "title": "Description", "richDescription": "Granville Island, September Weekend was painted by Sahil Sian between September 19th and 20th in complete Plein air. His performance was witnessed by visitors and patrons of Granville Island." },
+      { "title": "Description", "richDescription": "Granville Island was the start of a big switch in my plein air. Prior to this I was working on a small tripod easel that could only support small panels. I aspired to work bigger, but baby steps kept me from going gung-ho. But it was time to go that direction, because power builds through intimidation. My aunt gifted me her French easel from 2006, which I am incredibly thankful for. I took that French easel with me to Granville Island and paid a whopping $60 for parking. I'm not sure why I thought it would be less, but Vancouver, as we know, always treats you with a surprise.\n\nI started this painting with lessons learned from *Alla Prima 2*, a book I always mention and recommend to everyone looking to learn how to paint. It pretty much has everything and more, which was exactly what I needed as I stood in front of my first boss battle. The farmers market building had lots of fun corners, and I wanted to give this a barnyard-like feeling.\n\nThis was the first time I had spent more than 6 hours on a painting, and oh wow was this tough. Every highlight shifted every hour, and it became apparent how much I would have to improvise. This is exactly why a quick sketch to start will make you walk on water during the paint portion. But I hadn't gone that route, instead I just went in head first. But I prevailed, and I think I made a mighty painting." },
       { "title": "Details", "richDescription": "**Oil on Canvas**, 16x20 in.\n\nOriginal, Signed." }
     ],
     "dateCreated": "2026",
-    "material": "Oil on Canvas"
+    "material": "Oil on Canvas",
+    "shopifyHandle": "granville-island-september-weekend"
   }
 ]

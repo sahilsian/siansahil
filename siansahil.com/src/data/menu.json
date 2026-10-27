@@ -6,6 +6,7 @@
     { "id": 3, "displayName": "Plein air", "slug": "/products", "category": "Art", "search": { "category": "Plein air" } },
     { "id": 4, "displayName": "Drawings", "slug": "/products", "category": "Art", "search": { "category": "Drawings" } },
     { "id": 5, "displayName": "Photography", "slug": "/products", "category": "Art", "search": { "category": "Photography" } },
+    { "id": 7, "displayName": "Commissions", "slug": "/commissions", "category": "Art" },
     { "id": 6, "displayName": "Contact", "slug": "/contact", "category": "About" }
   ]
 }

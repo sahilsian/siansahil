@@ -33,6 +33,7 @@ export const List = ({controlMachine, collection, pageInfo, categories}: ListPro
                         category={item.category.name}
                         dateCreated={item.dateCreated}
                         material={item.material}
+                        shop={item.shop}
                     />
                 ))}
         </div>;
@@ -50,6 +51,7 @@ export const List = ({controlMachine, collection, pageInfo, categories}: ListPro
                     description={item.description}
                     image={item.image}
                     category={item.category.name}
+                    shop={item.shop}
                 />
             ))}
         </div>;

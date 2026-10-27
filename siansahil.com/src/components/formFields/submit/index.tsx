@@ -10,7 +10,7 @@ interface SubmitField {
 
 const SubmitField = ({onClick, name, disabled}:SubmitField) => {
     return (
-        <div className={`w-full max-w-[200px] cursor-pointer ${disabled && "bg-[#00000030]"}`}>
+        <div className={`w-full h-full max-w-[200px] cursor-pointer ${disabled && "bg-[#00000030]"}`}>
             <ControlButton
                 onClick={onClick}
             >

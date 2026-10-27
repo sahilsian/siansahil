@@ -87,11 +87,16 @@ export async function getProducts(
         return matchesTitle && matchesCategory;
     });
 
+    // Newest posting date first; products with no/unparseable dateCreated sort last.
+    const sorted = [...filtered].sort(
+        (a, b) => (Number(b.dateCreated) || 0) - (Number(a.dateCreated) || 0)
+    );
+
     const { page, pageSize } = pagination;
-    const total = filtered.length;
+    const total = sorted.length;
     const pageCount = Math.max(1, Math.ceil(total / pageSize));
     const start = (page - 1) * pageSize;
-    const nodes = filtered.slice(start, start + pageSize);
+    const nodes = sorted.slice(start, start + pageSize);
 
     return {
         nodes,

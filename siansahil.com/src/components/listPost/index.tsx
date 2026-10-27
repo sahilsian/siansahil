@@ -1,6 +1,8 @@
 import Image, { StrapiImage } from "@/components/image";
 import Typography from "@/components/typography";
 import {RouterInjectedProps} from "@/decorators/withRouter";
+import {ShopifyProductData} from "@/lib/shopify";
+import {getListingAvailability} from "@/lib/productAvailability";
 
 interface PostProps {
     title: string;
@@ -10,10 +12,11 @@ interface PostProps {
     clickable: boolean;
     disabled?: boolean
     category?: string
+    shop?: ShopifyProductData | null;
 }
 
 const ListPost =
-    ({ disabled, clickable, slug, title, description, image, goToPost}: PostProps & RouterInjectedProps
+    ({ disabled, clickable, slug, title, description, image, goToPost, shop}: PostProps & RouterInjectedProps
     ) => {
         const handleClick = () => {
             if (clickable) {
@@ -21,11 +24,13 @@ const ListPost =
             }
         };
 
+        const {originalStatus, printsFromLabel, unavailable} = getListingAvailability(shop);
+
         return (
             <div
                 onClick={handleClick}
                 className={`
-                 flex-1 
+                 flex-1
                  w-full
                  border-1 border-[#000000]
                  hover:bg-[#ffffff]
@@ -42,12 +47,24 @@ const ListPost =
                     <Image image={image} className={'rounded-2xl w-full aspect-square object-cover object-top'} />
                 </div>
                 <div className={"flex-1"}>
-                    <div className={'flex items-center justify-between'}>
-                        <div className={'flex-1 '}>
-                            <Typography underline level={"3"} value={title} />
+                    <div className={'flex items-baseline gap-2 flex-wrap'}>
+                        <Typography underline level={"3"} value={title} />
+                       
+                    </div>
+                    <Typography level={"p"} value={description} className={"line-clamp-3"} />
+                    <div className={'flex items-center justify-between mt-2'}>
+                        <div>
+                            {printsFromLabel && <Typography level={"small"} value={`Prints from: ${printsFromLabel}`} />}
+                        </div>
+                        <div>
+                            {unavailable && <Typography secondary level={"small"} value={"Unavailable"} />}
                         </div>
                     </div>
-                    <Typography level={"p"} value={description} />
+                     {originalStatus && (
+                            <span className={`font-serif text-[0.8rem] lg:text-[1.75rem] font-medium ${originalStatus === "available" ? "text-[#4e9e39]" : "text-[#c44b57]"}`}>
+                                {originalStatus === "available" ? "Available" : "Sold"}
+                            </span>
+                        )}
                 </div>
 
             </div>

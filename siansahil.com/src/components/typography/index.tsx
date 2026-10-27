@@ -14,6 +14,7 @@ interface TypographyProps {
     highlighted?:boolean;
     secondary?: boolean;
     button?: boolean;
+    className?: string;
 }
 
 const Typography = ({
@@ -25,7 +26,8 @@ const Typography = ({
                         markdown,
                         highlighted,
                         secondary,
-                        button
+                        button,
+                        className: extraClassName
                     }: TypographyProps) => {
 
     const fontClasses = markdown ? getRichFontStyles(level) : getFontStyles(level);
@@ -38,8 +40,8 @@ const Typography = ({
     }[alignment];
 
     const className = useMemo(() =>
-            ` ${button && `text_button`}  ${highlighted ? `text_highlighted` : ''} ${secondary ? `text_secondary` : ''} ${fontClasses} ${alignmentClasses} ${underline ? "underline" : ""} ${inactive ? "opacity-75" : ""}`,
-        [highlighted, secondary, fontClasses, alignmentClasses, underline, inactive]
+            ` ${button && `text_button`}  ${highlighted ? `text_highlighted` : ''} ${secondary ? `text_secondary` : ''} ${fontClasses} ${alignmentClasses} ${underline ? "underline" : ""} ${inactive ? "opacity-75" : ""} ${extraClassName ?? ""}`,
+        [highlighted, secondary, fontClasses, alignmentClasses, underline, inactive, extraClassName]
     );
 
     return (
