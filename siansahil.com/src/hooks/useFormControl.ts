@@ -6,6 +6,7 @@
 
 import {StrapiImage} from "@/components/image";
 import { submitForm } from "@/lib/data/mutations/mutations";
+import { PAINTINGS } from "@/lib/content";
 import {useEffect, useReducer} from "react";
 
 // Form
@@ -21,7 +22,7 @@ export type Mode =
     | 'error'
     | 'loading'
 
-export type FieldTypes = 'text' | 'textarea' | 'email' | 'tel' | 'date' | 'dropdown' | 'radio' | 'checkbox' | 'file' | 'range'
+export type FieldTypes = 'text' | 'textarea' | 'email' | 'tel' | 'date' | 'dropdown' | 'radio' | 'checkbox' | 'file' | 'range' | 'painting'
 
 export type FieldValue = string | boolean | File[]
 
@@ -146,6 +147,17 @@ export interface ComponentFormRangeField extends ComponentFormBase {
     }
 }
 
+// Value is the selected product's slug; options come from the product catalog,
+// narrowed to `slugs` when given.
+export interface ComponentFormPaintingField extends ComponentFormBase {
+    disabled?: boolean;
+    slugs?: string[];
+    metadata: {
+        fieldType: 'painting'
+    }
+    required?: boolean
+}
+
 export interface ComponentFormSubmitField extends ComponentFormBase {
     disabled?: boolean;
     placeholder?: string;
@@ -165,6 +177,7 @@ export type Fields =
     | ComponentFormCheckboxField
     | ComponentFormFileField
     | ComponentFormRangeField
+    | ComponentFormPaintingField
     | ComponentFormSubmitField
 
 // State
@@ -395,6 +408,7 @@ export interface FormControlInterface {
 
 interface FormControlProps {
     formSchema: FormProps
+    initialValues?: Record<string, FieldValue>
 }
 
 const getInitialValue = (field: Fields): FieldValue => {
@@ -412,14 +426,14 @@ const getInitialValue = (field: Fields): FieldValue => {
     }
 }
 
-const initializeForm = (formSchema:FormProps):State => {
+const initializeForm = (formSchema:FormProps, initialValues?: Record<string, FieldValue>):State => {
     const fields = new Map<string, FieldState>
     console.log(formSchema)
     formSchema.fields.forEach((field) => {
         fields.set(field.id, {
             id: field.id,
             config: field,
-            value: getInitialValue(field),
+            value: initialValues?.[field.id] ?? getInitialValue(field),
             touched: false,
             dirty: false
         })
@@ -496,6 +510,11 @@ const toSubmissionValue = async (fieldState: FieldState) => {
         return `${value} of ${range.max} (${range.min} = ${range.minLabel}, ${range.max} = ${range.maxLabel})`
     }
 
+    if (config.metadata.fieldType === 'painting') {
+        const painting = PAINTINGS.find((product) => product.slug === value)
+        return painting ? `${painting.title} (${painting.slug})` : value
+    }
+
     return value
 }
 
@@ -528,8 +547,8 @@ const buildSubmissionPayload = async (state: State) => {
     };
 };
 
-export const useFormControl = ({formSchema}:FormControlProps):FormControlInterface => {
-    const initialState = initializeForm(formSchema);
+export const useFormControl = ({formSchema, initialValues}:FormControlProps):FormControlInterface => {
+    const initialState = initializeForm(formSchema, initialValues);
 
     const [state, dispatch] = useReducer(transitionFunc, initialState)
 

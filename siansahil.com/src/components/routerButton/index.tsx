@@ -18,12 +18,29 @@ export interface ButtonData {
 
 interface Props {
     button: ButtonData;
+    onClick?: () => void;
+    disabled?: boolean;
 }
 
-const Button = ({ button }: Props) => {
+const Button = ({ button, onClick, disabled }: Props) => {
     const { variant, icon, label, route, target } = button;
     const classes = getButtonType(variant);
     const ctx = useAppState()
+    // Action
+    if (onClick) {
+        return (
+            <button
+                type="button"
+                onClick={onClick}
+                disabled={disabled}
+                className={`${classes} ${ctx.isProcessing && "bg-[#E3E3E3] text-gray-500"} ${disabled ? "opacity-50 !cursor-not-allowed" : ""}`}
+            >
+                {icon && <Icon size={icon.size} icon={icon.component} />}
+                <Typography button={variant === "primary"} level="button" value={label} className={disabled ? "!cursor-not-allowed" : ""} />
+            </button>
+        );
+    }
+
     // External
     if (target === "external" && route) {
         return (

@@ -8,7 +8,9 @@
     { "id": 4, "displayName": "Drawings", "slug": "/products", "category": "Art", "search": { "category": "Drawings" } },
     { "id": 5, "displayName": "Photography", "slug": "/products", "category": "Art", "search": { "category": "Photography" } },
     { "id": 8, "displayName": "Commissions", "slug": "/commissions", "category": "Art" },
+    { "id": 9, "displayName": "Print Club", "slug": "/vancouver-print-club", "category": "Art" },
     { "id": 6, "displayName": "Contact", "slug": "/contact", "category": "About" },
+    { "id": 10, "displayName": "Instagram", "slug": "https://www.instagram.com/siansahil_/", "category": "About" },
     { "id": 7, "displayName": "Privacy Policy", "slug": "/privacy-policy", "category": "Legal" }
   ]
 }

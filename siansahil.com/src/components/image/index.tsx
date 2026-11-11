@@ -11,7 +11,7 @@ interface ImageProps {
     image: StrapiImage;
     className?: string;
     objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
-    objectPosition?: "top" | "right" | "bottom" | "left";
+    objectPosition?: "top" | "right" | "bottom" | "left" | `${number}% ${number}%`;
 }
 
 const toImageProps = (img: StrapiImage) => {

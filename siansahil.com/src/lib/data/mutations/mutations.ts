@@ -10,7 +10,7 @@ const AttachmentSchema = z.object({
 const FieldSubmissionSchema = z.object({
     fieldId: z.string(),
     fieldName: z.string(),
-    fieldType: z.enum(['text', 'email', 'tel', 'date', 'textarea', 'dropdown', 'radio', 'checkbox', 'file', 'range']),
+    fieldType: z.enum(['text', 'email', 'tel', 'date', 'textarea', 'dropdown', 'radio', 'checkbox', 'file', 'range', 'painting']),
     section: z.string().optional(),
     value: z.union([z.string(), z.boolean(), z.array(z.string()), z.array(AttachmentSchema)]),
 })

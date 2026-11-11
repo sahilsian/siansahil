@@ -2,7 +2,7 @@ import {Content} from "@/layouts/form/content.tsx";
 import {Background} from "@/layouts/form/background.tsx";
 import {FormFields} from "@/layouts/form/formFields.tsx";
 import {FormImage} from "@/layouts/form/formImage.tsx";
-import {FormProps} from "@/hooks/useFormControl.ts";
+import {FieldValue, FormProps} from "@/hooks/useFormControl.ts";
 import {StrapiImage} from "@/components/image";
 
 interface FormLayoutProps {
@@ -11,10 +11,11 @@ interface FormLayoutProps {
     formDescription: string;
     form: FormProps;
     image?: StrapiImage
+    initialValues?: Record<string, FieldValue>
 }
 
 
-const FormLayout = ({type, formTitle, formDescription, form, image}:FormLayoutProps) => {
+const FormLayout = ({type, formTitle, formDescription, form, image, initialValues}:FormLayoutProps) => {
     return (
         <div className={`Form ${type} lg:px-22 px-6 pb-22 bg-[#EDEDED] relative`}>
             <Background></Background>
@@ -22,7 +23,7 @@ const FormLayout = ({type, formTitle, formDescription, form, image}:FormLayoutPr
                 <>
                     <Content title={formTitle} description={formDescription}></Content>
                     <div className={'flex z-[30] gap-10 relative w-full'}>
-                        <FormFields formSchema={form}></FormFields>
+                        <FormFields formSchema={form} initialValues={initialValues}></FormFields>
                         <FormImage image={image}></FormImage>
                     </div>
                 </>
@@ -32,7 +33,7 @@ const FormLayout = ({type, formTitle, formDescription, form, image}:FormLayoutPr
                         <Content title={formTitle} description={formDescription}></Content>
                     </div>
                     <div className={'z-[30] relative w-full max-w-[720px] mx-auto'}>
-                        <FormFields formSchema={form}></FormFields>
+                        <FormFields formSchema={form} initialValues={initialValues}></FormFields>
                     </div>
                 </>
             )}

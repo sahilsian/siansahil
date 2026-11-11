@@ -28,6 +28,11 @@ export interface ShopifyProductData {
     prints: ShopifyVariant[];
 }
 
+export interface ShopifySubscription {
+    variantId: string;
+    sellingPlanId: string;
+}
+
 const PRODUCT_QUERY = `
   query ProductByHandle($handle: String!) {
     product(handle: $handle) {
@@ -38,6 +43,25 @@ const PRODUCT_QUERY = `
             title
             availableForSale
             price { amount currencyCode }
+          }
+        }
+      }
+    }
+  }
+`;
+
+const SUBSCRIPTION_QUERY = `
+  query SubscriptionByHandle($handle: String!) {
+    product(handle: $handle) {
+      variants(first: 1) {
+        edges { node { id availableForSale } }
+      }
+      sellingPlanGroups(first: 1) {
+        edges {
+          node {
+            sellingPlans(first: 1) {
+              edges { node { id } }
+            }
           }
         }
       }
@@ -162,13 +186,52 @@ export const getShopifyProductsByHandles = createServerFn({ method: "GET" })
         }
     });
 
+// Looks up a subscription product's first variant and selling plan — the pair
+// cartCreate needs to check out on a recurring plan rather than a one-time
+// purchase. Returns null until the product exists with a plan attached.
+export const getShopifySubscription = createServerFn({ method: "GET" })
+    .inputValidator(z.object({ handle: z.string() }))
+    .handler(async ({ data }): Promise<ShopifySubscription | null> => {
+        const { domain, token } = getShopifyConfig();
+        if (!domain || !token) return null;
+
+        try {
+            const response = await fetch(`https://${domain}/api/${STOREFRONT_API_VERSION}/graphql.json`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Shopify-Storefront-Access-Token": token,
+                },
+                body: JSON.stringify({ query: SUBSCRIPTION_QUERY, variables: { handle: data.handle } }),
+            });
+
+            if (!response.ok) return null;
+
+            const json = await response.json() as any;
+            if (json?.errors) {
+                console.error("Shopify subscription query errors", json.errors);
+                return null;
+            }
+
+            const product = json?.data?.product;
+            const variant = product?.variants?.edges?.[0]?.node;
+            const sellingPlan = product?.sellingPlanGroups?.edges?.[0]?.node?.sellingPlans?.edges?.[0]?.node;
+            if (!variant?.availableForSale || !sellingPlan) return null;
+
+            return { variantId: variant.id, sellingPlanId: sellingPlan.id };
+        } catch (error) {
+            console.error("Shopify subscription fetch failed", error);
+            return null;
+        }
+    });
+
 // Builds the cart via the Storefront API and hands back its hosted checkout
 // URL. Checkout is a separate system from the Online Store theme, so this
 // works even when the storefront itself is password-protected — unlike the
 // legacy `/cart/{variantId}:{qty}` permalink, which renders through the theme
 // and gets blocked by the password wall.
 export const createShopifyCheckout = createServerFn({ method: "POST" })
-    .inputValidator(z.object({ variantId: z.string(), quantity: z.number().optional() }))
+    .inputValidator(z.object({ variantId: z.string(), quantity: z.number().optional(), sellingPlanId: z.string().optional() }))
     .handler(async ({ data }): Promise<string | null> => {
         const { domain, token } = getShopifyConfig();
         if (!domain || !token) return null;
@@ -183,7 +246,11 @@ export const createShopifyCheckout = createServerFn({ method: "POST" })
                 body: JSON.stringify({
                     query: CART_CREATE_MUTATION,
                     variables: {
-                        lines: [{ merchandiseId: data.variantId, quantity: data.quantity ?? 1 }],
+                        lines: [{
+                            merchandiseId: data.variantId,
+                            quantity: data.quantity ?? 1,
+                            ...(data.sellingPlanId ? { sellingPlanId: data.sellingPlanId } : {}),
+                        }],
                     },
                 }),
             });

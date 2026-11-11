@@ -10,12 +10,14 @@ import CheckboxField from "@/components/formFields/checkbox";
 import FileField from "@/components/formFields/file";
 import RangeField from "@/components/formFields/range";
 import SubmitField from "@/components/formFields/submit";
+import PaintingField from "@/components/formFields/painting";
 import {
     ComponentFormCheckboxField,
     ComponentFormDateField,
     ComponentFormDropdownField,
     ComponentFormEmailField,
     ComponentFormFileField,
+    ComponentFormPaintingField,
     ComponentFormRadioField,
     ComponentFormRangeField,
     ComponentFormTelField,
@@ -170,6 +172,18 @@ const FieldRenderer = ({formController}: FieldRendererProps) => {
                     minLabel={field.minLabel}
                     maxLabel={field.maxLabel}
                     handleChange={(value) => write(field.id, value)}
+                />
+            }
+            case "painting": {
+                const field = config as ComponentFormPaintingField
+                return <PaintingField
+                    label={field.name}
+                    slugs={field.slugs}
+                    disabled={disabled}
+                    value={fieldState.value as string}
+                    isRequired={!!field.required}
+                    error={hasError}
+                    handleChange={(slug) => write(field.id, slug)}
                 />
             }
             case "submit": {

@@ -104,6 +104,10 @@ export async function getProducts(
     };
 }
 
+// Synchronous on purpose: the painting form field reads this during render
+// and the form hook reads it while building a submission, outside any loader.
+export const PAINTINGS = productsData as Product[];
+
 // slug is trusted to match a product, mirroring the old (untyped) Strapi
 // lookup's assumption that products[0] existed for a valid route.
 export async function getProduct(slug: string): Promise<Product> {

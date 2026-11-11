@@ -3,7 +3,7 @@ import Typography from "@/components/typography";
 import Spacer from "@/components/spacer";
 import {Media} from "@/layouts/product/media.tsx";
 import TabbedContent, {Tab} from "@/components/tabbedContent";
-import {useRouter} from "@tanstack/react-router";
+import {Link, useRouter} from "@tanstack/react-router";
 import {StrapiImage} from "@/components/image";
 import {useAppState} from "@/hooks/useAppState.ts";
 import Spinner from "@/components/spinner";
@@ -21,7 +21,9 @@ interface ContentProps {
     shop?: ShopifyProductData | null;
 }
 
-export const Content = ({title, description, image, tabs, material, dateCreated, shop}:ContentProps) => {
+const CUSTOM_PRINT_FEATURES = ["Canvas Prints", "Various Sizes", "Shipping and Delivery"];
+
+export const Content = ({title, slug, description, image, tabs, material, dateCreated, shop}:ContentProps) => {
     const original = shop?.original;
     const prints = shop?.prints ?? [];
     const router = useRouter()
@@ -140,6 +142,24 @@ export const Content = ({title, description, image, tabs, material, dateCreated,
                                                 </td>
                                             </tr>
                                         ))}
+                                        <tr className={"border-b border-gray-200"}>
+                                            <td className={"py-2 pr-4 align-top"}>
+                                                <Typography level={"6"} value={"Custom Printing"} />
+                                                <ul className={"font-serif text-[0.8rem] leading-[1.5] text-gray-500"}>
+                                                    {CUSTOM_PRINT_FEATURES.map((feature) => (
+                                                        <li key={feature}>{feature}</li>
+                                                    ))}
+                                                </ul>
+                                            </td>
+                                            <td className={"py-2 pr-4 align-top"}>
+                                                <Typography level={"6"} value={"Varies"} />
+                                            </td>
+                                            <td className={"py-2 align-top"}>
+                                                <Link to={"/prints"} search={{ painting: slug }}>
+                                                    <Typography level="button" value="Inquire" />
+                                                </Link>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
