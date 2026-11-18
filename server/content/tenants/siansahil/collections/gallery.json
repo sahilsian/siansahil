@@ -1,0 +1,19 @@
+{
+  "$type": "collection",
+  "id": "gallery",
+  "title": "Gallery",
+  "description": "Original oil paintings painted from life in the center of Vancouver streets, neighbourhoods and crowds.",
+  "filter": {
+    "type": "curated",
+    "productSlugs": [
+      "mount-pleasant",
+      "robson-granville",
+      "science-world"
+    ]
+  },
+  "sort": "dateCreated:desc",
+  "seo": {
+    "title": "Gallery — Sahil Sian",
+    "description": "Original oil paintings painted from life in the center of Vancouver streets, neighbourhoods and crowds."
+  }
+}

@@ -2,6 +2,7 @@ import {ChangeEvent, useRef, useState} from "react";
 import Typography from "@/components/typography";
 import Spacer from "@/components/spacer";
 import ControlButton from "@/components/controlButton";
+import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface FileFieldProps {
     handleChange: (files: File[]) => void,
@@ -27,6 +28,7 @@ const matchesAccept = (file: File, accept?: string) => {
 
 const FileField = ({handleChange, value, error, label, disabled, isRequired, accept, multiple, maxFiles = 5, maxFileSizeMB = 5}: FileFieldProps) => {
     const inputRef = useRef<HTMLInputElement>(null)
+    const { labels } = useSite()
     const [notice, setNotice] = useState<string | null>(null)
     const limit = multiple ? maxFiles : 1
 
@@ -80,7 +82,7 @@ const FileField = ({handleChange, value, error, label, disabled, isRequired, acc
                             <Typography level={'6'} value={file.name}></Typography>
                             {!disabled && (
                                 <button type={"button"} onClick={() => handleRemove(index)}>
-                                    <Typography level={'button'} value={"Remove"}></Typography>
+                                    <Typography level={'button'} value={labels.remove}></Typography>
                                 </button>
                             )}
                         </li>

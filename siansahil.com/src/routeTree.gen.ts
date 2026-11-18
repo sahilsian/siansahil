@@ -10,10 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VancouverPrintClubRouteImport } from './routes/vancouver-print-club'
-import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as PrintsRouteImport } from './routes/prints'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CommissionsRouteImport } from './routes/commissions'
+import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsIndexRouteImport } from './routes/products/index'
 import { Route as ProductsSlugRouteImport } from './routes/products/$slug'
@@ -23,11 +23,6 @@ import { Route as ApiTrpcSplatRouteImport } from './routes/api.trpc.$'
 const VancouverPrintClubRoute = VancouverPrintClubRouteImport.update({
   id: '/vancouver-print-club',
   path: '/vancouver-print-club',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
-  id: '/privacy-policy',
-  path: '/privacy-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrintsRoute = PrintsRouteImport.update({
@@ -43,6 +38,11 @@ const ContactRoute = ContactRouteImport.update({
 const CommissionsRoute = CommissionsRouteImport.update({
   id: '/commissions',
   path: '/commissions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SlugRoute = SlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -73,10 +73,10 @@ const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$slug': typeof SlugRoute
   '/commissions': typeof CommissionsRoute
   '/contact': typeof ContactRoute
   '/prints': typeof PrintsRoute
-  '/privacy-policy': typeof PrivacyPolicyRoute
   '/vancouver-print-club': typeof VancouverPrintClubRoute
   '/forms/$id': typeof FormsIdRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -85,10 +85,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$slug': typeof SlugRoute
   '/commissions': typeof CommissionsRoute
   '/contact': typeof ContactRoute
   '/prints': typeof PrintsRoute
-  '/privacy-policy': typeof PrivacyPolicyRoute
   '/vancouver-print-club': typeof VancouverPrintClubRoute
   '/forms/$id': typeof FormsIdRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -98,10 +98,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$slug': typeof SlugRoute
   '/commissions': typeof CommissionsRoute
   '/contact': typeof ContactRoute
   '/prints': typeof PrintsRoute
-  '/privacy-policy': typeof PrivacyPolicyRoute
   '/vancouver-print-club': typeof VancouverPrintClubRoute
   '/forms/$id': typeof FormsIdRoute
   '/products/$slug': typeof ProductsSlugRoute
@@ -112,10 +112,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$slug'
     | '/commissions'
     | '/contact'
     | '/prints'
-    | '/privacy-policy'
     | '/vancouver-print-club'
     | '/forms/$id'
     | '/products/$slug'
@@ -124,10 +124,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$slug'
     | '/commissions'
     | '/contact'
     | '/prints'
-    | '/privacy-policy'
     | '/vancouver-print-club'
     | '/forms/$id'
     | '/products/$slug'
@@ -136,10 +136,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$slug'
     | '/commissions'
     | '/contact'
     | '/prints'
-    | '/privacy-policy'
     | '/vancouver-print-club'
     | '/forms/$id'
     | '/products/$slug'
@@ -149,10 +149,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SlugRoute: typeof SlugRoute
   CommissionsRoute: typeof CommissionsRoute
   ContactRoute: typeof ContactRoute
   PrintsRoute: typeof PrintsRoute
-  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   VancouverPrintClubRoute: typeof VancouverPrintClubRoute
   FormsIdRoute: typeof FormsIdRoute
   ProductsSlugRoute: typeof ProductsSlugRoute
@@ -167,13 +167,6 @@ declare module '@tanstack/react-router' {
       path: '/vancouver-print-club'
       fullPath: '/vancouver-print-club'
       preLoaderRoute: typeof VancouverPrintClubRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy-policy': {
-      id: '/privacy-policy'
-      path: '/privacy-policy'
-      fullPath: '/privacy-policy'
-      preLoaderRoute: typeof PrivacyPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/prints': {
@@ -195,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/commissions'
       fullPath: '/commissions'
       preLoaderRoute: typeof CommissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$slug': {
+      id: '/$slug'
+      path: '/$slug'
+      fullPath: '/$slug'
+      preLoaderRoute: typeof SlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -237,10 +237,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SlugRoute: SlugRoute,
   CommissionsRoute: CommissionsRoute,
   ContactRoute: ContactRoute,
   PrintsRoute: PrintsRoute,
-  PrivacyPolicyRoute: PrivacyPolicyRoute,
   VancouverPrintClubRoute: VancouverPrintClubRoute,
   FormsIdRoute: FormsIdRoute,
   ProductsSlugRoute: ProductsSlugRoute,

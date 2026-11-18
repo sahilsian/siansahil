@@ -1,0 +1,15 @@
+{
+  "$type": "collection",
+  "id": "drawings",
+  "title": "Drawings",
+  "description": "All of my drawings from life or image.",
+  "filter": {
+    "type": "category",
+    "category": "drawings"
+  },
+  "sort": "dateCreated:desc",
+  "seo": {
+    "title": "Drawings — Sahil Sian",
+    "description": "All of my drawings from life or image."
+  }
+}

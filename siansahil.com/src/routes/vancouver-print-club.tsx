@@ -1,38 +1,40 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {getShopifySubscription} from "@/lib/shopify";
+import { getShopifySubscription } from "@/lib/shopify";
+import { getPage, toPageSeo } from "@/lib/content";
+import { pageHead } from "@/lib/seo.ts";
 import PrintClubLayout from "@/layouts/printClub";
 
-const SUBSCRIPTION_HANDLE = "vancouver-print-club"
+const PAGE_SLUG = "vancouver-print-club"
 
 export const Route = createFileRoute('/vancouver-print-club')({
     component: RouteComponent,
-    loader: async ({context}) => {
-        const subscription = await context.queryClient.ensureQueryData({
-            queryFn: () => getShopifySubscription({ data: { handle: SUBSCRIPTION_HANDLE } }),
-            queryKey: ["shopifySubscription", SUBSCRIPTION_HANDLE]
+    loader: async ({ context }) => {
+        const page = await context.queryClient.ensureQueryData({
+            queryKey: ["page", PAGE_SLUG],
+            queryFn: () => getPage(PAGE_SLUG),
         })
-        return {
-            subscription
-        }
+        const block = page.blocks.find((b) => b.type === "printClub")
+        if (block?.type !== "printClub") throw new Error(`Page '${PAGE_SLUG}' has no printClub block`)
+
+        const subscription = await context.queryClient.ensureQueryData({
+            queryFn: () => getShopifySubscription({ data: { handle: block.subscriptionHandle } }),
+            queryKey: ["shopifySubscription", block.subscriptionHandle]
+        })
+        return { page, block, subscription, seo: toPageSeo(page.seo) }
     },
-    head: () => {
-        return {
-            meta: [
-                { title: "Vancouver City Print Club — Sahil Sian" },
-                { name: "description", content: "Join the Vancouver City Print Club for $19 a month." },
-                { property: 'og:title', content: "Vancouver City Print Club — Sahil Sian" },
-                { property: 'og:description', content: "Join the Vancouver City Print Club for $19 a month." },
-                { property: 'og:type', content: "website" }
-            ]
-        }
-    }
+    head: ({ loaderData }) => pageHead(loaderData?.seo),
 })
 
 function RouteComponent() {
-    const { subscription } = Route.useLoaderData()
+    const { page, block, subscription } = Route.useLoaderData()
     return (
         <div>
-            <PrintClubLayout subscription={subscription}></PrintClubLayout>
+            <PrintClubLayout
+                title={page.layout?.title ?? ""}
+                description={page.layout?.description ?? ""}
+                block={block}
+                subscription={subscription}
+            ></PrintClubLayout>
         </div>
     )
 }

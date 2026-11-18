@@ -16,7 +16,7 @@ const DropdownInput = ({value, handleChange, disabled, options, placeholder, cla
                 <select value={value} onChange={handleChange} disabled={disabled} className={className}>
                     {placeholder !== undefined && <option value="" disabled>{placeholder}</option>}
                     {options && options.map((option) => {
-                        return <DropdownOption key={option.name} name={option.name}></DropdownOption>
+                        return <DropdownOption key={option.name} name={option.name} label={option.label}></DropdownOption>
                     })}
                 </select>
             </div>

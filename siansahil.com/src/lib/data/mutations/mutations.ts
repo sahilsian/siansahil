@@ -1,5 +1,6 @@
 import {createServerFn} from "@tanstack/react-start";
 import {z} from "zod";
+import {getSite} from "@/lib/content";
 
 const AttachmentSchema = z.object({
     filename: z.string(),
@@ -34,10 +35,6 @@ const SubmissionInputSchema = z.object({
 type Attachment = z.infer<typeof AttachmentSchema>
 type FieldValue = z.infer<typeof FieldSubmissionSchema>["value"]
 
-// Submission recipient. Not a secret, so it's fine as a literal — the
-// secret is the Resend API key below.
-const SUBMISSION_RECIPIENT = "sahilsiantech@gmail.com";
-
 // Resend caps a whole email (attachments included, base64-encoded) at 40MB.
 const MAX_ATTACHMENT_BYTES = 30 * 1024 * 1024;
 
@@ -68,6 +65,10 @@ export const submitForm = createServerFn({ method: "POST" })
         if (!apiKey) {
             throw new Error("RESEND_API_KEY is not configured");
         }
+
+        // Recipient + sender name are tenant data (site.integrations.email);
+        // only the Resend API key is a secret.
+        const { recipient, fromName } = (await getSite()).integrations.email;
 
         const { fields } = data.payload;
 
@@ -113,8 +114,8 @@ export const submitForm = createServerFn({ method: "POST" })
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    from: "Portfolio contact form <onboarding@resend.dev>",
-                    to: [SUBMISSION_RECIPIENT],
+                    from: `${fromName} <onboarding@resend.dev>`,
+                    to: [recipient],
                     subject: `New ${formLabel} submission${submitterName?.trim() ? ` — ${submitterName.trim()}` : ""}`,
                     text,
                     ...(submitterEmail && { reply_to: submitterEmail.trim() }),

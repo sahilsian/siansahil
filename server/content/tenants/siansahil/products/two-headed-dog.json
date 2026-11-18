@@ -1,0 +1,34 @@
+{
+  "$type": "product",
+  "slug": "two-headed-dog",
+  "title": "Two Headed Dog",
+  "category": "drawings",
+  "description": "Imagine a dog, shaking it's head!",
+  "images": [
+    {
+      "url": "/two-headed-dog.png",
+      "width": 3460,
+      "height": 3972,
+      "alternativeText": "Two Headed Dog — charcoal on paper",
+      "name": "two-headed-dog.png"
+    }
+  ],
+  "ogImage": {
+    "url": "/og/two-headed-dog.jpg",
+    "width": 1045,
+    "height": 1200,
+    "alternativeText": "Two Headed Dog — charcoal on paper",
+    "name": "two-headed-dog.jpg"
+  },
+  "tabs": [
+    {
+      "title": "Story",
+      "body": "Imagine a dog, shaking it's head!"
+    },
+    {
+      "title": "Details",
+      "body": "**Material:** Charcoal on Paper"
+    }
+  ],
+  "material": "Charcoal on Paper"
+}

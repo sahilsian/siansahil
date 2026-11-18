@@ -1,0 +1,35 @@
+{
+  "$type": "product",
+  "slug": "bridgewater-nova-scotia",
+  "title": "Bridgewater, Nova Scotia",
+  "category": "drawings",
+  "description": "Imagine a rainy day in Nova Scotia.",
+  "images": [
+    {
+      "url": "/bridgewater-nova-scotia.png",
+      "width": 3460,
+      "height": 3460,
+      "alternativeText": "Bridgewater, Nova Scotia — graphite on paper",
+      "name": "bridgewater-nova-scotia.png"
+    }
+  ],
+  "ogImage": {
+    "url": "/og/bridgewater-nova-scotia.jpg",
+    "width": 1200,
+    "height": 1200,
+    "alternativeText": "Bridgewater, Nova Scotia — graphite on paper",
+    "name": "bridgewater-nova-scotia.jpg"
+  },
+  "tabs": [
+    {
+      "title": "Story",
+      "body": "Imagine a rainy day in Nova Scotia."
+    },
+    {
+      "title": "Details",
+      "body": "**Material:** Graphite on Paper\n\n**Created:** 2024"
+    }
+  ],
+  "material": "Graphite on Paper",
+  "dateCreated": "2024"
+}

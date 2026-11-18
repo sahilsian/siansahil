@@ -1,0 +1,14 @@
+{
+  "$type": "page",
+  "slug": "prints",
+  "seo": {
+    "title": "Custom Prints — Sahil Sian",
+    "description": "Inquire about a custom canvas print of a painting by Sahil Sian."
+  },
+  "blocks": [
+    {
+      "type": "form",
+      "formId": "print"
+    }
+  ]
+}

@@ -1,65 +1,44 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { getHome } from "@/lib/content";
+import { getPage, toButton, toPageSeo } from "@/lib/content";
 import BlockRenderer from "@/components/renderers/blockRenderer";
-import {pageSEO} from "@/components/seo/interfaces.ts";
+import { pageHead } from "@/lib/seo.ts";
+
+const HOME_SLUG = "home"
 
 export const Route = createFileRoute('/')(
     {
-        loader: async ({context}) => {
-            try {
-                const home = await context.queryClient.ensureQueryData({
-                    queryKey: ['home'],
-                    queryFn: getHome
-                })
-                return {
-                    home,
-                    seo: home.seo
-                }
-            } catch (error) {
-                console.error(error)
-                return {
-                    home: null
-                }
-            }
-
+        loader: async ({ context }) => {
+            const page = await context.queryClient.ensureQueryData({
+                queryKey: ['page', HOME_SLUG],
+                queryFn: () => getPage(HOME_SLUG),
+            })
+            return { page }
         },
-        head: ({ loaderData }) => {
-            const seo: pageSEO = loaderData?.seo ?? {
-                title: 'Fluentclicks.com',
-                description: 'Fluentclicks uses AI to generate leads that speak fluently to your business processes.',
-                canonical: 'siansahil.com',
-                OGImage: { url: '', width: 0, height: 0, alternativeText: '', name: '' },
-            }
-
-            return {
-
-                meta: [
-                    { title: seo.title },
-                    { name: "description", content: seo.description},
-                    // OPEN GRAPH
-                    { property: 'og:title', content: seo.title },
-                    { property: 'og:description', content: seo.description },
-                    { property: 'og:image', content: seo.OGImage?.url || "" },
-                    { property: 'og:type', content: "website" }
-                ],
-                links: [
-
-                    { rel: 'canonical', href: seo.canonical }
-                ],
-            }
-        },
+        head: ({ loaderData }) => pageHead(loaderData && toPageSeo(loaderData.page.seo)),
         component: HomePage
     }
 )
 
 function HomePage() {
-    const { home } = Route.useLoaderData();
-    const blocks:any[] = [
-        home!.wrapper.hero,
-    ]
+    const { page } = Route.useLoaderData();
+    // Map server blocks onto the BlockRenderer's existing block props.
+    const blocks = page.blocks.flatMap((block, i) =>
+        block.type === "hero"
+            ? [{
+                id: i,
+                variation: { variation: "hero" },
+                title: block.title,
+                description: block.description,
+                primary: toButton(block.primary, 1),
+                secondary: toButton(block.secondary, 2),
+                hero_image: block.heroImage,
+                profile_image: block.profileImage,
+            }]
+            : []
+    )
     return (
         <div>
             <BlockRenderer blocks={blocks} />
         </div>
-  )
+    )
 }

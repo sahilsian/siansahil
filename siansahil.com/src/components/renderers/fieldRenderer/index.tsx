@@ -30,12 +30,14 @@ import {
 } from "@/hooks/useFormControl.ts";
 import Typography from "@/components/typography";
 import Spacer from "@/components/spacer";
+import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface FieldRendererProps {
     formController: FormControlInterface
 }
 const FieldRenderer = ({formController}: FieldRendererProps) => {
     const {state} = formController
+    const { messages } = useSite()
     const disabled = formController.isProcessing || state.mode == 'success'
 
     const write = (id: string, value: FieldValue) => {
@@ -178,7 +180,7 @@ const FieldRenderer = ({formController}: FieldRendererProps) => {
                 const field = config as ComponentFormPaintingField
                 return <PaintingField
                     label={field.name}
-                    slugs={field.slugs}
+                    paintings={field.paintings ?? []}
                     disabled={disabled}
                     value={fieldState.value as string}
                     isRequired={!!field.required}
@@ -195,7 +197,7 @@ const FieldRenderer = ({formController}: FieldRendererProps) => {
             }
 
             default:
-                return <div>Field not supported.</div>
+                return <div>{messages.fieldNotSupported}</div>
         }
     }
 
@@ -219,7 +221,12 @@ const FieldRenderer = ({formController}: FieldRendererProps) => {
                         <div className={config.metadata.fieldType === 'submit' ? 'mt-8' : 'mb-4'}>
                             {renderField(fieldState, hasError)}
                             {config.note && (
-                                <Typography secondary level={'small'} value={config.note}></Typography>
+                                <Typography
+                                    secondary
+                                    level={'small'}
+                                    value={config.note}
+                                    className={config.metadata.fieldType === 'submit' ? 'mt-3' : ''}
+                                ></Typography>
                             )}
                             {hasError && (
                                 <p className="text-red-500 text-sm mb-5">{fieldState.error}</p>
@@ -229,9 +236,9 @@ const FieldRenderer = ({formController}: FieldRendererProps) => {
                 )
             })}
             <Spacer height={'10px'}></Spacer>
-            {state.mode == 'invalid' && <p className="text-red-500 text-sm">Please fix the highlighted fields above.</p> }
-            {state.mode == 'success' && <Typography level={'4'} value={state.formSchema.successMessage ?? "Form Successfully Submitted."}/> }
-            {state.mode == 'error' && <Typography level={'4'} value={"Error submitting form."}/> }
+            {state.mode == 'invalid' && <p className="text-red-500 text-sm">{messages.formInvalid}</p> }
+            {state.mode == 'success' && <Typography level={'4'} value={state.formSchema.successMessage ?? messages.formSuccessDefault}/> }
+            {state.mode == 'error' && <Typography level={'4'} value={messages.formError}/> }
         </div>
     )
 }

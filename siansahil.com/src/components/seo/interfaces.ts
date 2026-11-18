@@ -23,7 +23,6 @@ export interface pageSEO {
     OGImage?: StrapiImage
     canonical?: string
     robots?: string
-    structuredData?: JSON
 }
 
 export interface categorySEO extends pageSEO {}

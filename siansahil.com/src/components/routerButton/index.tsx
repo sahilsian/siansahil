@@ -10,6 +10,8 @@ export interface ButtonData {
     label: string;
     target: "internal" | "external";
     route: string | null;
+    // Query params for internal routes, e.g. { collection: "gallery" } on /products
+    search?: Record<string, string>;
     icon?: {
         component: React.ReactElement<React.SVGProps<SVGSVGElement>>;
         size: "small" | "medium" | "large";
@@ -23,7 +25,7 @@ interface Props {
 }
 
 const Button = ({ button, onClick, disabled }: Props) => {
-    const { variant, icon, label, route, target } = button;
+    const { variant, icon, label, route, target, search } = button;
     const classes = getButtonType(variant);
     const ctx = useAppState()
     // Action
@@ -55,7 +57,7 @@ const Button = ({ button, onClick, disabled }: Props) => {
 
     // Internal
     return (
-        <Link to={route || "/"}>
+        <Link to={route || "/"} search={search || {}}>
             <button className={`${classes}  ${ctx.isProcessing && "bg-[#E3E3E3] text-gray-500"}`}>
                 {icon && <Icon size={icon.size} icon={icon.component} />}
                 <Typography button={variant === "primary"} level="button" value={label} />

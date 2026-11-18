@@ -1,0 +1,45 @@
+{
+  "$type": "form",
+  "id": "contact",
+  "title": "Contact",
+  "description": "For all inquiries, please contact me using the form below.",
+  "successMessage": "Thanks! I'll be in touch soon.",
+  "fullWidth": true,
+  "fields": [
+    {
+      "id": "name",
+      "name": "Name",
+      "placeholder": "Your full name",
+      "required": true,
+      "metadata": {
+        "fieldType": "text"
+      }
+    },
+    {
+      "id": "email",
+      "name": "Email",
+      "placeholder": "you@example.com",
+      "required": true,
+      "metadata": {
+        "fieldType": "email"
+      }
+    },
+    {
+      "id": "message",
+      "name": "Message",
+      "placeholder": "Please write to me here if you have any questions or concerns.",
+      "required": true,
+      "metadata": {
+        "fieldType": "textarea"
+      }
+    },
+    {
+      "id": "submit",
+      "name": "Send",
+      "metadata": {
+        "fieldType": "submit"
+      },
+      "note": "By clicking send, you agree to our privacy policy. You may also send me an email to sahilsiantech@gmail.com."
+    }
+  ]
+}

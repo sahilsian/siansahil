@@ -1,30 +1,26 @@
 'use client'
 import {PropsWithChildren} from "react";
 import Typography from "@/components/typography";
-import Pagination from "@/components/pagination";
-import {useNavigate, useSearch} from "@tanstack/react-router";
-import {STANDARD_PAGINATION} from "@/lib/content";
+import {useNavigate} from "@tanstack/react-router";
 import SearchInput from "@/components/searchInput";
 import {ControlInterface, Views} from "@/hooks/useControl.ts";
 import CategoryInput from "@/components/categoryInput";
 import {CollectionCategory} from "@/components/renderers/collectionRenderer";
 import CustomizeViewport from "@/components/customizeViewport";
+import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface ControlProps extends PropsWithChildren {
     controlMachine: ControlInterface
-    pageCount?: number,
-    total?: number;
     categories: CollectionCategory[]
+    currentCollection: string
 }
-export const Control = ({ controlMachine, pageCount, total=0, children, categories}:ControlProps) => {
-    const search = useSearch({ strict: false });
+export const Control = ({ controlMachine, children, categories, currentCollection}:ControlProps) => {
+    const { messages } = useSite()
     const navigate = useNavigate()
 
-    const currentPage = search.page || STANDARD_PAGINATION.pagination.page;
-    const currentPageSize = search.pageSize || STANDARD_PAGINATION.pagination.pageSize;
 
     const categoryOptions = categories.map((category) => {
-        return { name: category.category.name }
+        return { name: category.category.name, label: category.layoutTitle }
     })
 
     // State Updates
@@ -76,7 +72,7 @@ export const Control = ({ controlMachine, pageCount, total=0, children, categori
                 ...prev,
                 // reset page
                 page: 1,
-                category: newCategory
+                collection: newCategory
             })
         })
     }
@@ -94,12 +90,11 @@ export const Control = ({ controlMachine, pageCount, total=0, children, categori
 
     return (
         <div className={'relative z-10 '}>
-            <div className={'sm:flex sm:justify-between mb-2'}>
-                <div className={'flex sm:justify-start justify-between gap-8 sm:items-center'}>
-                    <div>
-                        <Pagination page={currentPage} pageCount={pageCount} pageSize={currentPageSize} total={total}></Pagination>
-                    </div>
-                    <div>
+            {/* One row: search on the left, dropdown + view buttons on the right.
+                Never wraps; on narrow screens the search box shrinks to make room. */}
+            <div className={'flex flex-nowrap items-center justify-between gap-3 mb-2'}>
+                <div className={'flex items-center flex-1 min-w-0'}>
+                    <div className={'min-w-0'}>
                         <SearchInput
                             onEnter={async(e) => {
                                 if(e.key === "Enter") await handleSearch()
@@ -114,7 +109,7 @@ export const Control = ({ controlMachine, pageCount, total=0, children, categori
                     </div>
                 </div>
 
-                <div className={'flex w-full items-center flex-row-reverse justify-start gap-4 lg:gap-8'}>
+                <div className={'flex items-center flex-row-reverse shrink-0 gap-3 lg:gap-8'}>
                     <div>
                         <CustomizeViewport
                             controlMachine={controlMachine}
@@ -124,9 +119,9 @@ export const Control = ({ controlMachine, pageCount, total=0, children, categori
                         </CustomizeViewport>
                     </div>
 
-                    <div className={"max-w-[100px] "}>
+                    <div>
                         <CategoryInput
-                            value={controlMachine.state.category || ''}
+                            value={currentCollection}
                             handleChange={(e:any) => handleCategoryChange(e)}
                             disabled={controlMachine.isProcessing}
                             options={categoryOptions}
@@ -142,13 +137,9 @@ export const Control = ({ controlMachine, pageCount, total=0, children, categori
                 </div>
                 :
                 <div>
-                    <Typography level={"6"} value={"An error has occured. Please forms me with a screenshot!"}></Typography>
+                    <Typography level={"6"} value={messages.collectionError}></Typography>
                 </div>
             }
-
-            <div>
-                <Pagination page={currentPage} pageCount={pageCount} pageSize={currentPageSize} total={total}></Pagination>
-            </div>
         </div>
     )
 }

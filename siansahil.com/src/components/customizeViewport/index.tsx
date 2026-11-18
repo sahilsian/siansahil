@@ -1,6 +1,6 @@
 import IconButton from "@/components/iconButton";
 import {ControlInterface, Views, VIEWS} from "@/hooks/useControl.ts";
-import {LayoutGrid, LayoutList} from "lucide-react";
+import {Columns3, Grid3x3} from "lucide-react";
 
 interface CustomizeViewportProps {
     controlMachine: ControlInterface
@@ -8,8 +8,9 @@ interface CustomizeViewportProps {
 }
 const CustomizeViewport = ({ controlMachine, onClick }: CustomizeViewportProps) => {
     const viewConfig = {
-        post: { icon: <LayoutGrid />, value: "post" },
-        list: { icon: <LayoutList />, value: "list" }
+        // "post" = 3 per row, "list" = denser 4 per row (key kept for existing URLs/state)
+        post: { icon: <Columns3 />, value: "post" },
+        list: { icon: <Grid3x3 />, value: "list" }
     };
 
     return (

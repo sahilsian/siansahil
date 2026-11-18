@@ -1,0 +1,8 @@
+# Keep the Docker build context small: only sources, config and migrations are needed.
+target/
+.env
+.env.*
+**/*.log
+.git/
+.idea/
+.vscode/

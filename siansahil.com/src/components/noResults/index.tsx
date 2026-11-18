@@ -1,9 +1,11 @@
 import Typography from "@/components/typography";
+import {useSite} from "@/contexts/site/siteContext.tsx";
 
 const NoResults = () => {
+    const { labels } = useSite()
     return (
         <div className={"py-5"}>
-            <Typography value={"No Results Found."}></Typography>
+            <Typography value={labels.noResults}></Typography>
         </div>
     )
 }

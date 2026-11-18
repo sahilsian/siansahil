@@ -8,25 +8,25 @@ interface CollectionRendererProps {
     type: string;
     pageInfo: PageInfoProps
     categories: CollectionCategory[]
+    /** Id of the collection being shown (from ?collection= or the page default). */
+    currentCollection: string
 }
 
 export interface CollectionCategory {
     category: { name: string }
     layoutTitle: string
     layoutDescription: string
-    // structuredData is omitted: pageSEO types it as the global `JSON`
-    // interface (parse/stringify), which TanStack Router's loader-data
-    // serializability check rejects.
-    seo: Omit<pageSEO, 'structuredData'>
+    seo: pageSEO
 }
 
 // Collection Factory
-const CollectionRenderer = ({collection, type, pageInfo, categories}: CollectionRendererProps) => {
+const CollectionRenderer = ({collection, type, pageInfo, categories, currentCollection}: CollectionRendererProps) => {
     return <CollectionLayout
             type={type}
             collection={collection}
             pageInfo={pageInfo}
             categories={categories}
+            currentCollection={currentCollection}
         ></CollectionLayout>
 }
 

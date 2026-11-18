@@ -1,0 +1,43 @@
+{
+  "$type": "product",
+  "slug": "science-world",
+  "title": "Science World",
+  "category": "plein-air",
+  "description": "Science World, Late September was painted by Sahil Sian between September 26th and October 3rd in complete Plein air. His performance was witnessed by residents of False Creek, \"Vancouverites\" and viewers across the world.",
+  "images": [
+    {
+      "url": "/science_world.jpg",
+      "width": 14999,
+      "height": 12000,
+      "alternativeText": "Science World — oil on canvas",
+      "name": "science_world.jpg"
+    },
+    {
+      "url": "/science_world_location.jpg",
+      "width": 1290,
+      "height": 2194,
+      "alternativeText": "Science World — painting on location",
+      "name": "science_world_location.jpg"
+    }
+  ],
+  "ogImage": {
+    "url": "/og/science-world.jpg",
+    "width": 1200,
+    "height": 960,
+    "alternativeText": "Science World — oil on canvas",
+    "name": "science-world.jpg"
+  },
+  "tabs": [
+    {
+      "title": "Story",
+      "body": "I started this painting on whim during my pre-painting \"scouting\" trip. Normally this means I go around, look for a good composition and start my underpainting. I originally planned on painting into downtown, but right before approaching the main street, Science World station I changed my mind.\n\nI've always been fascinated by wonky, crazy architecture. Things that feel science fiction, but exist right above you. That's exactly how some might describe Science World. It's literally just a ball in the sky! Except the ball is an intricate dome, representing a marvel of geometry for False Creek residents to stare at through their windows.\n\nCoincidentally, False Creek was having its annual dragon boat racing competition. There's probably a more suitable name for it, but nevertheless I was in for a treat. Hundreds of dragon boat patrons were lined up to battle for a golden prize. Competitors were smashing their paddles into the docks, roaring themselves down into war. I liked this, it raised morale as I took on a very different challenge.\n\nI finished the underpainting in Venetian red and transparent red oxide with mixes of ultramarine blue. This was a technique I learned for monochromatic underpainting taught by Richard Schmidt in his book *Alla Prima 2*.\n\nAs I worked my way towards the ball, every brush stroke made me channel my inner Sargent. I found myself trailing forwards and backwards, articulating every line of color thrown onto the sphere. Occasionally I'd turn my back around and find an audience watching my moves.\n\nFor a painting that makes you feel immersed, I think I got it. Some days I find myself staring at its finished product in my room, it really just sucks me in."
+    },
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 24x30 in.\n\nOriginal, Signed."
+    }
+  ],
+  "material": "Oil on Canvas",
+  "dateCreated": "2026",
+  "shopifyHandle": "science-world-late-september"
+}

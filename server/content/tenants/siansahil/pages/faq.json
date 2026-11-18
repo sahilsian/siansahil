@@ -1,0 +1,47 @@
+{
+  "$type": "page",
+  "slug": "faq",
+  "seo": {
+    "title": "FAQ — Sahil Sian",
+    "description": "Frequently asked questions about Sahil Sian's paintings, prints and commissions."
+  },
+  "layout": {
+    "title": "FAQ",
+    "description": "Answers to common questions about my paintings, prints and commissions."
+  },
+  "blocks": [
+    {
+      "type": "faq",
+      "items": [
+        {
+          "question": "Where will you be painting next?",
+          "answer": "Follow my Instagram [@sahilcyan](https://www.instagram.com/sahilcyan/) for updates on locations. I will usually update my story on new paintings and when I'm painting."
+        },
+        {
+          "question": "Do you do commissions?",
+          "answer": "Yes I do. I do not paint from photographs and will only do commissions from life. You can request one through my [commission form](/commissions)."
+        },
+        {
+          "question": "How much do you charge?",
+          "answer": "My commission rate is $3.00 per square inch. I may charge extra depending on materials, commute, painting size and more."
+        },
+        {
+          "question": "Do you sell originals?",
+          "answer": "Yes I do, check out my [gallery](/products?collection=gallery)."
+        },
+        {
+          "question": "Do you sell prints?",
+          "answer": "Yes, prints are created on demand. You can inquire about purchasing a print via my [contact form](/contact)."
+        },
+        {
+          "question": "How do I contact you?",
+          "answer": "You may contact me via my [contact form](/contact)."
+        },
+        {
+          "question": "How can I get notified for new prints or originals for sale?",
+          "answer": "Please sign up to my mailing list below to get notified on print drops or originals for sale before anyone else."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "$type": "page",
+  "slug": "privacy-policy",
+  "seo": {
+    "title": "Privacy Policy — Sahil Sian",
+    "description": "How Sahil Sian's website collects, uses, and protects your information."
+  },
+  "layout": {
+    "title": "Privacy Policy",
+    "description": "Last updated: October 25, 2026"
+  },
+  "blocks": [
+    {
+      "type": "richText",
+      "body": "This policy explains what information siansahil.com collects, how it's used, and who it's shared with. This site is a personal art portfolio with a small shop for original paintings and prints.\n\n### Information We Collect\n\nWe collect information you provide directly: your email address if you sign up for the mailing list, and your name/email/message if you use the contact form. We do not use cookies, analytics, or tracking scripts on this site.\n\n### How We Use Your Information\n\nMailing list signups and contact form submissions are used only to send you updates you've asked for, or to respond to your message. We do not sell or rent your information to anyone.\n\n### Purchases Through Shopify\n\nWhen you purchase a painting or print, checkout happens entirely on Shopify's own secure platform: payment, shipping, and billing details are collected and processed by Shopify, not stored on this site. That portion of your data is governed by Shopify's own privacy policy, available at [shopify.com/legal/privacy](https://www.shopify.com/legal/privacy)\n\n### Email Delivery\n\nContact form and mailing list emails are delivered using Resend, an email delivery service. Resend processes the email address and message content solely to deliver that email.\n\n### Your Rights\n\nYou can unsubscribe from the mailing list or ask us to delete your information at any time by emailing sahilsiantech@gmail.com.\n\n### Changes to This Policy\n\nIf this policy changes, the \"last updated\" date above will be updated accordingly.\n\n### Contact\n\n[sahilsiantech@gmail.com](mailto:sahilsiantech@gmail.com)"
+    }
+  ]
+}

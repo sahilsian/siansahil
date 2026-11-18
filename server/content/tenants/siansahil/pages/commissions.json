@@ -1,0 +1,14 @@
+{
+  "$type": "page",
+  "slug": "commissions",
+  "seo": {
+    "title": "Commissions — Sahil Sian",
+    "description": "Request a commissioned painting from Sahil Sian."
+  },
+  "blocks": [
+    {
+      "type": "form",
+      "formId": "commission"
+    }
+  ]
+}

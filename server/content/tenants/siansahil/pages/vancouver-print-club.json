@@ -1,0 +1,61 @@
+{
+  "$type": "page",
+  "slug": "vancouver-print-club",
+  "seo": {
+    "title": "Vancouver City Print Club — Sahil Sian",
+    "description": "Join the Vancouver City Print Club for $19 a month."
+  },
+  "layout": {
+    "title": "Vancouver City Print Club",
+    "description": "Sign up for the Vancouver city print club and recieve 2 prints of my work per month, right at your door!"
+  },
+  "blocks": [
+    {
+      "type": "printClub",
+      "subscriptionHandle": "vancouver-print-club",
+      "intro": {
+        "headline": "I Paint Vancouvers Most Iconic Spots...",
+        "paragraphs": [
+          "Some might think he’s crazy, and honestly he might be. Sahil Sian is a Plein Air painter from Surrey BC on a mission to paint some of Vancouvers iconic spots completely from life.",
+          "In one of his earliest missions, he’s been seen completing a large 24x30 inch painting on False Creek of Science World. He’s also been seen downtown, painting in the heart of Vancouvers busiest streets. If you met him today, he probably handed you this flyer that you’re currently reading right now."
+        ],
+        "image": {
+          "url": "/sahil_standing_next_to_science_world.PNG",
+          "width": 1290,
+          "height": 2186,
+          "alternativeText": "Sahil Sian standing next to his painting of Science World, with Science World behind him",
+          "name": "sahil_standing_next_to_science_world.PNG"
+        },
+        "ctaLabel": "Sign up!"
+      },
+      "announcement": {
+        "headlineLines": [
+          "And Now...",
+          "He’s Opening the",
+          "Vancouver City Print Club!"
+        ],
+        "price": {
+          "prefix": "ONLY",
+          "amount": "$19 a Month!",
+          "note": "Free shipping for Canadians"
+        },
+        "ctaLabel": "Sign up!"
+      },
+      "details": {
+        "title": "Join the coolest new thing!",
+        "body": "Every month you will recieve two high quality prints of the paintings I create of Vancouvers coolest places. Club members will also be entered into raffles for original artwork and have a chance to suggest future paintings!",
+        "benefitsTitle": "Members Recieve",
+        "benefits": [
+          "Two 8.5 x 11 inch Prints of my Recent Paintings per Month.",
+          "Raffle entries for 3 original artwork giveaways per year.",
+          "Chance to suggest future painting spots",
+          "Lots of extras including prints of sketches and notes from my journeys"
+        ]
+      },
+      "closing": {
+        "headline": "What are ya waiting for? Join the club!",
+        "ctaLabel": "Join the Club Today"
+      }
+    }
+  ]
+}

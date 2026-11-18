@@ -61,12 +61,14 @@ export class Tokenizer {
 
     parseInlineElements(text: string): InlineToken[] {
         const inlineTokens: InlineToken[] = [];
-        const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+        // One pass over: [label](href) | **bold** | *italic*
+        // Bold is tried before italic so "**" is never read as two italics.
+        const inlineRegex = /\[([^\]]+)\]\(([^)]+)\)|\*\*(.+?)\*\*|\*([^*\s](?:[^*]*[^*\s])?)\*/g;
 
         let lastIndex = 0;
         let match;
 
-        while ((match = linkRegex.exec(text)) !== null) {
+        while ((match = inlineRegex.exec(text)) !== null) {
 
             if (match.index > lastIndex) {
                 inlineTokens.push({
@@ -76,15 +78,28 @@ export class Tokenizer {
                 });
             }
 
-            // Add link token
-            inlineTokens.push({
-                type: TokenType.LINK,
-                value: match[1],
-                link_href: match[2],
-                column: match.index
-            });
+            if (match[1] !== undefined) {
+                inlineTokens.push({
+                    type: TokenType.LINK,
+                    value: match[1],
+                    link_href: match[2],
+                    column: match.index
+                });
+            } else if (match[3] !== undefined) {
+                inlineTokens.push({
+                    type: TokenType.BOLD,
+                    value: match[3],
+                    column: match.index
+                });
+            } else {
+                inlineTokens.push({
+                    type: TokenType.ITALIC,
+                    value: match[4],
+                    column: match.index
+                });
+            }
 
-            lastIndex = linkRegex.lastIndex;
+            lastIndex = inlineRegex.lastIndex;
         }
 
         if (lastIndex < text.length) {

@@ -1,0 +1,199 @@
+{
+  "$type": "site",
+  "name": "Sahil Sian",
+  "url": "https://siansahil.com",
+  "locale": "en-CA",
+  "currency": "CAD",
+  "contact": {
+    "email": "sahilsiantech@gmail.com"
+  },
+  "social": {
+    "instagram": {
+      "handle": "sahilcyan",
+      "url": "https://www.instagram.com/sahilcyan/"
+    }
+  },
+  "theme": {
+    "colors": {
+      "background": "#ffffff",
+      "menu": "#ffffff",
+      "primary": "#000000",
+      "secondary": "#000000",
+      "textPrimary": "#000000",
+      "textSecondary": "#666666",
+      "wrapper": "#ffffff",
+      "textButton": "#ffffff",
+      "iconActive": "#FFFFE0",
+      "paper": "#EDEDED",
+      "marginRed": "#F67E7E",
+      "marginBlue": "#6AAAF6",
+      "available": "#4e9e39",
+      "sold": "#c44b57",
+      "highlight": "#FDE26B",
+      "disabled": "#E3E3E3"
+    },
+    "fonts": {
+      "body": "Inria Serif"
+    }
+  },
+  "seo": {
+    "siteName": "Sahil Sian",
+    "title": "Sahil Sian",
+    "description": "Sahil Sian's Artwork Portfolio",
+    "keywords": "",
+    "ogImage": {
+      "url": "https://placehold.co/1200x630?text=Open+Graph+Image",
+      "width": 1200,
+      "height": 630,
+      "alternativeText": "Placeholder Open Graph image",
+      "name": "og-placeholder.svg"
+    },
+    "robots": "index,follow",
+    "titleTemplate": "%s — Sahil Sian"
+  },
+  "favicons": {
+    "png96": "/favicon-96x96.png",
+    "svg": "/favicon.svg",
+    "ico": "/favicon.ico",
+    "appleTouch": "/apple-touch-icon.png",
+    "manifest": "/manifest.json"
+  },
+  "nav": {
+    "header": {
+      "title": "Sahil Sian",
+      "items": [
+        {
+          "label": "Home",
+          "to": "/"
+        },
+        {
+          "label": "Gallery",
+          "to": "/products",
+          "search": {
+            "collection": "gallery"
+          }
+        },
+        {
+          "label": "About",
+          "to": "/about"
+        },
+        {
+          "label": "FAQ",
+          "to": "/faq"
+        },
+        {
+          "label": "Contact",
+          "to": "/contact"
+        },
+        {
+          "label": "Instagram",
+          "to": "https://www.instagram.com/sahilcyan/",
+          "external": true
+        }
+      ]
+    },
+    "footer": {
+      "title": "Sahil Sian",
+      "description": "",
+      "groups": [
+        {
+          "title": "Quick Links",
+          "items": [
+            {
+              "label": "Home",
+              "to": "/"
+            },
+            {
+              "label": "Gallery",
+              "to": "/products",
+              "search": {
+                "collection": "gallery"
+              }
+            },
+            {
+              "label": "About",
+              "to": "/about"
+            },
+            {
+              "label": "FAQ",
+              "to": "/faq"
+            },
+            {
+              "label": "Contact",
+              "to": "/contact"
+            },
+            {
+              "label": "Instagram",
+              "to": "https://www.instagram.com/sahilcyan/",
+              "external": true
+            },
+            {
+              "label": "Privacy Policy",
+              "to": "/privacy-policy"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "mailing": {
+    "formId": "mailing-list",
+    "title": "Mailing List",
+    "description": "Sign up for updates on new paintings and prints.",
+    "consentPrefix": "By subscribing you agree to my",
+    "consentLink": {
+      "label": "Privacy Policy",
+      "to": "/privacy-policy"
+    }
+  },
+  "labels": {
+    "back": "Back",
+    "search": "Search",
+    "searchPlaceholder": "Search...",
+    "reset": "Reset",
+    "purchase": "Purchase",
+    "available": "Available",
+    "sold": "Sold",
+    "soldOut": "Sold out",
+    "unavailable": "Unavailable",
+    "prints": "Prints",
+    "printsFrom": "Prints from:",
+    "originalAvailable": "Original Available",
+    "originalSold": "Original Sold",
+    "size": "Size",
+    "price": "Price",
+    "customPrinting": "Custom Printing",
+    "customPrintingFeatures": [
+      "Canvas Prints",
+      "Various Sizes",
+      "Shipping and Delivery"
+    ],
+    "varies": "Varies",
+    "inquire": "Inquire",
+    "remove": "Remove",
+    "of": "of",
+    "enlargeImage": "Enlarge image",
+    "noResults": "No Results Found.",
+    "noPrintablePaintings": "No paintings are available for prints right now.",
+    "selected": "Selected:",
+    "showImage": "Show image"
+  },
+  "messages": {
+    "notFound": "This page is currently in construction!",
+    "loadError": "Oops! My website couldn't load. If you could reach out to sahilsiantech@gmail.com I will thankful <3.",
+    "collectionError": "An error has occured. Please forms me with a screenshot!",
+    "formInvalid": "Please fix the highlighted fields above.",
+    "formError": "Error submitting form.",
+    "formSuccessDefault": "Form Successfully Submitted.",
+    "fieldNotSupported": "Field not supported."
+  },
+  "integrations": {
+    "shopify": {
+      "printClubHandle": "vancouver-print-club"
+    },
+    "email": {
+      "recipient": "sahilsiantech@gmail.com",
+      "fromName": "Portfolio contact form"
+    }
+  }
+}

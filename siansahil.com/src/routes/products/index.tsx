@@ -1,45 +1,50 @@
 import {createFileRoute} from '@tanstack/react-router'
-import {getCategories, getProducts, STANDARD_PAGINATION} from "@/lib/content";
+import {
+    getCollection,
+    getCollectionSummaries,
+    getPage,
+    toCollectionCategories,
+    toListItem,
+    toPageSeo,
+} from "@/lib/content";
 import CollectionRenderer from "@/components/renderers/collectionRenderer";
-import {pageSEO} from "@/components/seo/interfaces.ts";
 import {getShopifyProductsByHandles} from "@/lib/shopify";
+import {pageHead} from "@/lib/seo.ts";
+
+// The page document that configures this listing (its `collection` block).
+const PAGE_SLUG = "products"
 
 export const Route = createFileRoute('/products/')({
     validateSearch: (search: Record<string, unknown>) => {
         return {
-            page: search.page ? Number(search.page) : undefined,
-            pageSize: search.pageSize ? Number(search.pageSize) : undefined,
             title: search.title ? String(search.title) : undefined,
-            category: search.category ? String(search.category) : undefined
+            collection: search.collection ? String(search.collection) : undefined,
         }
     },
     component: RouteComponent,
-    loaderDeps: ({ search: { page, pageSize, title, category } }) => ({ page, pageSize, title, category }),
-    loader: async ({context,  deps: { page, pageSize, title, category } }) => {
-
-        const pagination = {
-            page: page ?? STANDARD_PAGINATION.pagination.page,
-            pageSize: pageSize ?? STANDARD_PAGINATION.pagination.pageSize,
-        }
-
-        const categoryFilter = (category && category !== "all") ? category : null;
-
-        const filters = {
-            title: title || "",
-            category: categoryFilter,
-        };
-
-        const categories = await context.queryClient.ensureQueryData({
-            queryFn: getCategories,
-            queryKey: ["categories"]
+    loaderDeps: ({ search: { title, collection } }) => ({ title, collection }),
+    loader: async ({context, deps: { title, collection } }) => {
+        const page = await context.queryClient.ensureQueryData({
+            queryKey: ["page", PAGE_SLUG],
+            queryFn: () => getPage(PAGE_SLUG),
         })
+        const block = page.blocks.find((b) => b.type === "collection")
+        const collectionId = collection ?? (block?.type === "collection" ? block.defaultCollection : undefined)
+        if (!collectionId) throw new Error(`Page '${PAGE_SLUG}' has no collection block`)
 
-        const products = await context.queryClient.fetchQuery({
-            queryFn: () => getProducts({pagination, filters}),
-            queryKey: ["products", page, pageSize, title, categoryFilter],
-        })
+        const [summaries, current] = await Promise.all([
+            context.queryClient.ensureQueryData({
+                queryKey: ["collections"],
+                queryFn: getCollectionSummaries,
+            }),
+            // Not paginated: every matching product is shown at once.
+            context.queryClient.fetchQuery({
+                queryKey: ["collection", collectionId, title ?? ""],
+                queryFn: () => getCollection(collectionId, title),
+            }),
+        ])
 
-        const handles = products.nodes
+        const handles = current.products
             .map((product) => product.shopifyHandle)
             .filter((handle): handle is string => !!handle)
 
@@ -50,57 +55,31 @@ export const Route = createFileRoute('/products/')({
             })
             : {}
 
-        products.nodes = products.nodes.map((product) => ({
-            ...product,
+        const items = current.products.map((product) => ({
+            ...toListItem(product),
             shop: product.shopifyHandle ? shopByHandle[product.shopifyHandle] ?? null : null,
         }))
 
-        const selectedCategory =
-            categories.find(
-                (obj: any) =>
-                    category && obj.category.name === category
-            ) ??
-            categories.find(
-                (obj: any) => obj.category.name === 'all'
-            )
-
-        return {products, categories, selectedCategory}
-    },
-    head: ({ loaderData }) => {
-        const seo:pageSEO = loaderData?.selectedCategory?.seo ?? {
-            title: 'Fluentclicks.com',
-            description: 'Fluentclicks uses AI to generate leads that speak fluently to your business processes.',
-            canonical: 'siansahil.com',
-            OGImage: { url: '', width: 0, height: 0, alternativeText: '', name: '' },
-        }
-
         return {
-            meta: [
-                { title: seo.title },
-                { name: "description", content: seo.description},
-                // OPEN GRAPH
-                { property: 'og:title', content: seo.title },
-                { property: 'og:description', content: seo.description },
-                { property: 'og:image', content: seo.OGImage?.url || "" },
-                { property: 'og:type', content: "website" }
-            ],
-            links: [
-
-                { rel: 'canonical', href: seo.canonical }
-            ],
+            items,
+            collectionId,
+            seo: toPageSeo(current.seo),
+            categories: toCollectionCategories(summaries),
         }
     },
+    head: ({ loaderData }) => pageHead(loaderData?.seo),
 })
 
 function RouteComponent() {
-    const { products, categories } = Route.useLoaderData()
-  return <div>
-      <CollectionRenderer
-          type={"product"}
-          pageInfo={products.pageInfo}
-          collection={products.nodes}
-          categories={categories}
-      >
-      </CollectionRenderer>
-  </div>
+    const { items, categories, collectionId } = Route.useLoaderData()
+    return <div>
+        <CollectionRenderer
+            type={"product"}
+            pageInfo={{ page: 1, pageSize: items.length, pageCount: 1, total: items.length }}
+            collection={items}
+            categories={categories}
+            currentCollection={collectionId}
+        >
+        </CollectionRenderer>
+    </div>
 }

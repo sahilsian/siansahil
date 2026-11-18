@@ -1,0 +1,43 @@
+{
+  "$type": "product",
+  "slug": "robson-granville",
+  "title": "Robson & Granville",
+  "category": "plein-air",
+  "description": "Robson & Granville is Sahil Sian's third plein air painting painted between October 10th and 19th.",
+  "images": [
+    {
+      "url": "/robson_granville.jpg",
+      "width": 10800,
+      "height": 14400,
+      "alternativeText": "Robson & Granville — oil on canvas",
+      "name": "robson_granville.jpg"
+    },
+    {
+      "url": "/robson_granville_location.JPG",
+      "width": 3024,
+      "height": 4032,
+      "alternativeText": "Robson & Granville — painting on location",
+      "name": "robson_granville_location.JPG"
+    }
+  ],
+  "ogImage": {
+    "url": "/og/robson-granville.jpg",
+    "width": 900,
+    "height": 1200,
+    "alternativeText": "Robson & Granville — oil on canvas",
+    "name": "robson-granville.jpg"
+  },
+  "tabs": [
+    {
+      "title": "Story",
+      "body": "When I started this painting, I wanted two things: a technical challenge and a painting that feels grand. This isn't New York, we don't have those crazy large screens on buildings and I feel like our city does sleep to some degree. But we do have Robson & Granville. I approached Vancouver's entertainment hot spot with ambition. I wanted something difficult, I knew that if I want to be an incredible painter I need to throw myself into the worst of the waters.\n\nRobson & Granville is busy. Lots of people from lots of corners of the world traverse these streets. I sat center, a performance without music. I started the painting off with my underpainting technique inspired by Richard Schmidt, and mapped out every important shape I could. At one point I felt a little whimsical, looking to make twists and perspectives that only a painting could ever map.\n\nI did find myself going a little overboard, and if anything that's ever helped me it's baby steps. I kept that whimsical perspective twist to a minimum, and focused on the objective: architecture and likeness. I knew that I wasn't going to be able to get everything right, I mean, there's just so much going on! I studied the likeness of that Best Buy/Marshalls building. I wanted the viewer to be able to see something abstract and cramped up and still make things out like \"Oh that's an elevator!\" or \"Oh that's an escalator\".\n\nAs I continued the painting into the skies I noticed that it would be impossible to paint out the screens without some sort of vice. I took a photo, and painted only the screens. I moved higher and higher, got into the tall buildings in the back. As we moved higher into the canvas things got a lot more blue.\n\nThe hardest part of this painting was the perspective shift of having a horizontal plane as the crosswalks, and being able to create some movement around the composition. I worked from imagination, building shapes learned from figure drawing classes. This time around, I spent a lot of time figuring out proportion, because it would be detrimental if I made the figures too tiny.\n\nIt all came together well, and I came out of those streets with a painting that makes you want to dance, get in the groove and feel the magic on the street."
+    },
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 18x24 in.\n\nOriginal, Signed."
+    }
+  ],
+  "material": "Oil on Canvas",
+  "dateCreated": "2026",
+  "shopifyHandle": "robson-granville"
+}

@@ -1,0 +1,14 @@
+{
+  "$type": "page",
+  "slug": "contact",
+  "seo": {
+    "title": "Contact — Sahil Sian",
+    "description": "sahilsiantech@gmail.com"
+  },
+  "blocks": [
+    {
+      "type": "form",
+      "formId": "contact"
+    }
+  ]
+}

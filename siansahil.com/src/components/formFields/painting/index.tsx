@@ -1,22 +1,23 @@
 import Typography from "@/components/typography";
 import Spacer from "@/components/spacer";
 import Image from "@/components/image";
-import {PAINTINGS} from "@/lib/content";
+import type {PaintingOption} from "@/hooks/useFormControl.ts";
+import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface PaintingFieldProps {
     handleChange: (slug: string) => void,
     value: string,
     label: string
-    slugs?: string[]
+    paintings: PaintingOption[]
     disabled: boolean,
     isRequired: boolean
     error: boolean
 }
 
-const PaintingField = ({handleChange, value, label, slugs, error, disabled, isRequired}: PaintingFieldProps) => {
-    const paintings = slugs ? PAINTINGS.filter((painting) => slugs.includes(painting.slug)) : PAINTINGS
+const PaintingField = ({handleChange, value, label, paintings, error, disabled, isRequired}: PaintingFieldProps) => {
+    const {labels} = useSite()
     const selectedTitle = paintings.find((painting) => painting.slug === value)?.title
-    const selectedLabel = selectedTitle && <Typography secondary level={'small'} value={`Selected: ${selectedTitle}`}></Typography>
+    const selectedLabel = selectedTitle && <Typography secondary level={'small'} value={`${labels.selected} ${selectedTitle}`}></Typography>
     return <div className={'mb-2'}>
         <div className={'flex gap-2'}>
             <Typography level={'4'} value={label}></Typography>
@@ -25,12 +26,12 @@ const PaintingField = ({handleChange, value, label, slugs, error, disabled, isRe
         {selectedLabel}
         <Spacer height={'10px'}></Spacer>
         {paintings.length === 0 && (
-            <Typography secondary level={'6'} value={"No paintings are available for prints right now."}></Typography>
+            <Typography secondary level={'6'} value={labels.noPrintablePaintings}></Typography>
         )}
         <div role={"radiogroup"} aria-label={label} className={`grid grid-cols-2 sm:grid-cols-3 gap-3 p-2 ${error && "border-1 border-red-500"}`}>
             {paintings.map((painting) => {
                 const selected = value === painting.slug
-                const category = (painting as any).category?.name as string | undefined
+                const category = painting.category
                 return (
                     // Mirrors the Post card (src/components/post) so the picker matches the gallery.
                     <button
@@ -57,10 +58,6 @@ const PaintingField = ({handleChange, value, label, slugs, error, disabled, isRe
                             {painting.dateCreated && <>
                                 <Typography secondary level={"small"} value={"|"} />
                                 <Typography secondary level={"small"} value={painting.dateCreated} />
-                            </>}
-                            {painting.material && <>
-                                <Typography secondary level={"small"} value={"|"} />
-                                <Typography secondary level={"small"} value={painting.material} />
                             </>}
                         </div>
                     </button>

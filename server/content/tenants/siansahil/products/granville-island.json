@@ -1,0 +1,36 @@
+{
+  "$type": "product",
+  "slug": "granville-island",
+  "title": "Granville Island, September Weekend",
+  "category": "plein-air",
+  "description": "Granville Island, September Weekend was painted by Sahil Sian between September 19th and 20th in complete Plein air. His performance was witnessed by visitors and patrons of Granville Island.",
+  "images": [
+    {
+      "url": "/granville_island_on_location_square.jpg",
+      "width": 2000,
+      "height": 2000,
+      "alternativeText": "Granville Island, September Weekend — plein air, on location",
+      "name": "granville_island_on_location_square.jpg"
+    }
+  ],
+  "ogImage": {
+    "url": "/og/granville-island.jpg",
+    "width": 1200,
+    "height": 1200,
+    "alternativeText": "Granville Island, September Weekend — plein air, on location",
+    "name": "granville-island.jpg"
+  },
+  "tabs": [
+    {
+      "title": "Story",
+      "body": "Granville Island was the start of a big switch in my plein air. Prior to this I was working on a small tripod easel that could only support small panels. I aspired to work bigger, but baby steps kept me from going gung-ho. But it was time to go that direction, because power builds through intimidation. My aunt gifted me her French easel from 2006, which I am incredibly thankful for. I took that French easel with me to Granville Island and paid a whopping $60 for parking. I'm not sure why I thought it would be less, but Vancouver, as we know, always treats you with a surprise.\n\nI started this painting with lessons learned from *Alla Prima 2*, a book I always mention and recommend to everyone looking to learn how to paint. It pretty much has everything and more, which was exactly what I needed as I stood in front of my first boss battle. The farmers market building had lots of fun corners, and I wanted to give this a barnyard-like feeling.\n\nThis was the first time I had spent more than 6 hours on a painting, and oh wow was this tough. Every highlight shifted every hour, and it became apparent how much I would have to improvise. This is exactly why a quick sketch to start will make you walk on water during the paint portion. But I hadn't gone that route, instead I just went in head first. But I prevailed, and I think I made a mighty painting."
+    },
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 16x20 in.\n\nOriginal, Signed."
+    }
+  ],
+  "material": "Oil on Canvas",
+  "dateCreated": "2026",
+  "shopifyHandle": "granville-island-september-weekend"
+}

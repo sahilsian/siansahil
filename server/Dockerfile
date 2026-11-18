@@ -22,6 +22,6 @@ RUN apt-get update -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /app/target/release/server server
-COPY configuration configuration
+COPY config config
 ENV APP_ENVIRONMENT production
 ENTRYPOINT ["./server"]

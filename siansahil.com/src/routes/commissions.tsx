@@ -1,29 +1,20 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {getForm} from "@/lib/content";
+import { formFromPage, getPage, toPageSeo } from "@/lib/content";
+import { pageHead } from "@/lib/seo.ts";
 import FormRenderer from "@/components/renderers/formRenderer";
+
+const PAGE_SLUG = "commissions"
 
 export const Route = createFileRoute('/commissions')({
     component: RouteComponent,
-    loader: async ({context}) => {
-        const form = await context.queryClient.ensureQueryData({
-            queryFn: () => getForm("commission"),
-            queryKey: ["form", "commission"]
+    loader: async ({ context }) => {
+        const page = await context.queryClient.ensureQueryData({
+            queryKey: ["page", PAGE_SLUG],
+            queryFn: () => getPage(PAGE_SLUG),
         })
-        return {
-            form
-        }
+        return { form: formFromPage(page), seo: toPageSeo(page.seo) }
     },
-    head: () => {
-        return {
-            meta: [
-                { title: "Commissions — Sahil Sian" },
-                { name: "description", content: "Request a commissioned painting from Sahil Sian." },
-                { property: 'og:title', content: "Commissions — Sahil Sian" },
-                { property: 'og:description', content: "Request a commissioned painting from Sahil Sian." },
-                { property: 'og:type', content: "website" }
-            ]
-        }
-    }
+    head: ({ loaderData }) => pageHead(loaderData?.seo),
 })
 
 function RouteComponent() {

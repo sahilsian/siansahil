@@ -6,7 +6,6 @@
 
 import {StrapiImage} from "@/components/image";
 import { submitForm } from "@/lib/data/mutations/mutations";
-import { PAINTINGS } from "@/lib/content";
 import {useEffect, useReducer} from "react";
 
 // Form
@@ -31,8 +30,11 @@ export interface FormProps {
     title: string
     description: string
     image?: StrapiImage
+    // Lay the form out across the full page width instead of a centered column.
+    fullWidth?: boolean
     fields: Fields[]
     successMessage?: string
+    errorMessage?: string
 }
 
 // A field with showIf is hidden — and skipped by validation and submission —
@@ -147,11 +149,21 @@ export interface ComponentFormRangeField extends ComponentFormBase {
     }
 }
 
-// Value is the selected product's slug; options come from the product catalog,
-// narrowed to `slugs` when given.
+/** One choice in a painting picker (a product summary from the content server). */
+export interface PaintingOption {
+    slug: string;
+    title: string;
+    image: StrapiImage;
+    category?: string;
+    dateCreated?: string;
+}
+
+// Value is the selected product's slug. `collection` (from the form document)
+// names where options come from; the route fills `paintings` before rendering.
 export interface ComponentFormPaintingField extends ComponentFormBase {
     disabled?: boolean;
-    slugs?: string[];
+    collection?: string;
+    paintings?: PaintingOption[];
     metadata: {
         fieldType: 'painting'
     }
@@ -409,6 +421,13 @@ export interface FormControlInterface {
 interface FormControlProps {
     formSchema: FormProps
     initialValues?: Record<string, FieldValue>
+    /**
+     * Where a validated form goes. Defaults to the Resend email server
+     * function (contact, commissions, prints). Receives field values by id;
+     * resolve true on success. The mailing list uses this to post to the
+     * content server instead.
+     */
+    submit?: (values: Record<string, FieldValue>) => Promise<boolean>
 }
 
 const getInitialValue = (field: Fields): FieldValue => {
@@ -511,7 +530,7 @@ const toSubmissionValue = async (fieldState: FieldState) => {
     }
 
     if (config.metadata.fieldType === 'painting') {
-        const painting = PAINTINGS.find((product) => product.slug === value)
+        const painting = (config as ComponentFormPaintingField).paintings?.find((option) => option.slug === value)
         return painting ? `${painting.title} (${painting.slug})` : value
     }
 
@@ -547,7 +566,7 @@ const buildSubmissionPayload = async (state: State) => {
     };
 };
 
-export const useFormControl = ({formSchema, initialValues}:FormControlProps):FormControlInterface => {
+export const useFormControl = ({formSchema, initialValues, submit}:FormControlProps):FormControlInterface => {
     const initialState = initializeForm(formSchema, initialValues);
 
     const [state, dispatch] = useReducer(transitionFunc, initialState)
@@ -558,13 +577,21 @@ export const useFormControl = ({formSchema, initialValues}:FormControlProps):For
         if (state.mode === 'submitting') {
             const submitToStrapi = async () => {
                 try {
-                    const submissionPayload = await buildSubmissionPayload(state)
+                    let succeeded: boolean
+                    if (submit) {
+                        const values = Object.fromEntries(
+                            Array.from(state.runtimeFields.values()).map((field) => [field.config.id, field.value])
+                        )
+                        succeeded = await submit(values)
+                    } else {
+                        const submissionPayload = await buildSubmissionPayload(state)
+                        const result = await submitForm({
+                            data: submissionPayload
+                        });
+                        succeeded = result.success
+                    }
 
-                    const result = await submitForm({
-                        data: submissionPayload
-                    });
-
-                    if (result.success) {
+                    if (succeeded) {
                         dispatch({ type: ACTIONS_LIST.SET_SUCCESS })
                     } else {
                         throw new Error('Submission failed')

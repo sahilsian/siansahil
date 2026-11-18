@@ -1,13 +1,44 @@
 {
   "title": "Sahil Sian",
   "mainMenuItems": [
-    { "id": 1, "displayName": "Home", "slug": "/", "category": "About" },
-    { "id": 2, "displayName": "Artwork", "slug": "/products", "category": "Art", "search": { "category": "all" } },
-    { "id": 3, "displayName": "Plein air", "slug": "/products", "category": "Art", "search": { "category": "Plein air" } },
-    { "id": 4, "displayName": "Drawings", "slug": "/products", "category": "Art", "search": { "category": "Drawings" } },
-    { "id": 5, "displayName": "Photography", "slug": "/products", "category": "Art", "search": { "category": "Photography" } },
-    { "id": 7, "displayName": "Commissions", "slug": "/commissions", "category": "Art" },
-    { "id": 8, "displayName": "Print Club", "slug": "/vancouver-print-club", "category": "Art" },
-    { "id": 6, "displayName": "Contact", "slug": "/contact", "category": "About" }
+    {
+      "id": 1,
+      "displayName": "Home",
+      "slug": "/",
+      "category": "About"
+    },
+    {
+      "id": 2,
+      "displayName": "Gallery",
+      "slug": "/products",
+      "category": "Art",
+      "search": {
+        "category": "Gallery"
+      }
+    },
+    {
+      "id": 3,
+      "displayName": "About",
+      "slug": "/about",
+      "category": "About"
+    },
+    {
+      "id": 4,
+      "displayName": "FAQ",
+      "slug": "/faq",
+      "category": "About"
+    },
+    {
+      "id": 5,
+      "displayName": "Contact",
+      "slug": "/contact",
+      "category": "About"
+    },
+    {
+      "id": 6,
+      "displayName": "Instagram",
+      "slug": "https://www.instagram.com/sahilcyan/",
+      "category": "About"
+    }
   ]
 }

@@ -1,0 +1,42 @@
+{
+  "$type": "product",
+  "slug": "mount-pleasant",
+  "title": "Mount Pleasant",
+  "category": "plein-air",
+  "description": "Mount Pleasant is a plein air painting by Sahil Sian.",
+  "images": [
+    {
+      "url": "/mount_pleasant.jpg",
+      "width": 14999,
+      "height": 9999,
+      "alternativeText": "Mount Pleasant — oil on canvas",
+      "name": "mount_pleasant.jpg"
+    },
+    {
+      "url": "/mount_pleasant_location.JPG",
+      "width": 3024,
+      "height": 4032,
+      "alternativeText": "Mount Pleasant — painting on location",
+      "name": "mount_pleasant_location.JPG"
+    }
+  ],
+  "ogImage": {
+    "url": "/og/mount-pleasant.jpg",
+    "width": 1200,
+    "height": 800,
+    "alternativeText": "Mount Pleasant — oil on canvas",
+    "name": "mount-pleasant.jpg"
+  },
+  "tabs": [
+    {
+      "title": "Story",
+      "body": "Mount Pleasant is a plein air painting by Sahil Sian."
+    },
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**\n\nOriginal, Signed."
+    }
+  ],
+  "material": "Oil on Canvas",
+  "dateCreated": "2026"
+}

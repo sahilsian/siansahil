@@ -1,0 +1,5 @@
+application:
+  host: 127.0.0.1
+admin:
+  # Local development only. Production sets APP_ADMIN__API_KEY.
+  api_key: "local-dev-admin-key-0123456789abcdef"

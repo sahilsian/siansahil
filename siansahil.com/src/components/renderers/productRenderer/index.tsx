@@ -17,6 +17,7 @@ const ProductRenderer = ({blocks, product, type, shop}:ProductRendererProps) => 
             title={product.title}
             slug={product.slug}
             image={product.image}
+            images={product.images}
             description={product.description}
             tabs={product.tabs}
             dateCreated={product.dateCreated}

@@ -10,10 +10,16 @@ interface MarkdownTypographyProps extends PropsWithChildren {
 }
 
 const isExternalLink = (href?: string) =>
-    href?.startsWith('http://') || href?.startsWith('https://');
+    href?.startsWith('http://') || href?.startsWith('https://') || href?.startsWith('mailto:');
+
+/** "/products?collection=gallery" → { to: "/products", search: { collection: "gallery" } } */
+const splitInternalHref = (href: string) => {
+    const [to, query = ""] = href.split("?", 2);
+    return { to, search: Object.fromEntries(new URLSearchParams(query)) };
+};
 
 const renderToken = (token: InlineToken, index: number): React.ReactNode => {
-    const linkClass = "text-blue-600 hover:underline";
+    const linkClass = "underline";
 
     switch (token.type) {
         case TokenType.LINK:
@@ -30,15 +36,21 @@ const renderToken = (token: InlineToken, index: number): React.ReactNode => {
             </a>
             );
             }
+            const { to, search } = splitInternalHref(token.link_href!);
             return (
                 <Link
                     key={index}
-                    to={token.link_href!}
+                    to={to}
+                    search={search}
                     className={linkClass}
                 >
                     {token.value}
                 </Link>
             );
+        case TokenType.BOLD:
+            return <strong key={index} className={"font-bold"}>{token.value}</strong>;
+        case TokenType.ITALIC:
+            return <em key={index} className={"italic"}>{token.value}</em>;
         case TokenType.TEXT:
         default:
             return <React.Fragment key={index}>{token.value}</React.Fragment>;

@@ -2,15 +2,50 @@
   "title": "Sahil Sian",
   "description": "",
   "footerMenuItems": [
-    { "id": 1, "displayName": "Home", "slug": "/", "category": "About" },
-    { "id": 2, "displayName": "Artwork", "slug": "/products", "category": "Art", "search": { "category": "all" } },
-    { "id": 3, "displayName": "Plein air", "slug": "/products", "category": "Art", "search": { "category": "Plein air" } },
-    { "id": 4, "displayName": "Drawings", "slug": "/products", "category": "Art", "search": { "category": "Drawings" } },
-    { "id": 5, "displayName": "Photography", "slug": "/products", "category": "Art", "search": { "category": "Photography" } },
-    { "id": 8, "displayName": "Commissions", "slug": "/commissions", "category": "Art" },
-    { "id": 9, "displayName": "Print Club", "slug": "/vancouver-print-club", "category": "Art" },
-    { "id": 6, "displayName": "Contact", "slug": "/contact", "category": "About" },
-    { "id": 10, "displayName": "Instagram", "slug": "https://www.instagram.com/siansahil_/", "category": "About" },
-    { "id": 7, "displayName": "Privacy Policy", "slug": "/privacy-policy", "category": "Legal" }
+    {
+      "id": 1,
+      "displayName": "Home",
+      "slug": "/",
+      "category": "Quick Links"
+    },
+    {
+      "id": 2,
+      "displayName": "Gallery",
+      "slug": "/products",
+      "category": "Quick Links",
+      "search": {
+        "category": "Gallery"
+      }
+    },
+    {
+      "id": 3,
+      "displayName": "About",
+      "slug": "/about",
+      "category": "Quick Links"
+    },
+    {
+      "id": 4,
+      "displayName": "FAQ",
+      "slug": "/faq",
+      "category": "Quick Links"
+    },
+    {
+      "id": 5,
+      "displayName": "Contact",
+      "slug": "/contact",
+      "category": "Quick Links"
+    },
+    {
+      "id": 7,
+      "displayName": "Instagram",
+      "slug": "https://www.instagram.com/sahilcyan/",
+      "category": "Quick Links"
+    },
+    {
+      "id": 6,
+      "displayName": "Privacy Policy",
+      "slug": "/privacy-policy",
+      "category": "Quick Links"
+    }
   ]
 }

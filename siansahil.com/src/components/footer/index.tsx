@@ -2,11 +2,13 @@ import MenuItem, {MenuItemProps} from "@/components/menuItem";
 import Screen from "@/components/screen"
 import Typography from "@/components/typography";
 import Mailing from "@/components/mailing";
+import type {FormProps} from "@/hooks/useFormControl.ts";
 interface FooterProps {
     backgroundColor?: string,
     menuItems?: MenuItemProps[],
     title: string,
     description: string
+    mailingForm: FormProps
 }
 
 interface CategoryGroup {
@@ -14,7 +16,7 @@ interface CategoryGroup {
     items: MenuItemProps[];
 }
 
-const Footer = ( {backgroundColor, menuItems, title, description}:FooterProps) => {
+const Footer = ( {backgroundColor, menuItems, title, description, mailingForm}:FooterProps) => {
 
     if (!menuItems) return null
 
@@ -37,10 +39,10 @@ const Footer = ( {backgroundColor, menuItems, title, description}:FooterProps) =
         <Screen backgroundColor={backgroundColor}>
             <div className={"w-full"}>
                 <div className={""}>
-                    <Mailing></Mailing>
+                    <Mailing form={mailingForm}></Mailing>
                 </div>
 
-                <footer className={"flex  px-6 lg:px-22 py-12 gap-20 flex-wrap"}>
+                <footer className={"flex  px-6 lg:px-22 py-12 gap-x-20 gap-y-4 flex-wrap"}>
                     <div className={"flex-1 min-w-[300px] "}>
                         <Typography level={"2"} value={title}></Typography>
                         <Typography level={"p"} value={description}></Typography>

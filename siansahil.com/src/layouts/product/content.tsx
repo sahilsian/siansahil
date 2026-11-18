@@ -3,17 +3,19 @@ import Typography from "@/components/typography";
 import Spacer from "@/components/spacer";
 import {Media} from "@/layouts/product/media.tsx";
 import TabbedContent, {Tab} from "@/components/tabbedContent";
-import {Link, useRouter} from "@tanstack/react-router";
+import {/* Link, */ useRouter} from "@tanstack/react-router";
 import {StrapiImage} from "@/components/image";
 import {useAppState} from "@/hooks/useAppState.ts";
 import Spinner from "@/components/spinner";
-import {createShopifyCheckout, formatShopifyPrice, printSizeLabel, ShopifyProductData} from "@/lib/shopify";
+import {createShopifyCheckout, formatShopifyPrice, /* printSizeLabel, */ ShopifyProductData} from "@/lib/shopify";
+import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface ContentProps {
     type?: string;
     title: string;
     slug?: string;
     image: StrapiImage;
+    images?: StrapiImage[];
     description: string;
     tabs?: Tab[];
     dateCreated?: string;
@@ -21,13 +23,14 @@ interface ContentProps {
     shop?: ShopifyProductData | null;
 }
 
-const CUSTOM_PRINT_FEATURES = ["Canvas Prints", "Various Sizes", "Shipping and Delivery"];
+// const CUSTOM_PRINT_FEATURES = ["Canvas Prints", "Various Sizes", "Shipping and Delivery"];
 
-export const Content = ({title, slug, description, image, tabs, material, dateCreated, shop}:ContentProps) => {
+export const Content = ({title, /* slug, */ description, image, images = [], tabs, shop}:ContentProps) => {
     const original = shop?.original;
-    const prints = shop?.prints ?? [];
+    // const prints = shop?.prints ?? [];
     const router = useRouter()
     const ctx = useAppState()
+    const { labels } = useSite()
     const [checkingOutId, setCheckingOutId] = useState<string | null>(null);
 
     const handleCheckout = async (variantId: string) => {
@@ -49,23 +52,13 @@ export const Content = ({title, slug, description, image, tabs, material, dateCr
         <div className={"Product relative z-30"}>
             <div className={"flex"}>
                 <div onClick={()=> router.history.back()}>
-                    <Typography value={"Back"} level={"button"}></Typography>
+                    <Typography value={labels.back} level={"button"}></Typography>
                 </div>
             </div>
             <Spacer height={"10px"}></Spacer>
             <div className={"flex gap-10 flex-wrap"}>
                 <div className={'flex-1'}>
-                    <Media image={image}></Media>
-                    <Spacer height={"10px"}></Spacer>
-                    <div className={'flex gap-3 items-center'}>
-                        {dateCreated && <>
-                        <Typography level={'6'} value={"Created on: " + dateCreated}></Typography>
-                        </>}
-                        {material && <>
-                        {(material && dateCreated) && <Typography  level={'6'} value={"|"}></Typography> }
-                            <Typography level={'6'} value={material}></Typography>
-                        </>}
-                    </div>
+                    <Media images={[image, ...images]}></Media>
                 </div>
 
                 <div className={"flex-2"}>
@@ -79,17 +72,18 @@ export const Content = ({title, slug, description, image, tabs, material, dateCr
                     {/*<div>*/}
                     {/*    <Typography level={"6"} value={`${type}/${slug}`}></Typography>*/}
                     {/*</div>*/}
-                    <Spacer height={"20px"}></Spacer>
                     <div className={"ControlGroup flex flex-col gap-4"}>
-                        <div className={"flex items-center justify-between gap-4 flex-wrap border border-black px-4 py-3"}>
+                        {/* Price/purchase box only when the original is listed on Shopify */}
+                        {original && (
+                        <div className={"flex items-center justify-between gap-4 flex-wrap border border-black px-4 py-3 mt-5"}>
                             <div className={"flex items-center gap-4"}>
                                 {original && (
                                     <>
                                         <Typography level={"6"} value={formatShopifyPrice(original.price, original.currencyCode)} />
                                         {original.availableForSale ? (
-                                            <span className={"font-serif text-[1rem] text-[#4e9e39]"}>Available</span>
+                                            <span className={"font-serif text-[1rem] text-[#4e9e39]"}>{labels.available}</span>
                                         ) : (
-                                            <span className={"font-serif text-[1rem] text-[#c44b57]"}>Sold</span>
+                                            <span className={"font-serif text-[1rem] text-[#c44b57]"}>{labels.sold}</span>
                                         )}
                                     </>
                                 )}
@@ -99,13 +93,16 @@ export const Content = ({title, slug, description, image, tabs, material, dateCr
                                     onClick={() => handleCheckout(original.id)}
                                     className={checkingOutId === original.id ? "opacity-50 cursor-wait" : ""}
                                 >
-                                    <Typography level="button_purchase" value="Purchase" />
+                                    <Typography level="button_purchase" value={labels.purchase} />
                                 </div>
                             ) : (
-                                <Typography secondary level="button" value="Purchase" className="font-bold cursor-not-allowed" />
+                                <Typography secondary level="button" value={labels.purchase} className="font-bold cursor-not-allowed" />
                             )}
                         </div>
+                        )}
 
+                        {/* Prints section — hidden for now. To restore, uncomment this block
+                            and the prints/CUSTOM_PRINT_FEATURES/printSizeLabel/Link/slug lines above.
                         {prints.length > 0 && (
                             <div>
                                 <div className={"flex"}>
@@ -164,12 +161,8 @@ export const Content = ({title, slug, description, image, tabs, material, dateCr
                                 </table>
                             </div>
                         )}
+                        */}
                     </div>
-                    {!shop && (
-                        <div className={"italic"}>
-                            <Typography level={"6"} value={"Shop coming soon."}></Typography>
-                        </div>
-                    )}
                     <Spacer height={"20px"}></Spacer>
                     <div>
                         <TabbedContent tabs={tabs}></TabbedContent>

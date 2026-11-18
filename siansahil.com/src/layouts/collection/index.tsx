@@ -3,7 +3,6 @@ import {Content} from "@/layouts/collection/content.tsx";
 import {Background} from "@/layouts/collection/background.tsx";
 import {PageInfoProps} from "@/components/pagination";
 import {CollectionCategory} from "@/components/renderers/collectionRenderer";
-import {useSearch} from "@tanstack/react-router";
 import {useAppState} from "@/hooks/useAppState.ts";
 
 interface CollectionProps {
@@ -11,14 +10,13 @@ interface CollectionProps {
     type: string;
     pageInfo: PageInfoProps;
     categories: CollectionCategory[]
+    currentCollection: string
 }
 
 
-const CollectionLayout = ({collection, pageInfo, type, categories}:CollectionProps) => {
+const CollectionLayout = ({collection, pageInfo, type, categories, currentCollection}:CollectionProps) => {
     const controlMachine = useAppState()
-    const search = useSearch({ strict: false })
-
-    const currentCategory = search.category || 'all'
+    const currentCategory = currentCollection
 
     const { layoutTitle, layoutDescription } = categories.find((category) =>
         category.category.name === currentCategory
@@ -28,7 +26,7 @@ const CollectionLayout = ({collection, pageInfo, type, categories}:CollectionPro
         <div className={`Collection ${type} lg:px-22 px-6 bg-[#EDEDED] relative min-h-screen`}>
             <Background></Background>
             <Content categoryKey={currentCategory} controlMachine={controlMachine} title={layoutTitle} description={layoutDescription}></Content>
-            <List categories={categories} controlMachine={controlMachine} pageInfo={pageInfo} collection={collection}></List>
+            <List categories={categories} currentCollection={currentCollection} controlMachine={controlMachine} pageInfo={pageInfo} collection={collection}></List>
         </div>
     )
 }

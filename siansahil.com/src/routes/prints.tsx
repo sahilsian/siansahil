@@ -1,8 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {getForm, PAINTINGS} from "@/lib/content";
-import {getShopifyProductsByHandles} from "@/lib/shopify";
+import { formFromPage, getCollection, getPage, toPageSeo } from "@/lib/content";
+import { getShopifyProductsByHandles } from "@/lib/shopify";
 import FormRenderer from "@/components/renderers/formRenderer";
-import {FormProps} from "@/hooks/useFormControl.ts";
+import { pageHead } from "@/lib/seo.ts";
+import type { ComponentFormPaintingField, FormProps } from "@/hooks/useFormControl.ts";
+
+const PAGE_SLUG = "prints"
 
 export const Route = createFileRoute('/prints')({
     validateSearch: (search: Record<string, unknown>) => {
@@ -11,13 +14,24 @@ export const Route = createFileRoute('/prints')({
         }
     },
     component: RouteComponent,
-    loader: async ({context}) => {
-        const form = await context.queryClient.ensureQueryData({
-            queryFn: () => getForm("print"),
-            queryKey: ["form", "print"]
+    loader: async ({ context }) => {
+        const page = await context.queryClient.ensureQueryData({
+            queryKey: ["page", PAGE_SLUG],
+            queryFn: () => getPage(PAGE_SLUG),
         })
+        const form = formFromPage(page)
 
-        const handles = PAINTINGS
+        // The painting picker's options: its collection's products, narrowed to
+        // those with at least one print variant for sale on Shopify.
+        const pickerField = form.fields.find((f) => f.metadata.fieldType === "painting") as ComponentFormPaintingField | undefined
+        const products = pickerField?.collection
+            ? (await context.queryClient.ensureQueryData({
+                queryKey: ["collection", pickerField.collection, ""],
+                queryFn: () => getCollection(pickerField.collection!),
+            })).products
+            : []
+
+        const handles = products
             .map((product) => product.shopifyHandle)
             .filter((handle): handle is string => !!handle)
 
@@ -28,50 +42,37 @@ export const Route = createFileRoute('/prints')({
             })
             : {}
 
-        // Only paintings with at least one print variant for sale can be picked.
-        const printableSlugs = PAINTINGS
+        const paintings = products
             .filter((product) => product.shopifyHandle && shopByHandle[product.shopifyHandle]?.prints.some((print) => print.availableForSale))
-            .map((product) => product.slug)
+            .map(({ slug, title, image, category, dateCreated }) => ({ slug, title, image, category, dateCreated }))
 
-        return {
-            form,
-            printableSlugs
+        const printForm: FormProps = {
+            ...form,
+            fields: form.fields.map((field) =>
+                field.metadata.fieldType === 'painting' ? { ...field, paintings } : field
+            )
         }
+
+        return { form: printForm, seo: toPageSeo(page.seo) }
     },
-    head: () => {
-        return {
-            meta: [
-                { title: "Custom Prints — Sahil Sian" },
-                { name: "description", content: "Inquire about a custom canvas print of a painting by Sahil Sian." },
-                { property: 'og:title', content: "Custom Prints — Sahil Sian" },
-                { property: 'og:description', content: "Inquire about a custom canvas print of a painting by Sahil Sian." },
-                { property: 'og:type', content: "website" }
-            ]
-        }
-    }
+    head: ({ loaderData }) => pageHead(loaderData?.seo),
 })
 
 function RouteComponent() {
-    const { form, printableSlugs } = Route.useLoaderData()
+    const { form } = Route.useLoaderData()
     const { painting } = Route.useSearch()
 
-    const printForm: FormProps = {
-        ...form,
-        fields: form.fields.map((field) =>
-            field.metadata.fieldType === 'painting' ? { ...field, slugs: printableSlugs } : field
-        )
-    }
-
+    const pickerField = form.fields.find((f) => f.metadata.fieldType === "painting") as ComponentFormPaintingField | undefined
     // Only preselect slugs that match a selectable painting, so a stale link
     // can't satisfy the required field with a value no card represents.
-    const preselected = painting && printableSlugs.includes(painting) ? painting : undefined
+    const preselected = painting && pickerField?.paintings?.some((p) => p.slug === painting) ? painting : undefined
     return (
         <div>
             <FormRenderer
                 key={preselected ?? "none"}
                 type={"layout"}
-                form={printForm}
-                initialValues={preselected ? { painting: preselected } : undefined}
+                form={form}
+                initialValues={preselected && pickerField ? { [pickerField.id]: preselected } : undefined}
             >
             </FormRenderer>
         </div>

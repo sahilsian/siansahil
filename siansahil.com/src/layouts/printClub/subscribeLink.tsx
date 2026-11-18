@@ -4,10 +4,10 @@ import {createShopifyCheckout, ShopifySubscription} from "@/lib/shopify";
 
 interface SubscribeLinkProps {
     subscription: ShopifySubscription | null;
-    label?: string;
+    label: string;
 }
 
-export const SubscribeLink = ({subscription, label = "Sign up!"}:SubscribeLinkProps) => {
+export const SubscribeLink = ({subscription, label}:SubscribeLinkProps) => {
     const [isCheckingOut, setIsCheckingOut] = useState(false);
 
     const handleCheckout = async () => {

@@ -1,5 +1,6 @@
 use secrecy::{ExposeSecret, Secret};
-use sqlx::postgres::PgConnectOptions;
+use serde_aux::field_attributes::deserialize_number_from_string;
+use sqlx::postgres::{PgConnectOptions, PgSslMode};
 
 pub enum Environment {
     Local,
@@ -11,6 +12,27 @@ pub enum Environment {
 pub struct Settings {
     pub database: DatabaseSettings,
     pub application: ApplicationSettings,
+    pub admin: AdminSettings,
+    pub email: EmailSettings,
+}
+
+/// Outgoing email (Resend). Without `resend_api_key` notifications are
+/// disabled (logged, not sent); production sets `APP_EMAIL__RESEND_API_KEY`.
+#[derive(serde::Deserialize, Clone)]
+pub struct EmailSettings {
+    pub base_url: String,
+    /// Sender address; the display name comes from each tenant's site document.
+    pub sender: String,
+    pub resend_api_key: Option<Secret<String>>,
+    #[serde(deserialize_with = "deserialize_number_from_string")]
+    pub timeout_ms: u64,
+}
+
+/// Admin API access. Set per environment; in production via
+/// `APP_ADMIN__API_KEY` (never commit a production key).
+#[derive(serde::Deserialize, Clone)]
+pub struct AdminSettings {
+    pub api_key: Secret<String>,
 }
 
 #[derive(serde::Deserialize, Clone)]
@@ -20,7 +42,10 @@ pub struct DatabaseSettings {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,
     pub host: String,
-    pub db_name: String,
+    pub database_name: String,
+    /// Production (DigitalOcean managed Postgres) requires TLS; local Docker Postgres has none.
+    #[serde(default)]
+    pub require_ssl: bool,
 }
 
 #[derive(serde::Deserialize)]
@@ -34,12 +59,14 @@ pub struct ApplicationSettings {
 impl DatabaseSettings {
     // setup for pg connection
     pub fn connect_options(&self) -> PgConnectOptions {
+        let ssl_mode = if self.require_ssl { PgSslMode::Require } else { PgSslMode::Prefer };
         PgConnectOptions::new()
+            .ssl_mode(ssl_mode)
             .host(&self.host)
             .username(&self.username)
             .password(&self.password.expose_secret())
             .port(self.port)
-            .database(&self.db_name)
+            .database(&self.database_name)
     }
 }
 
@@ -65,7 +92,7 @@ pub fn get_config() -> Result<Settings, config::ConfigError> {
         .add_source(
             config::Environment::with_prefix("APP")
                 .prefix_separator("_")
-                .separator("_"),
+                .separator("__"),
         )
         .build()?;
 

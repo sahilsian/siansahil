@@ -19,12 +19,12 @@ const FormLayout = ({type, formTitle, formDescription, form, image, initialValue
     return (
         <div className={`Form ${type} lg:px-22 px-6 pb-22 bg-[#EDEDED] relative`}>
             <Background></Background>
-            {image ? (
+            {image || form.fullWidth ? (
                 <>
                     <Content title={formTitle} description={formDescription}></Content>
                     <div className={'flex z-[30] gap-10 relative w-full'}>
                         <FormFields formSchema={form} initialValues={initialValues}></FormFields>
-                        <FormImage image={image}></FormImage>
+                        {image && <FormImage image={image}></FormImage>}
                     </div>
                 </>
             ) : (

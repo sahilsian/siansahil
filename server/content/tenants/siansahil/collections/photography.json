@@ -1,0 +1,15 @@
+{
+  "$type": "collection",
+  "id": "photography",
+  "title": "Photography",
+  "description": "Check out all the cool pics I've taken over the years.",
+  "filter": {
+    "type": "category",
+    "category": "photography"
+  },
+  "sort": "dateCreated:desc",
+  "seo": {
+    "title": "Photography — Sahil Sian",
+    "description": "Check out all the cool pics I've taken over the years."
+  }
+}

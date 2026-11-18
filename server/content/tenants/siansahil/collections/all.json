@@ -1,0 +1,14 @@
+{
+  "$type": "collection",
+  "id": "all",
+  "title": "Artwork",
+  "description": "View through all of my artwork, or filter your search by category.",
+  "filter": {
+    "type": "all"
+  },
+  "sort": "dateCreated:desc",
+  "seo": {
+    "title": "Artwork — Sahil Sian",
+    "description": "View through all of my artwork, or filter your search by category."
+  }
+}

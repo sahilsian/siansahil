@@ -1,26 +1,20 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {getForm} from "@/lib/content";
+import { formFromPage, getPage, toPageSeo } from "@/lib/content";
+import { pageHead } from "@/lib/seo.ts";
 import FormRenderer from "@/components/renderers/formRenderer";
+
+const PAGE_SLUG = "contact"
 
 export const Route = createFileRoute('/contact')({
     component: RouteComponent,
-    loader: async ({context}) => {
-        const form = await context.queryClient.ensureQueryData({
-            queryFn: () => getForm("contact"),
-            queryKey: ["form", "contact"]
+    loader: async ({ context }) => {
+        const page = await context.queryClient.ensureQueryData({
+            queryKey: ["page", PAGE_SLUG],
+            queryFn: () => getPage(PAGE_SLUG),
         })
-        return {
-            form
-        }
+        return { form: formFromPage(page), seo: toPageSeo(page.seo) }
     },
-    head: () => {
-        return {
-            meta: [
-                { title: "Contact — Sahil Sian" },
-                { name: "description", content: "sahilsiantech@gmail.com" },
-            ]
-        }
-    }
+    head: ({ loaderData }) => pageHead(loaderData?.seo),
 })
 
 function RouteComponent() {

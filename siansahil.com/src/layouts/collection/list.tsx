@@ -5,22 +5,21 @@ import {PageInfoProps} from "@/components/pagination";
 import {ControlInterface} from "@/hooks/useControl.ts";
 import NoResults from "@/components/noResults";
 import {CollectionCategory} from "@/components/renderers/collectionRenderer";
-import ListPost from "@/components/listPost";
 
 interface ListProps {
     collection: any[],
     pageInfo: PageInfoProps,
     controlMachine: ControlInterface
     categories: CollectionCategory[]
+    currentCollection: string
 }
 
 const PostWithRouter = withRouter(Post);
-const ListPostWithRouter = withRouter(ListPost);
 
-export const List = ({controlMachine, collection, pageInfo, categories}: ListProps) => {
+export const List = ({controlMachine, collection, categories, currentCollection}: ListProps) => {
 
-    const returnPostCollection = () => {
-        return <div className={"flex relative z-index-[20] flex-wrap gap-4"}>
+    const returnPostCollection = (columns: 3 | 4) => {
+        return <div className={"flex flex-wrap relative z-index-[20] gap-6"}>
             {collection.map((item) => (
                     <PostWithRouter
                         disabled={controlMachine.state.mode === "LOADING"}
@@ -28,49 +27,29 @@ export const List = ({controlMachine, collection, pageInfo, categories}: ListPro
                         slug={item.slug}
                         title={item.title}
                         clickable={true}
-                        description={item.description}
                         image={item.image}
-                        category={item.category.name}
-                        dateCreated={item.dateCreated}
-                        material={item.material}
+                        columns={columns}
                         shop={item.shop}
                     />
                 ))}
         </div>;
     }
 
-    const returnListPostCollection = () => {
-        return <div className={" relative z-index-[20] gap-4"}>
-            {collection.map((item) => (
-                <ListPostWithRouter
-                    disabled={controlMachine.state.mode === "LOADING"}
-                    key={item.slug}
-                    slug={item.slug}
-                    title={item.title}
-                    clickable={true}
-                    description={item.description}
-                    image={item.image}
-                    category={item.category.name}
-                    shop={item.shop}
-                />
-            ))}
-        </div>;
-    }
     const renderType = () => {
         switch (controlMachine.state.view) {
             case "post":
-                return returnPostCollection()
+                return returnPostCollection(3)
 
             case "list":
-                return returnListPostCollection()
+                return returnPostCollection(4)
 
             default:
-                return returnPostCollection()
+                return returnPostCollection(3)
         }
     }
 
     return (
-        <Control categories={categories} controlMachine={controlMachine} pageCount={pageInfo.pageCount} total={pageInfo.total}>
+        <Control categories={categories} currentCollection={currentCollection} controlMachine={controlMachine}>
             <div key={controlMachine.state.view}>
                 {collection.length === 0 && (
                     <div className={"min-h-[420px]"}>

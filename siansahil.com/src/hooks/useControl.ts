@@ -1,5 +1,4 @@
 import {useReducer} from "react";
-import {STANDARD_PAGINATION} from "@/lib/content";
 import {useSearch} from "@tanstack/react-router";
 
 // (Q, Σ, δ, q₀, F)
@@ -123,7 +122,7 @@ const transitionFunc = (state:State, action:Action): State => {
             return {
                 ...state,
                 mode: "IDLE",
-                category: "all"
+                category: ""
             }
 
         case ACTIONS_LIST.CHANGE_VIEW:
@@ -158,11 +157,12 @@ const transitionFunc = (state:State, action:Action): State => {
 const initState:State = {
     mode: 'IDLE',
     pagination: {
-        page: STANDARD_PAGINATION.pagination.page,
-        pageSize: STANDARD_PAGINATION.pagination.pageSize
+        // Listings aren't paginated any more; kept for the existing state shape.
+        page: 1,
+        pageSize: 0
     },
     search: "",
-    category: "all",
+    category: "",
     view: "post",
     filters: {}
 }
@@ -192,7 +192,7 @@ export const useControl = ():ControlInterface => {
     const [state, dispatch] = useReducer(transitionFunc, {
         ...initState,
         search: search.title || "",
-        category: search.category || "all"
+        category: search.collection || ""
     })
 
     const isProcessing = state.mode === "LOADING";

@@ -1,0 +1,52 @@
+{
+  "$type": "form",
+  "id": "print",
+  "title": "Custom Print Inquiry",
+  "description": "Prints available in various sizes with shipping/delivery. Select a painting, let me know what you have in mind and I'll get back to you with options and pricing.",
+  "successMessage": "Thanks! Your print inquiry was sent — I'll be in touch soon.",
+  "fields": [
+    {
+      "id": "name",
+      "name": "Name",
+      "placeholder": "Your full name",
+      "required": true,
+      "metadata": {
+        "fieldType": "text"
+      }
+    },
+    {
+      "id": "email",
+      "name": "Email",
+      "placeholder": "you@example.com",
+      "required": true,
+      "metadata": {
+        "fieldType": "email"
+      }
+    },
+    {
+      "id": "painting",
+      "name": "Which painting?",
+      "required": true,
+      "metadata": {
+        "fieldType": "painting"
+      },
+      "collection": "all"
+    },
+    {
+      "id": "print_description",
+      "name": "Describe the print",
+      "placeholder": "Size, quantity, where it'll hang, and where it's shipping to.",
+      "required": true,
+      "metadata": {
+        "fieldType": "textarea"
+      }
+    },
+    {
+      "id": "submit",
+      "name": "Send inquiry",
+      "metadata": {
+        "fieldType": "submit"
+      }
+    }
+  ]
+}

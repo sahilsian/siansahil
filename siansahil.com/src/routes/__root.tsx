@@ -8,14 +8,19 @@ import appCss from '../styles.css?url'
 import type { QueryClient } from "@tanstack/react-query"
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query"
 import type { TRPCRouter } from "@/integrations/trpc/router.ts"
-import { getFooter, getMenu, getRootSeo, getStyles } from "@/lib/content"
+import { getFormDoc, getSite, toFooterMenu, toForm, toHeaderMenu, toRootSeo, toStyles } from "@/lib/content"
 import Menu from "@/components/menu"
 import Footer from "@/components/footer"
-import type { StylesContextProps } from "@/contexts/styles/stylesProvider.tsx"
-import type { rootSEO } from "@/components/seo/interfaces.ts"
 import Providers from "@/decorators/providers"
 import RouterSync from "@/components/routerSync"
-import Typography from "@/components/typography";
+import { SiteProvider } from "@/contexts/site/siteContext.tsx"
+import type { SiteDoc } from "@/lib/api/types.ts"
+import type { FormProps } from "@/hooks/useFormControl.ts"
+
+interface LoaderData {
+    site: SiteDoc | null
+    mailingForm: FormProps | null
+}
 
 interface MyRouterContext {
     queryClient: QueryClient
@@ -23,47 +28,34 @@ interface MyRouterContext {
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-    loader: async ({ context }) => {
-        const rootSEO = await context.queryClient.ensureQueryData({
-            queryKey: ['seo', 'root'],
-            queryFn: getRootSeo,
-        })
-
-        const stylesData = await context.queryClient.ensureQueryData({
-            queryKey: ['styles'],
-            queryFn: getStyles,
-        })
-
-        const menu = await context.queryClient.ensureQueryData({
-            queryKey: ['menu'],
-            queryFn: getMenu,
-        })
-
-        const footer = await context.queryClient.ensureQueryData({
-            queryKey: ['footer'],
-            queryFn: getFooter,
-        })
-
-        const styles: StylesContextProps = stylesData
-
-        return {
-            rootSEO,
-            styles,
-            menu,
-            footer,
+    // beforeLoad (not loader): it finishes before any child loader starts, so the
+    // site is available even when a child throws notFound() and the 404 page
+    // renders through this shell. Cached by react-query, so cheap per navigation.
+    beforeLoad: async ({ context }): Promise<LoaderData> => {
+        // If the content server is unreachable, render the bare fallback
+        // page below instead of crashing.
+        try {
+            const site = await context.queryClient.ensureQueryData({
+                queryKey: ['site'],
+                queryFn: getSite,
+            })
+            const mailingForm = await context.queryClient.ensureQueryData({
+                queryKey: ['form', site.mailing.formId],
+                queryFn: () => getFormDoc(site.mailing.formId),
+            })
+            return { site, mailingForm: toForm(mailingForm) }
+        } catch (error) {
+            console.error("Failed to load site content", error)
+            return { site: null, mailingForm: null }
         }
     },
 
-    head: ({ loaderData }) => {
-        const rootSEO: rootSEO = loaderData?.rootSEO ?? {
-            siteName: 'Fluentclicks.com',
-            siteTitle: 'Fluentclicks.com',
-            siteDescription: 'Fluentclicks uses AI to generate leads that speak fluently to your business processes.',
-            siteKeywords: '',
-            canonicalDomain: 'siansahil.com',
-            siteOGImage: { url: '', width: 0, height: 0, alternativeText: '', name: '' },
-            robots: 'index,follow',
+    head: ({ match }) => {
+        const site = match.context.site
+        if (!site) {
+            return { meta: [{ charSet: 'utf-8' }, { name: 'viewport', content: 'width=device-width, initial-scale=1' }] }
         }
+        const rootSEO = toRootSeo(site)
 
         return {
             meta: [
@@ -71,6 +63,8 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
                 { name: 'viewport', content: 'width=device-width, initial-scale=1' },
                 { title: rootSEO.siteTitle },
                 { name: "description", content: rootSEO.siteDescription },
+                { name: "robots", content: rootSEO.robots },
+                { property: 'og:site_name', content: rootSEO.siteName },
                 { property: 'og:title', content: rootSEO.siteTitle },
                 { property: 'og:description', content: rootSEO.siteDescription },
                 { property: 'og:image', content: rootSEO.siteOGImage.url },
@@ -78,11 +72,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
             ],
             links: [
                 { rel: 'stylesheet', href: appCss },
-                { rel: 'icon', type: "image/png", href: "/favicon-96x96.png", sizes: "96x96" },
-                { rel: 'icon', type: "image/svg+xml", href: "/favicon.svg" },
-                { rel: 'shortcut icon', href: "/favicon.ico" },
-                { rel: 'apple-touch-icon', sizes: "180x180", href: "/apple-touch-icon.png" },
-                { rel: 'manifest', href: "/manifest.json" },
+                { rel: 'icon', type: "image/png", href: site.favicons.png96, sizes: "96x96" },
+                { rel: 'icon', type: "image/svg+xml", href: site.favicons.svg },
+                { rel: 'shortcut icon', href: site.favicons.ico },
+                { rel: 'apple-touch-icon', sizes: "180x180", href: site.favicons.appleTouch },
+                { rel: 'manifest', href: site.favicons.manifest },
                 { rel: 'canonical', href: rootSEO.canonicalDomain },
             ],
         }
@@ -91,28 +85,29 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-    const loaderData = Route.useLoaderData()
+    const { site, mailingForm } = Route.useRouteContext()
 
-    const styles = loaderData?.styles
-    const menu = loaderData?.menu
-    const footer = loaderData?.footer
-
-    if (!styles || !menu || !footer) {
+    if (!site || !mailingForm) {
+        // Tenant-agnostic on purpose: with no content server there is no tenant copy to show.
         return (
             <html lang="en">
             <head>
                 <HeadContent />
             </head>
-            <body>
-            <Typography value={"Oops! My website couldn't load. If you could reach out to sahilsiantech@gmail.com I will thankful <3."}></Typography>
+            <body style={{ fontFamily: "serif", padding: "2rem" }}>
+            <p>This site couldn't load right now. Please try again in a moment.</p>
             <Scripts />
             </body>
             </html>
         )
     }
 
+    const styles = toStyles(site)
+    const menu = toHeaderMenu(site)
+    const footer = toFooterMenu(site)
+
     return (
-        <html lang="en">
+        <html lang={site.locale}>
         <head>
             <HeadContent />
             <style>{`
@@ -138,16 +133,16 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         `}</style>
         </head>
 
-        <body>
+        <SiteProvider site={site}>
         <Providers styles={styles}>
             <RouterSync />
-            <Menu backgroundColor={"#ffffff"} title={menu.title} menuItems={menu.mainMenuItems}></Menu>
+            <Menu backgroundColor={styles.menuHex} title={menu.title} menuItems={menu.mainMenuItems}></Menu>
             {children}
-            <Footer title={footer.title} description={footer.description} menuItems={footer.footerMenuItems}></Footer>
+            <Footer title={footer.title} description={footer.description} menuItems={footer.footerMenuItems} mailingForm={mailingForm}></Footer>
         </Providers>
+        </SiteProvider>
 
         <Scripts />
-        </body>
         </html>
     )
 }

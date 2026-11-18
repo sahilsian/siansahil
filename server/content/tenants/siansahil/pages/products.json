@@ -1,0 +1,24 @@
+{
+  "$type": "page",
+  "slug": "products",
+  "seo": {
+    "title": "Artwork — Sahil Sian",
+    "description": "View through all of my artwork, or filter your search by category."
+  },
+  "blocks": [
+    {
+      "type": "collection",
+      "defaultCollection": "all",
+      "views": [
+        {
+          "id": "post",
+          "columns": 3
+        },
+        {
+          "id": "list",
+          "columns": 4
+        }
+      ]
+    }
+  ]
+}

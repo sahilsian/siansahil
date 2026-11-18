@@ -1,0 +1,15 @@
+{
+  "$type": "collection",
+  "id": "plein-air",
+  "title": "Plein air Artwork",
+  "description": "All of my paintings painted in plein air (outdoors from life).",
+  "filter": {
+    "type": "category",
+    "category": "plein-air"
+  },
+  "sort": "dateCreated:desc",
+  "seo": {
+    "title": "Plein air Artwork — Sahil Sian",
+    "description": "All of my paintings painted in plein air (outdoors from life)."
+  }
+}

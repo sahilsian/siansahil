@@ -1,5 +1,5 @@
 import {createFileRoute} from '@tanstack/react-router'
-import {getProduct} from "@/lib/content";
+import {getProduct, getSite} from "@/lib/content";
 import {getShopifyProduct} from "@/lib/shopify";
 import ProductRenderer from "@/components/renderers/productRenderer";
 
@@ -8,10 +8,14 @@ export const Route = createFileRoute('/products/$slug')({
     loader: async ({context, params}) => {
         const { slug } = params;
 
-        const product = await context.queryClient.ensureQueryData({
-            queryFn: () => getProduct(slug),
-            queryKey: ["product", slug]
-        })
+        const [product, site] = await Promise.all([
+            context.queryClient.ensureQueryData({
+                queryFn: () => getProduct(slug),
+                queryKey: ["product", slug]
+            }),
+            // Already cached by the root route; needed for absolute Open Graph URLs.
+            context.queryClient.ensureQueryData({ queryKey: ["site"], queryFn: getSite }),
+        ])
 
         const shop = product.shopifyHandle
             ? await context.queryClient.ensureQueryData({
@@ -22,23 +26,17 @@ export const Route = createFileRoute('/products/$slug')({
 
         return {
             product,
-            shop
+            shop,
+            siteUrl: site.url.replace(/\/+$/, ""),
         }
     },
     head: ({loaderData}) => {
-      if(!loaderData) {
-          return {
-              meta: [
-                  { title: "Fluentclicks.com" },
-                  { name: "description", content: 'Fluentclicks uses AI to generate leads that speak fluently to your business processes.'},
-                  // OPEN GRAPH
-                  { property: 'og:title', content:  "Fluentclicks.com" },
-                  { property: 'og:description', content:  'Fluentclicks uses AI to generate leads that speak fluently to your business processes.'},
-                  { property: 'og:image', content: "" },
-                  { property: 'og:type', content: "website" }
-              ]
-          }
-      }
+      if(!loaderData) return {}
+
+      // Open Graph images must be absolute URLs.
+      const { product, siteUrl } = loaderData;
+      const ogImage = product.ogImage ?? product.image;
+      const ogImageUrl = ogImage.url.startsWith("http") ? ogImage.url : siteUrl + ogImage.url;
 
       return {
             meta: [
@@ -47,8 +45,17 @@ export const Route = createFileRoute('/products/$slug')({
                 // OPEN GRAPH
                 { property: 'og:title', content:  loaderData.product.title },
                 { property: 'og:description', content: loaderData.product.description },
-                { property: 'og:image', content: loaderData.product.image.url || "" },
-                { property: 'og:type', content: "website" }
+                { property: 'og:image', content: ogImageUrl },
+                { property: 'og:image:width', content: String(ogImage.width) },
+                { property: 'og:image:height', content: String(ogImage.height) },
+                { property: 'og:image:alt', content: ogImage.alternativeText ?? product.title },
+                { property: 'og:url', content: `${siteUrl}/products/${product.slug}` },
+                { property: 'og:type', content: "website" },
+                // TWITTER / X
+                { name: 'twitter:card', content: "summary_large_image" },
+                { name: 'twitter:title', content: product.title },
+                { name: 'twitter:description', content: product.description },
+                { name: 'twitter:image', content: ogImageUrl },
             ]
         }
     }

@@ -9,6 +9,7 @@ interface ProductLayoutProps {
     title: string;
     slug?: string;
     image: StrapiImage;
+    images?: StrapiImage[];
     description: string;
     backgroundColor?: string;
     tabs?: Tab[];
@@ -17,11 +18,11 @@ interface ProductLayoutProps {
     shop?: ShopifyProductData | null;
 }
 
-const ProductLayout = ({ title, slug, description, image, tabs, dateCreated, material, backgroundColor="#EDEDED", shop}:ProductLayoutProps) => {
+const ProductLayout = ({ title, slug, description, image, images, tabs, dateCreated, material, backgroundColor="#EDEDED", shop}:ProductLayoutProps) => {
     return (
         <div style={{backgroundColor: backgroundColor}} className={'p-6 md:px-22 py-22 relative'}>
             <Background></Background>
-            <Content slug={slug} dateCreated={dateCreated} material={material} title={title} description={description} image={image} tabs={tabs} shop={shop}></Content>
+            <Content slug={slug} dateCreated={dateCreated} material={material} title={title} description={description} image={image} images={images} tabs={tabs} shop={shop}></Content>
         </div>
 
     )
