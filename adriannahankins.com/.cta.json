@@ -1,0 +1,22 @@
+{
+  "projectName": "siansahil",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "npm",
+  "addOnOptions": {},
+  "git": true,
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "biome",
+    "cloudflare",
+    "start",
+    "strapi",
+    "tRPC",
+    "storybook",
+    "store",
+    "tanstack-query",
+    "tanchat"
+  ]
+}

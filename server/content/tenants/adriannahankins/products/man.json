@@ -1,0 +1,27 @@
+{
+  "$type": "product",
+  "slug": "man",
+  "title": "Man",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 20 x 30 in.",
+  "images": [
+    {
+      "url": "/art/man.jpg",
+      "width": 2500,
+      "height": 1640,
+      "alternativeText": "Man — Oil on Canvas, 20 x 30 in.",
+      "name": "man.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 20 x 30 in.\n\n$350"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "available",
+    "price": "$350"
+  }
+}

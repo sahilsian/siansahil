@@ -1,0 +1,27 @@
+{
+  "$type": "product",
+  "slug": "spring-market",
+  "title": "Spring Market",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 4 x 6 in.",
+  "images": [
+    {
+      "url": "/art/spring-market.jpg",
+      "width": 1932,
+      "height": 2914,
+      "alternativeText": "Spring Market — Oil on Canvas, 4 x 6 in.",
+      "name": "spring-market.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 4 x 6 in.\n\n$40"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "available",
+    "price": "$40"
+  }
+}

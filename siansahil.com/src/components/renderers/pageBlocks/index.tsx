@@ -11,14 +11,14 @@ const PageBlocks = ({ blocks }: { blocks: Block[] }) => (
             switch (block.type) {
                 case "imageText": {
                     const image = (
-                        <div className={"w-full max-w-[420px] lg:w-[380px] shrink-0"}>
+                        <div className={"w-full max-w-[420px] lg:max-w-none lg:flex-1 lg:basis-0 lg:min-w-0"}>
                             <Image className={"w-full h-auto"} image={block.image}></Image>
                         </div>
                     );
                     return (
                         <div key={index} className={`flex flex-col gap-10 lg:items-start ${block.imagePosition === "end" ? "lg:flex-row-reverse" : "lg:flex-row"}`}>
                             {image}
-                            <div className={"flex-1 max-w-[760px] flex flex-col gap-6"}>
+                            <div className={"flex-1 lg:basis-0 lg:min-w-0 flex flex-col gap-6"}>
                                 <RichText richText={block.body}></RichText>
                             </div>
                         </div>

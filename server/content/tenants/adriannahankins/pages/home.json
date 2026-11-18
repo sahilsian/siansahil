@@ -1,0 +1,49 @@
+{
+  "$type": "page",
+  "slug": "home",
+  "seo": {
+    "title": "adrianna hankins",
+    "description": "Adrianna Hankins is an oil painter based in Vancouver, Canada.",
+    "ogImage": {
+      "url": "/adrianna_hankins_home.jpg",
+      "width": 2500,
+      "height": 2916,
+      "alternativeText": "Adrianna Hankins in her studio",
+      "name": "adrianna_hankins_home.jpg"
+    }
+  },
+  "blocks": [
+    {
+      "type": "hero",
+      "title": "adrianna hankins",
+      "description": "Adrianna Hankins is an oil painter based in Vancouver, Canada.",
+      "primary": {
+        "label": "gallery.",
+        "variant": "primary",
+        "to": "/products",
+        "search": {
+          "collection": "gallery"
+        }
+      },
+      "secondary": {
+        "label": "contact.",
+        "variant": "secondary",
+        "to": "/contact"
+      },
+      "heroImage": {
+        "url": "/art/girl.jpg",
+        "width": 2500,
+        "height": 3333,
+        "alternativeText": "Girl",
+        "name": "girl.jpg"
+      },
+      "profileImage": {
+        "url": "/adriannahankins_pfp.jpg",
+        "width": 1080,
+        "height": 1271,
+        "alternativeText": "Adrianna Hankins, painted self-portrait",
+        "name": "adriannahankins_pfp.jpg"
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "$type": "collection",
+  "id": "available",
+  "title": "Available",
+  "description": "Please contact to purchase available works",
+  "filter": {
+    "type": "curated",
+    "productSlugs": [
+      "pool-hall",
+      "florian",
+      "market-girl",
+      "august",
+      "akash",
+      "arrangement",
+      "man",
+      "window-shopping",
+      "delphiniums",
+      "midnight",
+      "july",
+      "spring-market",
+      "lullaby"
+    ]
+  },
+  "seo": {
+    "title": "Available — adrianna hankins",
+    "description": "Please contact to purchase available works"
+  }
+}

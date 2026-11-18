@@ -1,0 +1,26 @@
+{
+  "$type": "product",
+  "slug": "daffodils",
+  "title": "Daffodils",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 4 x 6 in.",
+  "images": [
+    {
+      "url": "/art/daffodils.jpg",
+      "width": 2259,
+      "height": 3419,
+      "alternativeText": "Daffodils — Oil on Canvas, 4 x 6 in.",
+      "name": "daffodils.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 4 x 6 in.\n\nSold"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "sold"
+  }
+}

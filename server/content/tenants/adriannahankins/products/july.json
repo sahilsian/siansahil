@@ -1,0 +1,27 @@
+{
+  "$type": "product",
+  "slug": "july",
+  "title": "July",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 20 x 24 in.",
+  "images": [
+    {
+      "url": "/art/july.jpg",
+      "width": 2368,
+      "height": 2852,
+      "alternativeText": "July — Oil on Canvas, 20 x 24 in.",
+      "name": "july.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 20 x 24 in.\n\n$250"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "available",
+    "price": "$250"
+  }
+}

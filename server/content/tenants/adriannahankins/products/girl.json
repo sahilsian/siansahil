@@ -1,0 +1,27 @@
+{
+  "$type": "product",
+  "slug": "girl",
+  "title": "Girl",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 36 x 48 in.",
+  "images": [
+    {
+      "url": "/art/girl.jpg",
+      "width": 2500,
+      "height": 3333,
+      "alternativeText": "Girl — Oil on Canvas, 36 x 48 in.",
+      "name": "girl.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 36 x 48 in.\n\nPersonal Collection"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "unavailable",
+    "label": "Personal Collection"
+  }
+}

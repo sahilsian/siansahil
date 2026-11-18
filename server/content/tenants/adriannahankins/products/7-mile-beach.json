@@ -1,0 +1,26 @@
+{
+  "$type": "product",
+  "slug": "7-mile-beach",
+  "title": "7 Mile Beach",
+  "category": "oil-on-wood",
+  "description": "Oil on Wood, 8 x 8 in.",
+  "images": [
+    {
+      "url": "/art/7-mile-beach.jpg",
+      "width": 1512,
+      "height": 1512,
+      "alternativeText": "7 Mile Beach — Oil on Wood, 8 x 8 in.",
+      "name": "7-mile-beach.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Wood**, 8 x 8 in.\n\nSold"
+    }
+  ],
+  "material": "Oil on Wood",
+  "availability": {
+    "status": "sold"
+  }
+}

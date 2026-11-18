@@ -1,0 +1,26 @@
+{
+  "$type": "page",
+  "slug": "about",
+  "seo": {
+    "title": "about — adrianna hankins",
+    "description": "Adrianna Hankins is an oil painter based in Vancouver, Canada. Her work oscillates between floral still life’s, abstract portraits and reimagining often terrible iPhone 11 photos from her day to day life."
+  },
+  "layout": {
+    "title": "About",
+    "description": ""
+  },
+  "blocks": [
+    {
+      "type": "imageText",
+      "image": {
+        "url": "/adrianna_hankins_about.jpg",
+        "width": 2500,
+        "height": 1667,
+        "alternativeText": "Adrianna Hankins painting in her studio",
+        "name": "adrianna_hankins_about.jpg"
+      },
+      "imagePosition": "end",
+      "body": "Adrianna Hankins is an oil painter based in Vancouver, Canada. Her work oscillates between floral still life’s, abstract portraits and reimagining often terrible iPhone 11 photos from her day to day life.\n\n[Contact](/contact)"
+    }
+  ]
+}

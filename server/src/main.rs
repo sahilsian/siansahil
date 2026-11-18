@@ -2,6 +2,7 @@ use std::net::TcpListener;
 
 use server::config::get_config;
 use server::email_client::EmailClient;
+use server::migration_runner::{run_until_applied, MigrationStatus};
 use server::routes::admin::AdminKey;
 use server::startup::run;
 use server::telemetry::{get_subscriber, init_subscriber};
@@ -16,12 +17,12 @@ async fn main() -> Result<(), std::io::Error> {
     let connection_pool = PgPoolOptions::new()
         .connect_lazy_with(config.database.connect_options());
 
-    // Bring the schema up to date before serving. sqlx takes a Postgres advisory
-    // lock while migrating, so concurrent instances can't race each other.
-    sqlx::migrate!("./migrations")
-        .run(&connection_pool)
-        .await
-        .expect("Failed to run database migrations");
+    // Migrate in the background, retrying until it works, so a database that isn't
+    // ready (or doesn't have its permissions yet) can't stop the server from starting
+    // and passing its health check. sqlx takes a Postgres advisory lock while
+    // migrating, so concurrent instances can't race each other.
+    let migrations = MigrationStatus::pending();
+    actix_web::rt::spawn(run_until_applied(connection_pool.clone(), migrations.clone()));
 
     // Refuse to start without a strong admin key rather than run an unprotected admin API.
     let admin_key = AdminKey::new(&config.admin.api_key).expect("Invalid admin key configuration");
@@ -34,5 +35,5 @@ async fn main() -> Result<(), std::io::Error> {
     let addr = format!("{}:{}", config.application.host, config.application.port);
     let listener = TcpListener::bind(addr).expect("Failed to bind the address");
 
-    run(listener, connection_pool, admin_key, email_client)?.await
+    run(listener, connection_pool, admin_key, email_client, migrations)?.await
 }

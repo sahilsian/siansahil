@@ -1,0 +1,27 @@
+{
+  "$type": "product",
+  "slug": "florian",
+  "title": "Florian",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 8 x 10 in.",
+  "images": [
+    {
+      "url": "/art/florian.jpg",
+      "width": 2436,
+      "height": 3045,
+      "alternativeText": "Florian — Oil on Canvas, 8 x 10 in.",
+      "name": "florian.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 8 x 10 in.\n\n$200, Framed"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "available",
+    "price": "$200, Framed"
+  }
+}

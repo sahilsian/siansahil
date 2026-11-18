@@ -1,0 +1,27 @@
+{
+  "$type": "product",
+  "slug": "akash",
+  "title": "Akash",
+  "category": "oil-on-wood",
+  "description": "Oil on Wood, 12 x 16 in.",
+  "images": [
+    {
+      "url": "/art/akash.jpg",
+      "width": 2168,
+      "height": 2877,
+      "alternativeText": "Akash — Oil on Wood, 12 x 16 in.",
+      "name": "akash.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Wood**, 12 x 16 in.\n\n$250"
+    }
+  ],
+  "material": "Oil on Wood",
+  "availability": {
+    "status": "available",
+    "price": "$250"
+  }
+}

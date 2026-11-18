@@ -1,0 +1,27 @@
+{
+  "$type": "product",
+  "slug": "window-shopping",
+  "title": "Window Shopping",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 18 x 24 in.",
+  "images": [
+    {
+      "url": "/art/window-shopping.jpg",
+      "width": 2268,
+      "height": 3057,
+      "alternativeText": "Window Shopping — Oil on Canvas, 18 x 24 in.",
+      "name": "window-shopping.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 18 x 24 in.\n\n$300"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "available",
+    "price": "$300"
+  }
+}

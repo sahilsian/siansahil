@@ -1,0 +1,27 @@
+{
+  "$type": "product",
+  "slug": "august",
+  "title": "August",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 18 x 24 in.",
+  "images": [
+    {
+      "url": "/art/august.jpg",
+      "width": 2500,
+      "height": 3389,
+      "alternativeText": "August — Oil on Canvas, 18 x 24 in.",
+      "name": "august.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 18 x 24 in.\n\n$450"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "available",
+    "price": "$450"
+  }
+}

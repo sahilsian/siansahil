@@ -1,0 +1,26 @@
+{
+  "$type": "product",
+  "slug": "floral-study",
+  "title": "Floral Study",
+  "category": "oil-on-wood",
+  "description": "Oil on Wood, 8 x 8 in.",
+  "images": [
+    {
+      "url": "/art/floral-study.jpg",
+      "width": 1483,
+      "height": 1483,
+      "alternativeText": "Floral Study — Oil on Wood, 8 x 8 in.",
+      "name": "floral-study.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Wood**, 8 x 8 in.\n\nSold"
+    }
+  ],
+  "material": "Oil on Wood",
+  "availability": {
+    "status": "sold"
+  }
+}

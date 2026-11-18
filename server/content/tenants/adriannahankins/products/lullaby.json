@@ -1,0 +1,27 @@
+{
+  "$type": "product",
+  "slug": "lullaby",
+  "title": "Lullaby",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 10 x 10 in.",
+  "images": [
+    {
+      "url": "/art/lullaby.jpg",
+      "width": 2500,
+      "height": 2502,
+      "alternativeText": "Lullaby — Oil on Canvas, 10 x 10 in.",
+      "name": "lullaby.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 10 x 10 in.\n\n$130"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "available",
+    "price": "$130"
+  }
+}

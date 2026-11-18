@@ -1,0 +1,26 @@
+{
+  "$type": "product",
+  "slug": "sliabh-liag",
+  "title": "Sliabh Liag",
+  "category": "oil-on-wood",
+  "description": "Oil on Wood, 8 x 8 in.",
+  "images": [
+    {
+      "url": "/art/sliabh-liag.jpg",
+      "width": 1511,
+      "height": 1511,
+      "alternativeText": "Sliabh Liag — Oil on Wood, 8 x 8 in.",
+      "name": "sliabh-liag.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Wood**, 8 x 8 in.\n\nSold"
+    }
+  ],
+  "material": "Oil on Wood",
+  "availability": {
+    "status": "sold"
+  }
+}

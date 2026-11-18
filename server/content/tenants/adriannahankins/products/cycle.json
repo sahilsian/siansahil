@@ -1,0 +1,26 @@
+{
+  "$type": "product",
+  "slug": "cycle",
+  "title": "Cycle",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 18 x 24 in.",
+  "images": [
+    {
+      "url": "/art/cycle.jpg",
+      "width": 2227,
+      "height": 2987,
+      "alternativeText": "Cycle — Oil on Canvas, 18 x 24 in.",
+      "name": "cycle.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 18 x 24 in.\n\nSold"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "sold"
+  }
+}

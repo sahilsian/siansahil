@@ -1,0 +1,27 @@
+{
+  "$type": "product",
+  "slug": "midnight",
+  "title": "Midnight",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 15.5 x 19.5 in.",
+  "images": [
+    {
+      "url": "/art/midnight.jpg",
+      "width": 2221,
+      "height": 2793,
+      "alternativeText": "Midnight — Oil on Canvas, 15.5 x 19.5 in.",
+      "name": "midnight.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 15.5 x 19.5 in.\n\n$150"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "available",
+    "price": "$150"
+  }
+}

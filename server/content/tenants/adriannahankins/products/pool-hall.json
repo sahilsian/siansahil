@@ -1,0 +1,27 @@
+{
+  "$type": "product",
+  "slug": "pool-hall",
+  "title": "Pool Hall",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 18 x 24 in.",
+  "images": [
+    {
+      "url": "/art/pool-hall.jpg",
+      "width": 2500,
+      "height": 3125,
+      "alternativeText": "Pool Hall — Oil on Canvas, 18 x 24 in.",
+      "name": "pool-hall.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 18 x 24 in.\n\n$850"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "available",
+    "price": "$850"
+  }
+}

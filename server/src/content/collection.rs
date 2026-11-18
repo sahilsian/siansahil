@@ -67,7 +67,8 @@ fn summary(product: &Value) -> Value {
         "category": product["category"],
         "image": product["images"].get(0).cloned().unwrap_or(Value::Null),
     });
-    for optional in ["dateCreated", "shopifyHandle"] {
+    // availability: { status, price?, label? } for works sold off-platform (no Shopify).
+    for optional in ["dateCreated", "shopifyHandle", "availability"] {
         if let Some(v) = product.get(optional) {
             out[optional] = v.clone();
         }
@@ -129,6 +130,15 @@ mod tests {
         let c = json!({ "filter": { "type": "all" } });
         let out = product_summaries(&c, products(), &CollectionQuery { search: Some("  science ") });
         assert_eq!(slugs(&out), ["new-a"]);
+    }
+
+    #[test]
+    fn summary_keeps_availability_for_non_shopify_works() {
+        let mut p = product("x", "X", "oil", None);
+        p["availability"] = json!({ "status": "available", "price": "$850" });
+        let c = json!({ "filter": { "type": "all" } });
+        let out = product_summaries(&c, vec![p], &CollectionQuery::default());
+        assert_eq!(out[0]["availability"]["price"], "$850");
     }
 
     #[test]

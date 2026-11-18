@@ -1,0 +1,50 @@
+{
+  "$type": "form",
+  "id": "contact",
+  "title": "Contact",
+  "description": "For inquiries and commissions, contact adrihankins@gmail.com",
+  "successMessage": "Thank you! I'll be in touch soon.",
+  "image": {
+    "url": "/adrianna_hankins_contact.jpg",
+    "width": 2500,
+    "height": 1641,
+    "alternativeText": "Vancouver's North Shore mountains",
+    "name": "adrianna_hankins_contact.jpg"
+  },
+  "fields": [
+    {
+      "id": "name",
+      "name": "Name",
+      "placeholder": "Your full name",
+      "required": true,
+      "metadata": {
+        "fieldType": "text"
+      }
+    },
+    {
+      "id": "email",
+      "name": "Email",
+      "placeholder": "you@example.com",
+      "required": true,
+      "metadata": {
+        "fieldType": "email"
+      }
+    },
+    {
+      "id": "message",
+      "name": "Message",
+      "placeholder": "Tell me about the work you're interested in, or your commission idea.",
+      "required": true,
+      "metadata": {
+        "fieldType": "textarea"
+      }
+    },
+    {
+      "id": "submit",
+      "name": "Send",
+      "metadata": {
+        "fieldType": "submit"
+      }
+    }
+  ]
+}

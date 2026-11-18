@@ -8,6 +8,7 @@ use std::sync::LazyLock;
 use secrecy::{ExposeSecret, Secret};
 use server::config::{get_config, DatabaseSettings};
 use server::email_client::EmailClient;
+use server::migration_runner::MigrationStatus;
 use server::routes::admin::AdminKey;
 use server::startup::run;
 use server::telemetry::{get_subscriber, init_subscriber};
@@ -34,6 +35,11 @@ static TRACING: LazyLock<()> = LazyLock::new(|| {
 });
 
 pub async fn spawn_app() -> TestApp {
+    spawn_app_with_migrations(MigrationStatus::applied()).await
+}
+
+/// Like `spawn_app`, but with a chosen migration status (the test DB is always migrated).
+pub async fn spawn_app_with_migrations(migrations: MigrationStatus) -> TestApp {
     LazyLock::force(&TRACING);
 
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind to address");
@@ -54,6 +60,7 @@ pub async fn spawn_app() -> TestApp {
         db_pool.clone(),
         AdminKey::new(&config.admin.api_key).expect("valid admin key"),
         EmailClient::new(&config.email),
+        migrations,
     )
     .expect("Failed to bind to address");
     let _ = tokio::spawn(server);

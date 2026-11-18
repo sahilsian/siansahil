@@ -2,6 +2,7 @@ pub mod config;
 pub mod content;
 pub mod email_client;
 pub mod mailing_list;
+pub mod migration_runner;
 pub mod routes;
 pub mod startup;
 pub mod telemetry;

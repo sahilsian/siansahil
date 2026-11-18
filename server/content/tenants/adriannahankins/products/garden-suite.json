@@ -1,0 +1,26 @@
+{
+  "$type": "product",
+  "slug": "garden-suite",
+  "title": "Garden Suite",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 30 x 48 in.",
+  "images": [
+    {
+      "url": "/art/garden-suite.jpg",
+      "width": 2500,
+      "height": 4018,
+      "alternativeText": "Garden Suite — Oil on Canvas, 30 x 48 in.",
+      "name": "garden-suite.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 30 x 48 in.\n\nSold"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "sold"
+  }
+}

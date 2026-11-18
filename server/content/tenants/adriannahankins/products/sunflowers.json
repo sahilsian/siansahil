@@ -1,0 +1,26 @@
+{
+  "$type": "product",
+  "slug": "sunflowers",
+  "title": "Sunflowers",
+  "category": "oil-on-wood",
+  "description": "Oil on Wood, 8 x 12 in.",
+  "images": [
+    {
+      "url": "/art/sunflowers.jpg",
+      "width": 2155,
+      "height": 2701,
+      "alternativeText": "Sunflowers — Oil on Wood, 8 x 12 in.",
+      "name": "sunflowers.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Wood**, 8 x 12 in.\n\nSold"
+    }
+  ],
+  "material": "Oil on Wood",
+  "availability": {
+    "status": "sold"
+  }
+}

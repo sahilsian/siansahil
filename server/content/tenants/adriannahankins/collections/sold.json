@@ -1,0 +1,25 @@
+{
+  "$type": "collection",
+  "id": "sold",
+  "title": "Sold",
+  "description": "Works that have found their homes.",
+  "filter": {
+    "type": "curated",
+    "productSlugs": [
+      "garden-suite",
+      "sliabh-liag",
+      "7-mile-beach",
+      "may",
+      "floral-study",
+      "floral-study-ii",
+      "want-to-call",
+      "daffodils",
+      "sunflowers",
+      "cycle"
+    ]
+  },
+  "seo": {
+    "title": "Sold — adrianna hankins",
+    "description": "Works that have found their homes."
+  }
+}

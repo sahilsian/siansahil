@@ -1,0 +1,39 @@
+{
+  "$type": "collection",
+  "id": "gallery",
+  "title": "Gallery",
+  "description": "Please contact to purchase available works",
+  "filter": {
+    "type": "curated",
+    "productSlugs": [
+      "pool-hall",
+      "girl",
+      "florian",
+      "market-girl",
+      "august",
+      "akash",
+      "arrangement",
+      "man",
+      "garden-suite",
+      "sliabh-liag",
+      "window-shopping",
+      "7-mile-beach",
+      "delphiniums",
+      "midnight",
+      "july",
+      "spring-market",
+      "lullaby",
+      "may",
+      "floral-study",
+      "floral-study-ii",
+      "want-to-call",
+      "daffodils",
+      "sunflowers",
+      "cycle"
+    ]
+  },
+  "seo": {
+    "title": "Gallery — adrianna hankins",
+    "description": "Please contact to purchase available works"
+  }
+}

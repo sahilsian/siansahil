@@ -1,0 +1,14 @@
+{
+  "$type": "page",
+  "slug": "contact",
+  "seo": {
+    "title": "contact — adrianna hankins",
+    "description": "For inquiries and commissions, contact adrihankins@gmail.com"
+  },
+  "blocks": [
+    {
+      "type": "form",
+      "formId": "contact"
+    }
+  ]
+}

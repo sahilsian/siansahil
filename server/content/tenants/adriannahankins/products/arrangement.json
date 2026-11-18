@@ -1,0 +1,27 @@
+{
+  "$type": "product",
+  "slug": "arrangement",
+  "title": "Arrangement",
+  "category": "oil-on-wood",
+  "description": "Oil on Wood, 10 x 10 in.",
+  "images": [
+    {
+      "url": "/art/arrangement.jpg",
+      "width": 2340,
+      "height": 2340,
+      "alternativeText": "Arrangement — Oil on Wood, 10 x 10 in.",
+      "name": "arrangement.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Wood**, 10 x 10 in.\n\n$200"
+    }
+  ],
+  "material": "Oil on Wood",
+  "availability": {
+    "status": "available",
+    "price": "$200"
+  }
+}

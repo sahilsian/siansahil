@@ -1,0 +1,187 @@
+{
+  "$type": "site",
+  "name": "Adrianna Hankins",
+  "url": "https://adriannahankins.com",
+  "locale": "en-CA",
+  "currency": "CAD",
+  "contact": {
+    "email": "adrihankins@gmail.com"
+  },
+  "social": {
+    "instagram": {
+      "handle": "adrianna.hankins",
+      "url": "https://www.instagram.com/adrianna.hankins/"
+    }
+  },
+  "theme": {
+    "colors": {
+      "background": "#1a121a",
+      "paper": "#1a121a",
+      "textPrimary": "#FFFFFF",
+      "heading": "#FFFFFF",
+      "textSecondary": "#FFFFFF",
+      "border": "rgba(255,255,255,0.6)",
+      "hover": "rgba(255,255,255,0.15)",
+      "menu": "#2E1A3B",
+      "nav": "#FFFFFF",
+      "marginRed": "transparent",
+      "marginBlue": "transparent",
+      "disabled": "rgba(255,255,255,0.25)",
+      "available": "#FFFFFF",
+      "sold": "#FFFFFF",
+      "highlight": "#682C44",
+      "buttonBackground": "#5C7C41",
+      "buttonText": "#FFFFFF",
+      "buttonSecondaryBackground": "transparent",
+      "buttonSecondaryText": "#FFFFFF",
+      "buttonSecondaryBorder": "#FFFFFF",
+      "iconActive": "rgba(255,255,255,0.25)",
+      "primary": "#5C7C41",
+      "secondary": "#FFFFFF",
+      "wrapper": "#1a121a",
+      "textButton": "#FFFFFF",
+      "accent": "#682C44",
+      "darkAccent": "#223A0E"
+    },
+    "fonts": {
+      "body": "Geist",
+      "heading": "Shrikhand",
+      "stylesheet": "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Shrikhand&display=swap"
+    }
+  },
+  "seo": {
+    "siteName": "adrianna hankins",
+    "title": "adrianna hankins",
+    "description": "Adrianna Hankins is an oil painter based in Vancouver, Canada.",
+    "keywords": "",
+    "ogImage": {
+      "url": "/adrianna_hankins_home.jpg",
+      "width": 2500,
+      "height": 2916,
+      "alternativeText": "Adrianna Hankins in her studio",
+      "name": "adrianna_hankins_home.jpg"
+    },
+    "robots": "index,follow",
+    "titleTemplate": "%s — adrianna hankins"
+  },
+  "favicons": {
+    "png96": "/favicon-96x96.png",
+    "svg": "/favicon.svg",
+    "ico": "/favicon.ico",
+    "appleTouch": "/apple-touch-icon.png",
+    "manifest": "/manifest.json"
+  },
+  "nav": {
+    "header": {
+      "title": "adrianna hankins",
+      "items": [
+        {
+          "label": "gallery.",
+          "to": "/products",
+          "search": {
+            "collection": "gallery"
+          }
+        },
+        {
+          "label": "contact.",
+          "to": "/contact"
+        },
+        {
+          "label": "about.",
+          "to": "/about"
+        }
+      ]
+    },
+    "footer": {
+      "title": "adrianna hankins",
+      "description": "grateful to be living and working on the unceded traditional territories of the xʷməθkʷəy̓əm (Musqueam), Sḵwx̱wú7mesh (Squamish), and səlilwətaɬ (Tsleil-Waututh) Nations",
+      "groups": [
+        {
+          "title": "",
+          "items": [
+            {
+              "label": "gallery.",
+              "to": "/products",
+              "search": {
+                "collection": "gallery"
+              }
+            },
+            {
+              "label": "contact.",
+              "to": "/contact"
+            },
+            {
+              "label": "about.",
+              "to": "/about"
+            },
+            {
+              "label": "instagram.",
+              "to": "https://www.instagram.com/adrianna.hankins/",
+              "external": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "mailing": {
+    "formId": "mailing-list",
+    "title": "Mailing List",
+    "description": "Sign up for updates on new paintings.",
+    "consentPrefix": "Unsubscribe any time by getting in",
+    "consentLink": {
+      "label": "touch",
+      "to": "/contact"
+    }
+  },
+  "labels": {
+    "back": "Back",
+    "search": "Search",
+    "searchPlaceholder": "Search...",
+    "reset": "Reset",
+    "purchase": "Purchase",
+    "available": "Available",
+    "sold": "Sold",
+    "soldOut": "Sold out",
+    "unavailable": "Unavailable",
+    "prints": "Prints",
+    "printsFrom": "Prints from:",
+    "originalAvailable": "Original Available",
+    "originalSold": "Original Sold",
+    "size": "Size",
+    "price": "Price",
+    "customPrinting": "Custom Printing",
+    "customPrintingFeatures": [
+      "Canvas Prints",
+      "Various Sizes",
+      "Shipping and Delivery"
+    ],
+    "varies": "Varies",
+    "inquire": "Inquire",
+    "remove": "Remove",
+    "of": "of",
+    "enlargeImage": "Enlarge image",
+    "noResults": "No Results Found.",
+    "noPrintablePaintings": "No paintings are available for prints right now.",
+    "selected": "Selected:",
+    "showImage": "Show image"
+  },
+  "messages": {
+    "notFound": "This page doesn't exist.",
+    "loadError": "This site couldn't load right now. Please try again in a moment.",
+    "collectionError": "Something went wrong loading the gallery. Please try again.",
+    "formInvalid": "Please fix the highlighted fields above.",
+    "formError": "Error submitting form.",
+    "formSuccessDefault": "Form Successfully Submitted.",
+    "fieldNotSupported": "Field not supported."
+  },
+  "integrations": {
+    "shopify": {
+      "printClubHandle": ""
+    },
+    "email": {
+      "recipient": "adrihankins@gmail.com",
+      "fromName": "Adrianna Hankins website"
+    }
+  }
+}

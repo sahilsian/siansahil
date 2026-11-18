@@ -1,0 +1,26 @@
+{
+  "$type": "product",
+  "slug": "delphiniums",
+  "title": "Delphiniums",
+  "category": "painting",
+  "description": "24 x 30 in.",
+  "images": [
+    {
+      "url": "/art/delphiniums.jpg",
+      "width": 2500,
+      "height": 3116,
+      "alternativeText": "Delphiniums — 24 x 30 in.",
+      "name": "delphiniums.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "24 x 30 in.\n\n$450"
+    }
+  ],
+  "availability": {
+    "status": "available",
+    "price": "$450"
+  }
+}

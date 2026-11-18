@@ -1,0 +1,26 @@
+{
+  "$type": "product",
+  "slug": "may",
+  "title": "May",
+  "category": "oil-on-canvas",
+  "description": "Oil on Canvas, 18 x 24 in.",
+  "images": [
+    {
+      "url": "/art/may.jpg",
+      "width": 2500,
+      "height": 3181,
+      "alternativeText": "May — Oil on Canvas, 18 x 24 in.",
+      "name": "may.jpg"
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Details",
+      "body": "**Oil on Canvas**, 18 x 24 in.\n\nSold"
+    }
+  ],
+  "material": "Oil on Canvas",
+  "availability": {
+    "status": "sold"
+  }
+}
