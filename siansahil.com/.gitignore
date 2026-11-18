@@ -13,7 +13,9 @@ count.txt
 todos.json
 siansahil.com/.env.development
 siansahil.com/.env.production
-siansahil.com/.dev.vars
+# Local secrets for wrangler dev (paths here are relative to this folder)
+.dev.vars
+.dev.vars.*
 
 # Local Netlify folder
 .netlify
