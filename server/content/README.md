@@ -131,9 +131,11 @@ for what it does and how it's secured.
 
    The server won't start without it. It's the address uploaded images are linked
    from, so moving the API to a custom domain later means re-linking existing uploads.
-3. **Deploy**, then check `https://<server-url>/api/v1/diagnostics/ready` returns 200
+3. **Image storage (Cloudflare R2)** — optional but recommended; without it uploads
+   are stored in Postgres. See "Setting up Cloudflare R2" below.
+4. **Deploy**, then check `https://<server-url>/api/v1/diagnostics/ready` returns 200
    (the new tables are created automatically).
-4. **Create your superadmin account** (PowerShell):
+5. **Create your superadmin account** (PowerShell):
 
    ```powershell
    cd server
@@ -144,10 +146,42 @@ for what it does and how it's secured.
 
    It prints a generated password once. Sign in at `https://<server-url>/dashboard/`,
    then change it under **Account**.
-5. **Create tenant accounts** from the dashboard's **Superadmin** screen: username,
+6. **Create tenant accounts** from the dashboard's **Superadmin** screen: username,
    password (use **Generate**), and the website they can edit. Copy the details and
    send them privately; they can change the password under **Account**. If someone
    forgets theirs, use **Reset password** on the same screen.
+
+### Setting up Cloudflare R2
+
+Photos uploaded in the dashboard go to an R2 bucket (free up to 10 GB, no download
+fees) and are served through Cloudflare's CDN from your own domain. Objects are
+named `<site>/<sha256>.jpg` and cached for a year (their content never changes).
+
+1. **Cloudflare dashboard → R2 Object Storage → Create bucket.** Name it, e.g.
+   `site-images`. Location: Automatic.
+2. **Give it a public domain:** bucket → **Settings → Public access → Custom
+   Domains → Connect domain**, e.g. `images.siansahil.com` (the domain must be on
+   your Cloudflare account). Don't use the `r2.dev` address in production: it's
+   rate-limited and not cached.
+3. **Create an API token:** R2 overview → **Manage API tokens → Create API token**.
+   Permission **Object Read & Write**, applied to **this bucket only**. Copy the
+   **Access Key ID** and **Secret Access Key** (shown once).
+4. **Find your Account ID** on the R2 overview page.
+5. **DigitalOcean → server component → Environment Variables**, all encrypted:
+
+   | Key | Value |
+   |---|---|
+   | `APP_MEDIA__R2__ACCOUNT_ID` | your Cloudflare account id |
+   | `APP_MEDIA__R2__BUCKET` | `site-images` |
+   | `APP_MEDIA__R2__ACCESS_KEY_ID` | from step 3 |
+   | `APP_MEDIA__R2__SECRET_ACCESS_KEY` | from step 3 |
+   | `APP_MEDIA__R2__PUBLIC_BASE_URL` | `https://images.siansahil.com` (no trailing slash) |
+
+   Set all five or none. If only some are set, the server refuses to start and the
+   log says which are missing. The startup log line "Uploaded images will be stored
+   in r2" confirms it's active.
+
+Images already uploaded to Postgres keep working at their old addresses.
 
 ## Shapes
 

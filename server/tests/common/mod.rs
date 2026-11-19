@@ -6,10 +6,11 @@ use std::net::TcpListener;
 use std::sync::LazyLock;
 
 use secrecy::{ExposeSecret, Secret};
-use server::config::{get_config, DatabaseSettings};
+use server::config::{get_config, DatabaseSettings, R2Settings};
 use server::email_client::EmailClient;
 use server::migration_runner::MigrationStatus;
 use server::routes::admin::AdminKey;
+use server::dashboard::media::MediaStore;
 use server::routes::dashboard::DashboardConfig;
 use server::startup::run;
 use server::telemetry::{get_subscriber, init_subscriber};
@@ -25,6 +26,8 @@ pub struct TestApp {
     pub admin_key: String,
     /// Stands in for Resend: mount expectations on it to assert on outgoing email.
     pub email_server: MockServer,
+    /// Stands in for Cloudflare R2 when the app was spawned with `spawn_app_with_r2`.
+    pub r2_server: MockServer,
 }
 
 static TRACING: LazyLock<()> = LazyLock::new(|| {
@@ -39,8 +42,17 @@ pub async fn spawn_app() -> TestApp {
     spawn_app_with_migrations(MigrationStatus::applied()).await
 }
 
+/// Like `spawn_app`, but uploads go to a fake R2 (`r2_server`) served from `https://images.test`.
+pub async fn spawn_app_with_r2() -> TestApp {
+    spawn(MigrationStatus::applied(), true).await
+}
+
 /// Like `spawn_app`, but with a chosen migration status (the test DB is always migrated).
 pub async fn spawn_app_with_migrations(migrations: MigrationStatus) -> TestApp {
+    spawn(migrations, false).await
+}
+
+async fn spawn(migrations: MigrationStatus, use_r2: bool) -> TestApp {
     LazyLock::force(&TRACING);
 
     let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind to address");
@@ -55,6 +67,19 @@ pub async fn spawn_app_with_migrations(migrations: MigrationStatus) -> TestApp {
     config.email.base_url = email_server.uri();
     config.email.resend_api_key = Some(Secret::new("test-resend-key".to_string()));
 
+    let r2_server = MockServer::start().await;
+    if use_r2 {
+        config.media.r2 = Some(R2Settings {
+            account_id: "test-account".into(),
+            bucket: "test-bucket".into(),
+            access_key_id: "test-access-key".into(),
+            secret_access_key: Secret::new("test-secret".into()),
+            public_base_url: "https://images.test".into(),
+            endpoint: Some(r2_server.uri()),
+        });
+    }
+    let media = MediaStore::from_settings(&config.media, &address).expect("valid media settings");
+
     let admin_key = config.admin.api_key.expose_secret().clone();
     let server = run(
         listener,
@@ -63,11 +88,12 @@ pub async fn spawn_app_with_migrations(migrations: MigrationStatus) -> TestApp {
         EmailClient::new(&config.email),
         migrations,
         DashboardConfig::new(config.dashboard.clone(), &address),
+        media,
     )
     .expect("Failed to bind to address");
     let _ = tokio::spawn(server);
 
-    TestApp { address, db_pool, admin_key, email_server }
+    TestApp { address, db_pool, admin_key, email_server, r2_server }
 }
 
 pub async fn configure_database(config: &DatabaseSettings) -> PgPool {

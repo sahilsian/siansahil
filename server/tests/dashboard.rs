@@ -1,6 +1,8 @@
 mod common;
 
-use common::{spawn_app, TestApp};
+use common::{spawn_app, spawn_app_with_r2, TestApp};
+use wiremock::matchers::{header, header_exists, method, path_regex};
+use wiremock::{Mock, ResponseTemplate};
 use reqwest::{Method, StatusCode};
 use serde_json::{json, Value};
 
@@ -445,6 +447,62 @@ async fn only_real_images_can_be_uploaded() {
         let (status, _) = boss.upload("acme", bad).await;
         assert_eq!(status, StatusCode::BAD_REQUEST);
     }
+}
+
+#[actix_web::test]
+async fn uploads_go_to_r2_when_it_is_configured() {
+    let app = spawn_app_with_r2().await;
+    seed_sites(&app).await;
+    let boss = superadmin(&app).await;
+
+    Mock::given(method("PUT"))
+        .and(path_regex(r"^/test-bucket/acme/[0-9a-f]{64}\.png$"))
+        .and(header("content-type", "image/png"))
+        .and(header_exists("cache-control"))
+        .and(header_exists("x-amz-date"))
+        .and(header_exists("x-amz-content-sha256"))
+        .and(header_exists("authorization"))
+        .respond_with(ResponseTemplate::new(200))
+        .expect(1)
+        .mount(&app.r2_server)
+        .await;
+
+    let (status, image) = boss.upload("acme", PNG_1X1).await;
+    assert_eq!(status, StatusCode::CREATED, "{image}");
+    let url = image["url"].as_str().unwrap();
+    assert!(url.starts_with("https://images.test/acme/") && url.ends_with(".png"), "{url}");
+
+    // Only a record is kept in the database, not the bytes.
+    let (storage, has_bytes, size): (String, bool, i32) =
+        sqlx::query_as("SELECT storage, bytes IS NOT NULL, size_bytes FROM media").fetch_one(&app.db_pool).await.unwrap();
+    assert_eq!((storage.as_str(), has_bytes, size), ("r2", false, PNG_1X1.len() as i32));
+
+    // The upload is signed for this bucket and access key.
+    let requests = app.r2_server.received_requests().await.unwrap();
+    let cache = requests[0].headers.get("cache-control").unwrap().to_str().unwrap();
+    assert_eq!(cache, "public, max-age=31536000, immutable", "Cloudflare and browsers may cache it forever");
+    let auth = requests[0].headers.get("authorization").unwrap().to_str().unwrap();
+    assert!(auth.starts_with("AWS4-HMAC-SHA256 Credential=test-access-key/"), "{auth}");
+    assert!(auth.contains("/auto/s3/aws4_request"), "{auth}");
+
+    // R2 images can be used in artworks.
+    let artwork = json!({ "title": "Sunflowers", "category": "paint", "images": [image], "tabs": [] });
+    let (status, body) = boss.post("/sites/acme/artworks", json!({ "slug": "sunflowers", "artwork": artwork })).await;
+    assert_eq!(status, StatusCode::CREATED, "{body}");
+}
+
+#[actix_web::test]
+async fn a_failed_r2_upload_is_reported_and_not_recorded() {
+    let app = spawn_app_with_r2().await;
+    seed_sites(&app).await;
+    let boss = superadmin(&app).await;
+    Mock::given(method("PUT")).respond_with(ResponseTemplate::new(403)).mount(&app.r2_server).await;
+
+    let (status, body) = boss.upload("acme", PNG_1X1).await;
+    assert_eq!(status, StatusCode::INTERNAL_SERVER_ERROR);
+    assert_eq!(body["error"], "internal_error");
+    let (count,): (i64,) = sqlx::query_as("SELECT COUNT(*) FROM media").fetch_one(&app.db_pool).await.unwrap();
+    assert_eq!(count, 0);
 }
 
 #[actix_web::test]

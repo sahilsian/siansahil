@@ -60,6 +60,23 @@ services:
       - key: APP_APPLICATION__BASE_URL
         scope: RUN_TIME
         value: https://server-ucdtb.ondigitalocean.app
+      # Cloudflare R2 for images uploaded from the dashboard. Set the values in the
+      # DigitalOcean dashboard. Leave all five empty to store images in Postgres instead.
+      - key: APP_MEDIA__R2__ACCOUNT_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: APP_MEDIA__R2__BUCKET
+        scope: RUN_TIME
+        type: SECRET
+      - key: APP_MEDIA__R2__ACCESS_KEY_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: APP_MEDIA__R2__SECRET_ACCESS_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: APP_MEDIA__R2__PUBLIC_BASE_URL
+        scope: RUN_TIME
+        type: SECRET
 databases:
   # A managed Postgres cluster (not a dev database: those don't let the app user
   # create tables in `public` on Postgres 15+). The cluster is created in the

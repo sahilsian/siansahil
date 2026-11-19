@@ -15,6 +15,32 @@ pub struct Settings {
     pub admin: AdminSettings,
     pub email: EmailSettings,
     pub dashboard: DashboardSettings,
+    #[serde(default)]
+    pub media: MediaSettings,
+}
+
+/// Where images uploaded from the dashboard are stored. With `r2` set they go to
+/// Cloudflare R2 and are served from its public domain; without it (local
+/// development) they're kept in Postgres and served by this server.
+#[derive(serde::Deserialize, Clone, Default)]
+pub struct MediaSettings {
+    pub r2: Option<R2Settings>,
+}
+
+/// Cloudflare R2 bucket. In production set via `APP_MEDIA__R2__*` variables.
+#[derive(serde::Deserialize, Clone)]
+pub struct R2Settings {
+    /// Cloudflare account id (R2 overview page).
+    pub account_id: String,
+    pub bucket: String,
+    /// From an R2 API token with "Object Read & Write" on this bucket.
+    pub access_key_id: String,
+    pub secret_access_key: Secret<String>,
+    /// The bucket's public custom domain, e.g. `https://images.siansahil.com`.
+    pub public_base_url: String,
+    /// Override the S3 endpoint (tests only). Defaults to `https://<account>.r2.cloudflarestorage.com`.
+    #[serde(default)]
+    pub endpoint: Option<String>,
 }
 
 /// The tenant dashboard (a static web app this server serves at `/dashboard`).

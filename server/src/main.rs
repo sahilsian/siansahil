@@ -4,6 +4,7 @@ use server::config::get_config;
 use server::email_client::EmailClient;
 use server::migration_runner::{run_until_applied, MigrationStatus};
 use server::routes::admin::AdminKey;
+use server::dashboard::media::MediaStore;
 use server::routes::dashboard::DashboardConfig;
 use server::startup::run;
 use server::telemetry::{get_subscriber, init_subscriber};
@@ -38,5 +39,10 @@ async fn main() -> Result<(), std::io::Error> {
 
     let dashboard = DashboardConfig::new(config.dashboard.clone(), &config.application.base_url);
 
-    run(listener, connection_pool, admin_key, email_client, migrations, dashboard)?.await
+    // Fail at startup, not on the first upload, if R2 is half-configured.
+    let media = MediaStore::from_settings(&config.media, &config.application.base_url)
+        .expect("Invalid media (R2) configuration");
+    tracing::info!(storage = media.describe(), "Uploaded images will be stored in {}", media.describe());
+
+    run(listener, connection_pool, admin_key, email_client, migrations, dashboard, media)?.await
 }

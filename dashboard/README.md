@@ -54,7 +54,8 @@ serves the built app at <http://127.0.0.1:8000/dashboard/> (it looks in
   every request.
 - **Uploads:** only real JPEG/PNG/WebP files (checked from their bytes; SVG refused),
   10 MB each, 2 GB per site. The dashboard shrinks photos to 2400 px and strips their
-  metadata (including phone GPS location) before uploading.
+  metadata (including phone GPS location) before uploading. In production they're
+  stored in Cloudflare R2 and served from its CDN; the R2 key never leaves the server.
 - **Page hardening:** strict Content-Security-Policy, no framing, no referrer, HSTS.
 
 ## Production

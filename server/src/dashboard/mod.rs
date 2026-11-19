@@ -4,5 +4,6 @@
 pub mod accounts;
 pub mod media;
 pub mod products;
+pub mod r2;
 pub mod text_only;
 pub mod throttle;

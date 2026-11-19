@@ -2785,6 +2785,7 @@ dependencies = [
  "fake",
  "getrandom 0.3.4",
  "hex",
+ "hmac",
  "imagesize",
  "quickcheck",
  "quickcheck_macros",
