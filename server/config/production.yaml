@@ -1,5 +1,10 @@
 application:
   host: 0.0.0.0
+  # base_url comes from APP_APPLICATION__BASE_URL (set in spec.yaml).
 database:
   # DigitalOcean managed Postgres only accepts TLS connections.
   require_ssl: true
+dashboard:
+  # Copied into the Docker image by the Dockerfile.
+  static_dir: "dashboard"
+  secure_cookies: true

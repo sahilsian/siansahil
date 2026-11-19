@@ -1,0 +1,14 @@
+# The server image is built from the repository root (server/Dockerfile).
+# Only server/ and dashboard/ sources are needed.
+.git
+**/node_modules
+**/target
+**/dist
+**/.env
+**/.env.*
+**/.dev.vars
+**/*.log
+.idea
+.vscode
+siansahil.com
+adriannahankins.com

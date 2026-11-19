@@ -106,6 +106,49 @@ ADMIN_API_KEY=<production admin key> cargo run --bin push_content -- https://<yo
 
 The server applies database migrations itself on startup.
 
+> **Once tenants edit through the dashboard, the database is the source of truth.**
+> `seed` and `push_content` overwrite every document they upload, so running them
+> afterwards would undo tenants' edits and artworks. To change layout or structure
+> later, edit the live document (admin API `GET`, change, `PUT`) or push a single
+> file's folder, not the whole tenant.
+
+## Deploying the dashboard
+
+The dashboard (`/dashboard` in this repo) is built into the server's Docker image
+and served at `https://<server-url>/dashboard`. See [dashboard/README.md](../../dashboard/README.md)
+for what it does and how it's secured.
+
+1. **Commit and push** `server/`, `dashboard/` and the root `.dockerignore`. The
+   build context is now the repo root (`source_dir: /` in `spec.yaml`). If the app
+   was created from the dashboard rather than `spec.yaml`, set **Source directory**
+   to `/` in the component settings (Dockerfile path stays `server/Dockerfile`).
+2. **Add one environment variable** to the server component (Settings →
+   Environment Variables), unless you deploy from `spec.yaml`, which already has it:
+
+   | Key | Value |
+   |---|---|
+   | `APP_APPLICATION__BASE_URL` | `https://<server-url>` (no trailing slash) |
+
+   The server won't start without it. It's the address uploaded images are linked
+   from, so moving the API to a custom domain later means re-linking existing uploads.
+3. **Deploy**, then check `https://<server-url>/api/v1/diagnostics/ready` returns 200
+   (the new tables are created automatically).
+4. **Create your superadmin account** (PowerShell):
+
+   ```powershell
+   cd server
+   $env:ADMIN_API_KEY = "<production admin key>"
+   cargo run --bin create_superadmin -- https://<server-url> yourname
+   Remove-Item Env:ADMIN_API_KEY
+   ```
+
+   It prints a generated password once. Sign in at `https://<server-url>/dashboard/`,
+   then change it under **Account**.
+5. **Create tenant accounts** from the dashboard's **Superadmin** screen: username,
+   password (use **Generate**), and the website they can edit. Copy the details and
+   send them privately; they can change the password under **Account**. If someone
+   forgets theirs, use **Reset password** on the same screen.
+
 ## Shapes
 
 ### Image

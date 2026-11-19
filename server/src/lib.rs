@@ -1,5 +1,6 @@
 pub mod config;
 pub mod content;
+pub mod dashboard;
 pub mod email_client;
 pub mod mailing_list;
 pub mod migration_runner;

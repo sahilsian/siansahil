@@ -10,6 +10,7 @@ use server::config::{get_config, DatabaseSettings};
 use server::email_client::EmailClient;
 use server::migration_runner::MigrationStatus;
 use server::routes::admin::AdminKey;
+use server::routes::dashboard::DashboardConfig;
 use server::startup::run;
 use server::telemetry::{get_subscriber, init_subscriber};
 use sqlx::postgres::PgPoolOptions;
@@ -61,6 +62,7 @@ pub async fn spawn_app_with_migrations(migrations: MigrationStatus) -> TestApp {
         AdminKey::new(&config.admin.api_key).expect("valid admin key"),
         EmailClient::new(&config.email),
         migrations,
+        DashboardConfig::new(config.dashboard.clone(), &address),
     )
     .expect("Failed to bind to address");
     let _ = tokio::spawn(server);

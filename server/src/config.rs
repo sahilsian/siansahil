@@ -14,6 +14,17 @@ pub struct Settings {
     pub application: ApplicationSettings,
     pub admin: AdminSettings,
     pub email: EmailSettings,
+    pub dashboard: DashboardSettings,
+}
+
+/// The tenant dashboard (a static web app this server serves at `/dashboard`).
+#[derive(serde::Deserialize, Clone)]
+pub struct DashboardSettings {
+    /// Folder holding the built dashboard (`index.html` + assets).
+    pub static_dir: String,
+    /// Mark the session cookie `Secure` (and use the `__Host-` name). Always on in production.
+    #[serde(default)]
+    pub secure_cookies: bool,
 }
 
 /// Outgoing email (Resend). Without `resend_api_key` notifications are
@@ -53,6 +64,9 @@ pub struct ApplicationSettings {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,
     pub host: String,
+    /// This server's public address (no trailing slash). Uploaded images are
+    /// linked from it, e.g. `https://server-xyz.ondigitalocean.app`.
+    pub base_url: String,
 }
 
 // instantiate db settings

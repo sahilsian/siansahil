@@ -12,8 +12,10 @@
 //!   DELETE /api/v1/admin/tenants/{tenantId}/documents/{type}/{key}
 //!   GET    /api/v1/admin/tenants/{tenantId}/mailing-list
 //!   DELETE /api/v1/admin/tenants/{tenantId}/mailing-list/{email}
+//!   POST   /api/v1/admin/dashboard-users                           { username, role, tenantId?, password?, email? }
 
 mod auth;
+mod dashboard_users;
 mod documents;
 mod mailing_list;
 mod tenants;
@@ -47,5 +49,6 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 .route(web::delete().to(documents::delete)),
         )
         .route("/tenants/{tenant_id}/mailing-list", web::get().to(mailing_list::list))
-        .route("/tenants/{tenant_id}/mailing-list/{email}", web::delete().to(mailing_list::remove));
+        .route("/tenants/{tenant_id}/mailing-list/{email}", web::delete().to(mailing_list::remove))
+        .route("/dashboard-users", web::post().to(dashboard_users::create));
 }

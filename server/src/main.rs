@@ -4,6 +4,7 @@ use server::config::get_config;
 use server::email_client::EmailClient;
 use server::migration_runner::{run_until_applied, MigrationStatus};
 use server::routes::admin::AdminKey;
+use server::routes::dashboard::DashboardConfig;
 use server::startup::run;
 use server::telemetry::{get_subscriber, init_subscriber};
 use sqlx::postgres::PgPoolOptions;
@@ -35,5 +36,7 @@ async fn main() -> Result<(), std::io::Error> {
     let addr = format!("{}:{}", config.application.host, config.application.port);
     let listener = TcpListener::bind(addr).expect("Failed to bind the address");
 
-    run(listener, connection_pool, admin_key, email_client, migrations)?.await
+    let dashboard = DashboardConfig::new(config.dashboard.clone(), &config.application.base_url);
+
+    run(listener, connection_pool, admin_key, email_client, migrations, dashboard)?.await
 }

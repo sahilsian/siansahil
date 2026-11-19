@@ -5,10 +5,10 @@ name: server
 region: tor1
 services:
   - name: server
-    # The server lives in the server/ folder of the monorepo: that folder is the
-    # Docker build context, and the Dockerfile path is relative to the repo root.
+    # The Docker build context is the repository root, because the image also
+    # builds the dashboard/ web app (served by the server at /dashboard).
     dockerfile_path: server/Dockerfile
-    source_dir: server
+    source_dir: /
     github:
       branch: main
       deploy_on_push: true
@@ -28,6 +28,8 @@ services:
     routes:
       - path: /
     envs:
+      # Database connection, filled in by App Platform from the `newsletter`
+      # database component below.
       - key: APP_DATABASE__USERNAME
         scope: RUN_TIME
         value: ${newsletter.USERNAME}
@@ -53,13 +55,21 @@ services:
       - key: APP_EMAIL__RESEND_API_KEY
         scope: RUN_TIME
         type: SECRET
+      # This server's public address. Uploaded artwork images are linked from it,
+      # so changing it later (e.g. to a custom domain) breaks existing image links.
+      - key: APP_APPLICATION__BASE_URL
+        scope: RUN_TIME
+        value: https://server-ucdtb.ondigitalocean.app
 databases:
-  # PG = Postgres
-  - engine: PG
-    # Database name
-    name: newsletter
-    # Again, let's keep the bill lean
-    num_nodes: 1
-    size: db-s-dev-database
-    # Postgres version - using the latest here
+  # A managed Postgres cluster (not a dev database: those don't let the app user
+  # create tables in `public` on Postgres 15+). The cluster is created in the
+  # dashboard; this only attaches it. The app user needs, run once as doadmin:
+  #   GRANT ALL ON SCHEMA public TO newsletter;
+  - name: newsletter
+    engine: PG
     version: "17"
+    production: true
+    # TODO: the cluster's name as shown under Databases in the dashboard.
+    cluster_name: CLUSTER_NAME
+    db_name: newsletter
+    db_user: newsletter
