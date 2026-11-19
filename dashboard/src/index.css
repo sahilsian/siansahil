@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  @apply bg-stone-100 text-stone-900 antialiased;
+}
+
+/* 16px inputs stop iOS Safari zooming in on focus. */
+input,
+textarea,
+select {
+  font-size: 16px;
+}
+
+/* Rich text editor content. */
+.prose-editor {
+  @apply min-h-32 px-3 py-2 outline-none;
+}
+.prose-editor p {
+  @apply my-2;
+}
+.prose-editor h2 {
+  @apply mt-4 mb-2 text-xl font-semibold;
+}
+.prose-editor h3 {
+  @apply mt-3 mb-2 text-lg font-semibold;
+}
+.prose-editor ul {
+  @apply my-2 list-disc pl-6;
+}
+.prose-editor ol {
+  @apply my-2 list-decimal pl-6;
+}
+.prose-editor a {
+  @apply text-blue-700 underline;
+}
+.prose-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply pointer-events-none float-left h-0 text-stone-400;
+}
