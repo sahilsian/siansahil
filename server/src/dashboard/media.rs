@@ -140,6 +140,20 @@ impl From<sqlx::Error> for StoreError {
     }
 }
 
+/// The public address of an uploaded image (same rule as `store`).
+pub fn url_for(media: &MediaStore, tenant: &TenantId, id: &str, content_type: &str) -> String {
+    let ext = match content_type {
+        "image/png" => "png",
+        "image/webp" => "webp",
+        _ => "jpg",
+    };
+    let file = format!("{id}.{ext}");
+    match media {
+        MediaStore::Database { api_base_url } => format!("{api_base_url}/api/v1/media/{}/{file}", tenant.as_ref()),
+        MediaStore::R2(r2) => r2.public_url(&format!("{}/{file}", tenant.as_ref())),
+    }
+}
+
 pub async fn store(
     media: &MediaStore,
     pool: &PgPool,

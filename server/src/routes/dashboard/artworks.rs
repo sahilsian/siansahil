@@ -10,6 +10,7 @@ use sqlx::{PgPool, Postgres, Transaction};
 use super::{site_for, DashboardConfig, SignedIn};
 use crate::content::{tenant_exists, upsert_document, DocType, DocumentKey, TenantId};
 use crate::dashboard::products::{build_product, ProductInput};
+use crate::dashboard::stripe::Stripe;
 use crate::routes::error::ApiError;
 
 /// GET /sites/{site}/artworks → { artworks, collections, categories }
@@ -190,20 +191,21 @@ pub async fn update(
 }
 
 /// DELETE /sites/{site}/artworks/{slug} → 204
-#[tracing::instrument(name = "Delete artwork", skip(user, path, pool), fields(user = %user.username, site = %path.0, slug = %path.1))]
+#[tracing::instrument(name = "Delete artwork", skip(user, path, pool, stripe), fields(user = %user.username, site = %path.0, slug = %path.1))]
 pub async fn delete(
     SignedIn(user): SignedIn,
     path: web::Path<(String, String)>,
     pool: web::Data<PgPool>,
+    stripe: web::Data<Stripe>,
 ) -> Result<HttpResponse, ApiError> {
     let (site, slug) = path.into_inner();
     let tenant = site_for(&user, &site)?;
     let slug = parse_slug(&slug)?;
 
     let mut tx = pool.begin().await?;
-    if load_product(&mut tx, &tenant, slug.as_ref()).await?.is_none() {
+    let Some(product) = load_product(&mut tx, &tenant, slug.as_ref()).await? else {
         return Err(ApiError::NotFound("artwork", slug.as_ref().into()));
-    }
+    };
     sqlx::query("DELETE FROM documents WHERE tenant_id = $1 AND doc_type = 'product' AND key = $2")
         .bind(tenant.as_ref())
         .bind(slug.as_ref())
@@ -211,6 +213,8 @@ pub async fn delete(
         .await?;
     set_membership(&mut tx, &tenant, slug.as_ref(), None).await?;
     tx.commit().await?;
+    // A deleted artwork can no longer be bought.
+    super::store::archive_all(&stripe, &tenant, &product).await;
     tracing::info!("Artwork deleted");
     Ok(HttpResponse::NoContent().finish())
 }

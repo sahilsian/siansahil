@@ -11,6 +11,7 @@ use server::email_client::EmailClient;
 use server::migration_runner::MigrationStatus;
 use server::routes::admin::AdminKey;
 use server::dashboard::media::MediaStore;
+use server::dashboard::stripe::Stripe;
 use server::routes::dashboard::DashboardConfig;
 use server::startup::run;
 use server::telemetry::{get_subscriber, init_subscriber};
@@ -28,6 +29,8 @@ pub struct TestApp {
     pub email_server: MockServer,
     /// Stands in for Cloudflare R2 when the app was spawned with `spawn_app_with_r2`.
     pub r2_server: MockServer,
+    /// Stands in for Stripe. The `acme` site has a Stripe key; other sites do not.
+    pub stripe_server: MockServer,
 }
 
 static TRACING: LazyLock<()> = LazyLock::new(|| {
@@ -80,6 +83,12 @@ async fn spawn(migrations: MigrationStatus, use_r2: bool) -> TestApp {
     }
     let media = MediaStore::from_settings(&config.media, &address).expect("valid media settings");
 
+    let stripe_server = MockServer::start().await;
+    config.stripe.api_base = stripe_server.uri();
+    // Tests exercise the real Stripe calls, so test mode is off even though local.yaml turns it on.
+    config.stripe.offline = false;
+    config.stripe.secret_keys.insert("acme".into(), Secret::new("sk_test_acme".into()));
+
     let admin_key = config.admin.api_key.expose_secret().clone();
     let server = run(
         listener,
@@ -89,11 +98,12 @@ async fn spawn(migrations: MigrationStatus, use_r2: bool) -> TestApp {
         migrations,
         DashboardConfig::new(config.dashboard.clone(), &address),
         media,
+        Stripe::new(&config.stripe),
     )
     .expect("Failed to bind to address");
     let _ = tokio::spawn(server);
 
-    TestApp { address, db_pool, admin_key, email_server, r2_server }
+    TestApp { address, db_pool, admin_key, email_server, r2_server, stripe_server }
 }
 
 pub async fn configure_database(config: &DatabaseSettings) -> PgPool {

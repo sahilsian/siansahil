@@ -2,13 +2,12 @@
   "$type": "page",
   "slug": "prints",
   "seo": {
-    "title": "Custom Prints — Sahil Sian",
-    "description": "Inquire about a custom canvas print of a painting by Sahil Sian."
+    "title": "Prints — Sahil Sian",
+    "description": "Archival and limited edition prints of paintings by Sahil Sian."
   },
-  "blocks": [
-    {
-      "type": "form",
-      "formId": "print"
-    }
-  ]
+  "layout": {
+    "title": "Prints",
+    "description": "Archival and limited edition prints of my paintings."
+  },
+  "blocks": []
 }

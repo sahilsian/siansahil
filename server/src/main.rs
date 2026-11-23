@@ -5,6 +5,7 @@ use server::email_client::EmailClient;
 use server::migration_runner::{run_until_applied, MigrationStatus};
 use server::routes::admin::AdminKey;
 use server::dashboard::media::MediaStore;
+use server::dashboard::stripe::Stripe;
 use server::routes::dashboard::DashboardConfig;
 use server::startup::run;
 use server::telemetry::{get_subscriber, init_subscriber};
@@ -44,5 +45,11 @@ async fn main() -> Result<(), std::io::Error> {
         .expect("Invalid media (R2) configuration");
     tracing::info!(storage = media.describe(), "Uploaded images will be stored in {}", media.describe());
 
-    run(listener, connection_pool, admin_key, email_client, migrations, dashboard, media)?.await
+    let stripe = Stripe::new(&config.stripe);
+    tracing::info!(sites = ?stripe.configured_sites(), "Stripe keys loaded");
+    if config.stripe.offline {
+        tracing::warn!("Stripe test mode is ON: sites without a key can add to the store, but nothing is sent to Stripe");
+    }
+
+    run(listener, connection_pool, admin_key, email_client, migrations, dashboard, media, stripe)?.await
 }

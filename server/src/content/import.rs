@@ -69,7 +69,7 @@ pub fn read_tenant_dir(dir: &Path) -> Result<TenantContent, ImportError> {
     let mut documents: Vec<(DocType, String, Value)> = Vec::new();
     let site_path = dir.join("site.json");
     documents.push((DocType::Site, SITE_KEY.to_string(), read_typed(&site_path, DocType::Site)?));
-    for doc_type in [DocType::Page, DocType::Product, DocType::Collection, DocType::Form] {
+    for doc_type in [DocType::Page, DocType::Product, DocType::Collection, DocType::Form, DocType::Print] {
         let folder = dir.join(doc_type.folder().expect("non-site types have a folder"));
         for path in json_files(&folder)? {
             let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or_default();

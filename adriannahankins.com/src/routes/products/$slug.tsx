@@ -1,6 +1,5 @@
 import {createFileRoute} from '@tanstack/react-router'
 import {getProduct, getSite} from "@/lib/content";
-import {getShopifyProduct} from "@/lib/shopify";
 import ProductRenderer from "@/components/renderers/productRenderer";
 
 export const Route = createFileRoute('/products/$slug')({
@@ -17,16 +16,8 @@ export const Route = createFileRoute('/products/$slug')({
             context.queryClient.ensureQueryData({ queryKey: ["site"], queryFn: getSite }),
         ])
 
-        const shop = product.shopifyHandle
-            ? await context.queryClient.ensureQueryData({
-                queryFn: () => getShopifyProduct({ data: { handle: product.shopifyHandle! } }),
-                queryKey: ["shopifyProduct", product.shopifyHandle]
-            })
-            : null
-
         return {
             product,
-            shop,
             siteUrl: site.url.replace(/\/+$/, ""),
         }
     },
@@ -62,12 +53,11 @@ export const Route = createFileRoute('/products/$slug')({
 })
 
 function RouteComponent() {
-    const { product, shop } = Route.useLoaderData()
+    const { product } = Route.useLoaderData()
     return <div>
         <ProductRenderer
             type={"product"}
             product={product}
-            shop={shop}
         >
         </ProductRenderer>
     </div>

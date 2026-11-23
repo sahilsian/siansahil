@@ -1,15 +1,16 @@
-import {useState} from "react";
 import Typography from "@/components/typography";
 import Spacer from "@/components/spacer";
 import {Media} from "@/layouts/product/media.tsx";
 import TabbedContent, {Tab} from "@/components/tabbedContent";
-import {Link, useRouter} from "@tanstack/react-router";
+import {Link} from "@tanstack/react-router";
 import {StrapiImage} from "@/components/image";
 import {useAppState} from "@/hooks/useAppState.ts";
 import Spinner from "@/components/spinner";
-import {createShopifyCheckout, formatShopifyPrice, /* printSizeLabel, */ ShopifyProductData} from "@/lib/shopify";
+import Breadcrumb from "@/components/breadcrumb";
 import {useSite} from "@/contexts/site/siteContext.tsx";
-import type {Availability} from "@/lib/api/types.ts";
+import type {ArtworkStore, Availability} from "@/lib/api/types.ts";
+import {forSale} from "@/lib/store";
+import InquiryButton from "@/components/inquiryDialog";
 
 interface ContentProps {
     type?: string;
@@ -21,42 +22,26 @@ interface ContentProps {
     tabs?: Tab[];
     dateCreated?: string;
     material?: string;
-    shop?: ShopifyProductData | null;
+    store?: ArtworkStore;
     availability?: Availability;
 }
 
-// const CUSTOM_PRINT_FEATURES = ["Canvas Prints", "Various Sizes", "Shipping and Delivery"];
-
-export const Content = ({title, /* slug, */ description, image, images = [], tabs, shop, availability}:ContentProps) => {
-    const original = shop?.original;
-    // const prints = shop?.prints ?? [];
-    const router = useRouter()
+export const Content = ({title, slug, description, image, images = [], tabs, store, availability}:ContentProps) => {
     const ctx = useAppState()
-    const { labels } = useSite()
-    const [checkingOutId, setCheckingOutId] = useState<string | null>(null);
+    const { labels, currency } = useSite()
+    const sale = forSale(store, currency)
 
-    const handleCheckout = async (variantId: string) => {
-        setCheckingOutId(variantId);
-        try {
-            const checkoutUrl = await createShopifyCheckout({ data: { variantId } });
-            if (checkoutUrl) {
-                window.location.href = checkoutUrl;
-            } else {
-                setCheckingOutId(null);
-            }
-        } catch (error) {
-            console.error("Checkout failed", error);
-            setCheckingOutId(null);
-        }
-    };
+    // The original's status: from the store when it's listed there, otherwise the
+    // availability set on the artwork (e.g. sold privately).
+    const status = sale.originalAvailable ? "available" : availability?.status
+    const price = !sale.originalAvailable && availability?.status === "available" ? availability.price : undefined
 
     return (
         <div className={"Product relative z-30"}>
-            <div className={"flex"}>
-                <div onClick={()=> router.history.back()}>
-                    <Typography value={labels.back} level={"button"}></Typography>
-                </div>
-            </div>
+            <Breadcrumb items={[
+                { label: labels.gallery ?? "Gallery", to: "/products", search: { collection: "gallery", title: undefined } },
+                { label: title },
+            ]} />
             <Spacer height={"10px"}></Spacer>
             <div className={"flex gap-10 flex-wrap"}>
                 <div className={'flex-1'}>
@@ -71,131 +56,46 @@ export const Content = ({title, /* slug, */ description, image, images = [], tab
                         </div>
                     </div>
                     <Typography level={"p"} value={description}></Typography>
-                    {/*<div>*/}
-                    {/*    <Typography level={"6"} value={`${type}/${slug}`}></Typography>*/}
-                    {/*</div>*/}
-                    <div className={"ControlGroup flex flex-col gap-4"}>
-                        {/* Price/purchase box only when the original is listed on Shopify */}
-                        {original && (
+
+                    {status && (
                         <div className={"flex items-center justify-between gap-4 flex-wrap border border-[var(--color-border)] px-4 py-3 mt-5"}>
                             <div className={"flex items-center gap-4"}>
-                                {original && (
-                                    <>
-                                        <Typography level={"6"} value={formatShopifyPrice(original.price, original.currencyCode)} />
-                                        {original.availableForSale ? (
-                                            <span className={"font-serif text-[1rem] text-[var(--color-available)]"}>{labels.available}</span>
-                                        ) : (
-                                            <span className={"font-serif text-[1rem] text-[var(--color-sold)]"}>{labels.sold}</span>
-                                        )}
-                                    </>
-                                )}
-                            </div>
-                            {original?.availableForSale ? (
-                                <div
-                                    onClick={() => handleCheckout(original.id)}
-                                    className={checkingOutId === original.id ? "opacity-50 cursor-wait" : ""}
-                                >
-                                    <Typography level="button_purchase" value={labels.purchase} />
-                                </div>
-                            ) : (
-                                <Typography secondary level="button" value={labels.purchase} className="font-bold cursor-not-allowed" />
-                            )}
-                        </div>
-                        )}
-                        {/* No Shopify listing: the work's own availability, with an inquiry link */}
-                        {!original && availability && (
-                        <div className={"flex items-center justify-between gap-4 flex-wrap border border-[var(--color-border)] px-4 py-3 mt-5"}>
-                            <div className={"flex items-center gap-4"}>
-                                {availability.status === "available" && availability.price && (
-                                    <Typography level={"6"} value={availability.price} />
-                                )}
-                                {availability.status === "available" && (
+                                {price && <Typography level={"6"} value={price} />}
+                                {status === "available" && (
                                     <span className={"font-serif text-[1rem] text-[var(--color-available)]"}>{labels.available}</span>
                                 )}
-                                {availability.status === "sold" && (
+                                {status === "sold" && (
                                     <span className={"font-serif text-[1rem] text-[var(--color-sold)]"}>{labels.sold}</span>
                                 )}
-                                {availability.status === "unavailable" && (
-                                    <Typography secondary level={"6"} value={availability.label ?? labels.unavailable} />
+                                {status === "unavailable" && (
+                                    <Typography secondary level={"6"} value={availability?.label ?? labels.unavailable} />
                                 )}
                             </div>
-                            {availability.status === "available" && (
-                                <Link to={"/contact"}>
-                                    <Typography level="button_purchase" value={labels.inquire} />
-                                </Link>
+                            {status === "available" && (
+                                <InquiryButton
+                                    title={title}
+                                    label={labels.inquire}
+                                    className={"font-serif text-[1rem] font-bold underline"}
+                                />
                             )}
                         </div>
-                        )}
+                    )}
 
-                        {/* Prints section — hidden for now. To restore, uncomment this block
-                            and the prints/CUSTOM_PRINT_FEATURES/printSizeLabel/Link/slug lines above.
-                        {prints.length > 0 && (
-                            <div>
-                                <div className={"flex"}>
-                                    <Typography className="underline" level={"4"} value={"Prints"} />
-                                </div>
-                                <table className={"w-full ml-2"}>
-                                    <thead>
-                                        <tr className={"border-b border-[var(--color-border)] text-left"}>
-                                            <th className={"py-2 pr-4 font-serif font-medium"}>Size</th>
-                                            <th className={"py-2 pr-4 font-serif font-medium"}>Price</th>
-                                            <th className={"py-2 font-serif font-medium"}></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {prints.map((print) => (
-                                            <tr key={print.id} className={"border-b border-gray-200"}>
-                                                <td className={"py-2 pr-4"}>
-                                                    <Typography level={"6"} value={printSizeLabel(print.title)} />
-                                                </td>
-                                                <td className={"py-2 pr-4"}>
-                                                    <Typography level={"6"} value={formatShopifyPrice(print.price, print.currencyCode)} />
-                                                </td>
-                                                <td className={"py-2"}>
-                                                    {print.availableForSale ? (
-                                                        <div
-                                                            onClick={() => handleCheckout(print.id)}
-                                                            className={checkingOutId === print.id ? "opacity-50 cursor-wait" : ""}
-                                                        >
-                                                            <Typography level="button" value="Purchase" />
-                                                        </div>
-                                                    ) : (
-                                                        <Typography secondary level={"6"} value={"Sold out"} />
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        <tr className={"border-b border-gray-200"}>
-                                            <td className={"py-2 pr-4 align-top"}>
-                                                <Typography level={"6"} value={"Custom Printing"} />
-                                                <ul className={"font-serif text-[0.8rem] leading-[1.5] text-[var(--color-muted)]"}>
-                                                    {CUSTOM_PRINT_FEATURES.map((feature) => (
-                                                        <li key={feature}>{feature}</li>
-                                                    ))}
-                                                </ul>
-                                            </td>
-                                            <td className={"py-2 pr-4 align-top"}>
-                                                <Typography level={"6"} value={"Varies"} />
-                                            </td>
-                                            <td className={"py-2 align-top"}>
-                                                <Link to={"/prints"} search={{ painting: slug }}>
-                                                    <Typography level="button" value="Inquire" />
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                        */}
-                    </div>
                     <Spacer height={"20px"}></Spacer>
                     <div>
                         <TabbedContent tabs={tabs}></TabbedContent>
                     </div>
+                    {slug && sale.prints.length > 0 && (
+                        <Link
+                            to={"/products/$slug/prints"}
+                            params={{ slug }}
+                            className={"inline-block mt-6 rounded-md border border-[var(--color-border)] px-3 py-1.5 font-serif text-[0.95rem] transition-colors hover:bg-[var(--color-hover)]"}
+                        >
+                            {labels.availableInPrints ?? "This item is available in prints"}
+                        </Link>
+                    )}
                 </div>
             </div>
         </div>
     )
 }
-

@@ -135,6 +135,7 @@ export function toProduct(doc: ProductDoc): Product {
         material: doc.material,
         shopifyHandle: doc.shopifyHandle,
         availability: doc.availability,
+        store: doc.store,
     };
 }
 

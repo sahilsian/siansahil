@@ -68,7 +68,8 @@ fn summary(product: &Value) -> Value {
         "image": product["images"].get(0).cloned().unwrap_or(Value::Null),
     });
     // availability: { status, price?, label? } for works sold off-platform (no Shopify).
-    for optional in ["dateCreated", "shopifyHandle", "availability"] {
+    // store: what is for sale (original/print prices), for "Prints from" on cards.
+    for optional in ["dateCreated", "shopifyHandle", "availability", "store"] {
         if let Some(v) = product.get(optional) {
             out[optional] = v.clone();
         }

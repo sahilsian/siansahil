@@ -38,7 +38,8 @@ pub const LOCKED_KEYS: &[&str] = &[
 ];
 
 /// Whole sections that are configuration. Everything inside them is locked.
-pub const LOCKED_SECTIONS: &[&str] = &["theme", "favicons", "integrations", "filter", "search", "fonts", "views"];
+pub const LOCKED_SECTIONS: &[&str] =
+    &["theme", "favicons", "integrations", "filter", "search", "fonts", "views", "store"];
 
 /// Longest text value accepted.
 pub const MAX_TEXT_CHARS: usize = 50_000;

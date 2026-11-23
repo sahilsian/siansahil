@@ -2,10 +2,16 @@ import { useState, type FormEvent } from "react";
 import { api } from "../api";
 import { useSite } from "../session";
 import { MIN_PASSWORD, PasswordInput, passwordLength } from "../components/PasswordInput";
+import { useToast } from "../components/Toast";
 import { Alert, Button, Card, Field, PageHeader, errorMessage } from "../components/ui";
 
 export function Account() {
   const { me } = useSite();
+  const toast = useToast();
+  const fail = (text: string) => {
+    setError(text);
+    toast.error(text);
+  };
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -17,17 +23,18 @@ export function Account() {
     e.preventDefault();
     setError(null);
     setDone(false);
-    if (passwordLength(next) < MIN_PASSWORD) return setError(`Your new password must be at least ${MIN_PASSWORD} characters.`);
-    if (next !== confirm) return setError("The two new passwords don't match.");
+    if (passwordLength(next) < MIN_PASSWORD) return fail(`Your new password must be at least ${MIN_PASSWORD} characters.`);
+    if (next !== confirm) return fail("The two new passwords don't match.");
     setBusy(true);
     try {
       await api.changePassword(current, next);
       setDone(true);
+      toast.success("Password changed. Your other devices have been signed out.");
       setCurrent("");
       setNext("");
       setConfirm("");
     } catch (err) {
-      setError(errorMessage(err));
+      fail(errorMessage(err));
     } finally {
       setBusy(false);
     }

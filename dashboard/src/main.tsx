@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ApiError } from "./api";
 import { App } from "./App";
+import { ToastProvider } from "./components/Toast";
 import "./index.css";
 
 const queryClient = new QueryClient({
@@ -19,9 +20,11 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter basename="/dashboard">
-        <App />
-      </BrowserRouter>
+      <ToastProvider>
+        <BrowserRouter basename="/dashboard">
+          <App />
+        </BrowserRouter>
+      </ToastProvider>
     </QueryClientProvider>
   </StrictMode>,
 );

@@ -1,13 +1,16 @@
-import {useState} from "react";
 import Typography from "@/components/typography";
 import Spacer from "@/components/spacer";
 import {Media} from "@/layouts/product/media.tsx";
 import TabbedContent, {Tab} from "@/components/tabbedContent";
-import {/* Link, */ useRouter} from "@tanstack/react-router";
+import {Link} from "@tanstack/react-router";
 import {StrapiImage} from "@/components/image";
 import {useAppState} from "@/hooks/useAppState.ts";
 import Spinner from "@/components/spinner";
-import {createShopifyCheckout, formatShopifyPrice, /* printSizeLabel, */ ShopifyProductData} from "@/lib/shopify";
+import Breadcrumb from "@/components/breadcrumb";
+import InquiryButton from "@/components/inquiryDialog";
+import type {ArtworkStore, PrintLink} from "@/lib/api/types.ts";
+import {forSale} from "@/lib/store";
+import {getFontStyles} from "@/components/typography/fonts.ts";
 import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface ContentProps {
@@ -20,41 +23,27 @@ interface ContentProps {
     tabs?: Tab[];
     dateCreated?: string;
     material?: string;
-    shop?: ShopifyProductData | null;
+    store?: ArtworkStore;
+    /** Prints of this painting (each its own listing on /prints). */
+    prints?: PrintLink[];
 }
 
-// const CUSTOM_PRINT_FEATURES = ["Canvas Prints", "Various Sizes", "Shipping and Delivery"];
+const LINK_CLASS = "underline text-[#2563EB] hover:text-[#1D4ED8]"
 
-export const Content = ({title, /* slug, */ description, image, images = [], tabs, shop}:ContentProps) => {
-    const original = shop?.original;
-    // const prints = shop?.prints ?? [];
-    const router = useRouter()
+export const Content = ({title, description, image, images = [], tabs, store, prints = []}:ContentProps) => {
     const ctx = useAppState()
-    const { labels } = useSite()
-    const [checkingOutId, setCheckingOutId] = useState<string | null>(null);
-
-    const handleCheckout = async (variantId: string) => {
-        setCheckingOutId(variantId);
-        try {
-            const checkoutUrl = await createShopifyCheckout({ data: { variantId } });
-            if (checkoutUrl) {
-                window.location.href = checkoutUrl;
-            } else {
-                setCheckingOutId(null);
-            }
-        } catch (error) {
-            console.error("Checkout failed", error);
-            setCheckingOutId(null);
-        }
-    };
+    const { labels, currency } = useSite()
+    const originalAvailable = forSale(store, currency).originalAvailable
+    const forSaleText = (prints.length > 0 || originalAvailable)
+        ? <ForSaleText title={title} prints={prints} originalAvailable={originalAvailable} />
+        : undefined
 
     return (
         <div className={"Product relative z-30"}>
-            <div className={"flex"}>
-                <div onClick={()=> router.history.back()}>
-                    <Typography value={labels.back} level={"button"}></Typography>
-                </div>
-            </div>
+            <Breadcrumb items={[
+                { label: labels.gallery ?? "Gallery", to: "/products", search: { collection: "gallery", title: undefined } },
+                { label: title },
+            ]} />
             <Spacer height={"10px"}></Spacer>
             <div className={"flex gap-10 flex-wrap"}>
                 <div className={'flex-1'}>
@@ -69,103 +58,9 @@ export const Content = ({title, /* slug, */ description, image, images = [], tab
                         </div>
                     </div>
                     <Typography level={"p"} value={description}></Typography>
-                    {/*<div>*/}
-                    {/*    <Typography level={"6"} value={`${type}/${slug}`}></Typography>*/}
-                    {/*</div>*/}
-                    <div className={"ControlGroup flex flex-col gap-4"}>
-                        {/* Price/purchase box only when the original is listed on Shopify */}
-                        {original && (
-                        <div className={"flex items-center justify-between gap-4 flex-wrap border border-black px-4 py-3 mt-5"}>
-                            <div className={"flex items-center gap-4"}>
-                                {original && (
-                                    <>
-                                        <Typography level={"6"} value={formatShopifyPrice(original.price, original.currencyCode)} />
-                                        {original.availableForSale ? (
-                                            <span className={"font-serif text-[1rem] text-[#4e9e39]"}>{labels.available}</span>
-                                        ) : (
-                                            <span className={"font-serif text-[1rem] text-[#c44b57]"}>{labels.sold}</span>
-                                        )}
-                                    </>
-                                )}
-                            </div>
-                            {original?.availableForSale ? (
-                                <div
-                                    onClick={() => handleCheckout(original.id)}
-                                    className={checkingOutId === original.id ? "opacity-50 cursor-wait" : ""}
-                                >
-                                    <Typography level="button_purchase" value={labels.purchase} />
-                                </div>
-                            ) : (
-                                <Typography secondary level="button" value={labels.purchase} className="font-bold cursor-not-allowed" />
-                            )}
-                        </div>
-                        )}
-
-                        {/* Prints section — hidden for now. To restore, uncomment this block
-                            and the prints/CUSTOM_PRINT_FEATURES/printSizeLabel/Link/slug lines above.
-                        {prints.length > 0 && (
-                            <div>
-                                <div className={"flex"}>
-                                    <Typography className="underline" level={"4"} value={"Prints"} />
-                                </div>
-                                <table className={"w-full ml-2"}>
-                                    <thead>
-                                        <tr className={"border-b border-black text-left"}>
-                                            <th className={"py-2 pr-4 font-serif font-medium"}>Size</th>
-                                            <th className={"py-2 pr-4 font-serif font-medium"}>Price</th>
-                                            <th className={"py-2 font-serif font-medium"}></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {prints.map((print) => (
-                                            <tr key={print.id} className={"border-b border-gray-200"}>
-                                                <td className={"py-2 pr-4"}>
-                                                    <Typography level={"6"} value={printSizeLabel(print.title)} />
-                                                </td>
-                                                <td className={"py-2 pr-4"}>
-                                                    <Typography level={"6"} value={formatShopifyPrice(print.price, print.currencyCode)} />
-                                                </td>
-                                                <td className={"py-2"}>
-                                                    {print.availableForSale ? (
-                                                        <div
-                                                            onClick={() => handleCheckout(print.id)}
-                                                            className={checkingOutId === print.id ? "opacity-50 cursor-wait" : ""}
-                                                        >
-                                                            <Typography level="button" value="Purchase" />
-                                                        </div>
-                                                    ) : (
-                                                        <Typography secondary level={"6"} value={"Sold out"} />
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        <tr className={"border-b border-gray-200"}>
-                                            <td className={"py-2 pr-4 align-top"}>
-                                                <Typography level={"6"} value={"Custom Printing"} />
-                                                <ul className={"font-serif text-[0.8rem] leading-[1.5] text-gray-500"}>
-                                                    {CUSTOM_PRINT_FEATURES.map((feature) => (
-                                                        <li key={feature}>{feature}</li>
-                                                    ))}
-                                                </ul>
-                                            </td>
-                                            <td className={"py-2 pr-4 align-top"}>
-                                                <Typography level={"6"} value={"Varies"} />
-                                            </td>
-                                            <td className={"py-2 align-top"}>
-                                                <Link to={"/prints"} search={{ painting: slug }}>
-                                                    <Typography level="button" value="Inquire" />
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                        */}
-                    </div>
                     <Spacer height={"20px"}></Spacer>
                     <div>
-                        <TabbedContent tabs={tabs}></TabbedContent>
+                        <TabbedContent tabs={tabs} header={forSaleText}></TabbedContent>
                     </div>
                 </div>
             </div>
@@ -173,3 +68,43 @@ export const Content = ({title, /* slug, */ description, image, images = [], tab
     )
 }
 
+/**
+ * This item is available in prints
+ *   • Mount Pleasant | Archival Limited Edition 24 x 36 15 copies   (links to the print's page)
+ * This item is also available for original, inquire
+ */
+function ForSaleText({title, prints, originalAvailable}: { title: string; prints: PrintLink[]; originalAvailable: boolean }) {
+    const { labels } = useSite()
+    const copies = labels.copies ?? "copies"
+    return (
+        <div className={`space-y-3 ${getFontStyles("p")}`}>
+            {prints.length > 0 && (
+                <div>
+                    <p>{labels.availableInPrints ?? "This item is available in prints"}</p>
+                    <ul className={"mt-1 list-disc pl-6 space-y-0.5"}>
+                        {prints.map((print) => (
+                            <li key={print.slug}>
+                                <Link to={"/prints/$slug"} params={{ slug: print.slug }} className={LINK_CLASS}>
+                                    {`${title} | ${print.title} ${print.sizeLabel}`}
+                                    {print.editionSize ? ` ${print.editionSize} ${copies}` : ""}
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+            {originalAvailable && (
+                <p>
+                    {prints.length > 0
+                        ? (labels.originalAlsoAvailable ?? "This item is also available for original,")
+                        : (labels.originalAvailableNote ?? "This original is available,")}{" "}
+                    <InquiryButton
+                        title={title}
+                        label={(labels.inquire ?? "Inquire").toLowerCase()}
+                        className={`${LINK_CLASS} cursor-pointer`}
+                    />
+                </p>
+            )}
+        </div>
+    )
+}

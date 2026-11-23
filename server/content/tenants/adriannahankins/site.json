@@ -134,6 +134,13 @@
       "to": "/contact"
     }
   },
+  "store": {
+    "printSizes": [
+      { "id": "8-x-10-in", "label": "Budget · 8 x 10 in", "priceCents": 3000 },
+      { "id": "16-x-20-in", "label": "Gift · 16 x 20 in", "priceCents": 8500 },
+      { "id": "24-x-36-in", "label": "Statement · 24 x 36 in", "priceCents": 18000 }
+    ]
+  },
   "labels": {
     "back": "Back",
     "search": "Search",
@@ -164,7 +171,10 @@
     "noResults": "No Results Found.",
     "noPrintablePaintings": "No paintings are available for prints right now.",
     "selected": "Selected:",
-    "showImage": "Show image"
+    "showImage": "Show image",
+    "gallery": "Gallery",
+    "availableInPrints": "This item is available in prints",
+    "originalAvailableNote": "This original is available,"
   },
   "messages": {
     "notFound": "This page doesn't exist.",

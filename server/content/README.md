@@ -183,6 +183,30 @@ named `<site>/<sha256>.jpg` and cached for a year (their content never changes).
 
 Images already uploaded to Postgres keep working at their old addresses.
 
+### Setting up Stripe (the store)
+
+Each site sells through **its own** Stripe account, so payments go to that artist.
+"Add to store" on an artwork creates Stripe products: one for the original and one
+per print size, each with its price. (Checkout on the websites comes later; until
+then visitors are sent to the contact page to buy.)
+
+1. In that artist's Stripe dashboard: **Developers → API keys**. Best practice is a
+   **restricted key** with **Products: Write** and **Prices: Write** only. A secret
+   key (`sk_live_...`) also works. Use the `sk_test_...` / test-mode key to try it first.
+2. DigitalOcean → server component → Environment Variables (encrypted), one per site:
+
+   | Key | Value |
+   |---|---|
+   | `APP_STRIPE__SECRET_KEYS__SIANSAHIL` | Sahil's Stripe key |
+   | `APP_STRIPE__SECRET_KEYS__ADRIANNAHANKINS` | Adrianna's Stripe key |
+
+   The part after `SECRET_KEYS__` is the site id in capitals. The startup log line
+   "Stripe keys loaded" lists which sites have one.
+3. In the dashboard, set the site's print sizes on the **Store** page, then open an
+   artwork and press **Add to store**.
+
+Prices are in the site's `currency` (from its site document, e.g. CAD).
+
 ## Shapes
 
 ### Image

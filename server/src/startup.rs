@@ -11,6 +11,7 @@ use sqlx::PgPool;
 use tracing_actix_web::TracingLogger;
 
 use crate::dashboard::media::MediaStore;
+use crate::dashboard::stripe::Stripe;
 use crate::dashboard::throttle::AuthThrottles;
 use crate::email_client::EmailClient;
 use crate::migration_runner::MigrationStatus;
@@ -35,6 +36,7 @@ pub fn run(
     migrations: MigrationStatus,
     dashboard_config: DashboardConfig,
     media_store: MediaStore,
+    stripe: Stripe,
 ) -> Result<Server, std::io::Error> {
     let db_pool = web::Data::new(db_pool);
     let admin_key = web::Data::new(admin_key);
@@ -50,6 +52,7 @@ pub fn run(
     let secure = dashboard_config.settings.secure_cookies;
     let dashboard_config = web::Data::new(dashboard_config);
     let media_store = web::Data::new(media_store);
+    let stripe = web::Data::new(stripe);
 
     let server = HttpServer::new(move || {
         let mut app = App::new()
@@ -114,7 +117,8 @@ pub fn run(
             .app_data(migrations.clone())
             .app_data(dashboard_config.clone())
             .app_data(throttles.clone())
-            .app_data(media_store.clone());
+            .app_data(media_store.clone())
+            .app_data(stripe.clone());
 
         if serve_dashboard {
             app = app.service(dashboard_site(static_dir.clone(), secure));

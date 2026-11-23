@@ -19,7 +19,7 @@ const splitInternalHref = (href: string) => {
 };
 
 const renderToken = (token: InlineToken, index: number): React.ReactNode => {
-    const linkClass = "underline";
+    const linkClass = "underline text-[#2563EB] hover:text-[#1D4ED8]";
 
     switch (token.type) {
         case TokenType.LINK:

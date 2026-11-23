@@ -77,6 +77,14 @@ services:
       - key: APP_MEDIA__R2__PUBLIC_BASE_URL
         scope: RUN_TIME
         type: SECRET
+      # Stripe secret key per site (each artist sells through their own Stripe
+      # account). A site without a key can't add artworks to its store.
+      - key: APP_STRIPE__SECRET_KEYS__SIANSAHIL
+        scope: RUN_TIME
+        type: SECRET
+      - key: APP_STRIPE__SECRET_KEYS__ADRIANNAHANKINS
+        scope: RUN_TIME
+        type: SECRET
 databases:
   # A managed Postgres cluster (not a dev database: those don't let the app user
   # create tables in `public` on Postgres 15+). The cluster is created in the

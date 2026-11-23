@@ -4,6 +4,7 @@ import { api, ApiError, type DocType, type DocumentWithData } from "../api";
 import { useSite } from "../session";
 import { collectFields, groupFields, setAt, type TextField } from "../lib/fields";
 import { RichTextEditor } from "../components/RichTextEditor";
+import { useToast } from "../components/Toast";
 import { Alert, Card, Field, PageHeader, SaveBar, Spinner, TextArea, TextInput, errorMessage } from "../components/ui";
 
 export interface DocRef {
@@ -61,6 +62,7 @@ function FieldEditor({ field, onChange }: { field: TextField; onChange: (value: 
 export function TextEditor({ title, description, refs }: { title?: string; description?: string; refs: DocRef[] }) {
   const { site } = useSite();
   const queryClient = useQueryClient();
+  const toast = useToast();
   const queryKey = ["text-editor", site.id, ...refs.map(refId)];
   const { data, isLoading, error } = useQuery({ queryKey, queryFn: () => loadDocuments(site.id, refs) });
 
@@ -104,11 +106,11 @@ export function TextEditor({ title, description, refs }: { title?: string; descr
       }
       await queryClient.invalidateQueries({ queryKey });
       setDrafts({});
-      setMessage({ kind: "success", text: "Saved. Changes appear on the website within about a minute." });
+      (toast.success("Saved. Changes appear on the website within about a minute."), setMessage({ kind: "success", text: "Saved. Changes appear on the website within about a minute." }));
     } catch (e) {
       // Keep what was saved; reload versions so a retry works.
       await queryClient.invalidateQueries({ queryKey });
-      setMessage({ kind: "error", text: errorMessage(e) });
+      (toast.error(errorMessage(e)), setMessage({ kind: "error", text: errorMessage(e) }));
     } finally {
       setSaving(false);
     }

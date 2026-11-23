@@ -4,6 +4,7 @@ import { Copy, KeyRound, Trash2, UserPlus } from "lucide-react";
 import { api, type UserListing } from "../api";
 import { useSite } from "../session";
 import { MIN_PASSWORD, PasswordInput, passwordLength } from "../components/PasswordInput";
+import { useToast } from "../components/Toast";
 import { Alert, Button, Card, ConfirmDialog, Field, PageHeader, Select, Spinner, TextInput, errorMessage } from "../components/ui";
 
 const date = (iso: string) => new Date(iso).toLocaleDateString(undefined, { dateStyle: "medium" });
@@ -43,6 +44,11 @@ function Credentials({ username, password, note }: { username: string; password:
 export function Superadmin() {
   const { me } = useSite();
   const queryClient = useQueryClient();
+  const toast = useToast();
+  const fail = (set: (text: string) => void, text: string) => {
+    set(text);
+    toast.error(text);
+  };
   const { data, isLoading, error } = useQuery({ queryKey: ["accounts"], queryFn: api.accounts });
 
   const [username, setUsername] = useState("");
@@ -70,17 +76,18 @@ export function Superadmin() {
     e.preventDefault();
     setFormError(null);
     setCreated(null);
-    if (passwordLength(password) < MIN_PASSWORD) return setFormError(`Passwords must be at least ${MIN_PASSWORD} characters.`);
+    if (passwordLength(password) < MIN_PASSWORD) return fail(setFormError, `Passwords must be at least ${MIN_PASSWORD} characters.`);
     setCreating(true);
     try {
       const { user } = await api.createUser(username, password, siteId, email);
       setCreated({ username: user.username, password });
+      toast.success(`Account “${user.username}” created. Copy the sign-in details below.`);
       setUsername("");
       setPassword("");
       setEmail("");
       refresh();
     } catch (err) {
-      setFormError(errorMessage(err));
+      fail(setFormError, errorMessage(err));
     } finally {
       setCreating(false);
     }
@@ -90,15 +97,16 @@ export function Superadmin() {
     e.preventDefault();
     if (!resetting) return;
     setResetError(null);
-    if (passwordLength(resetPassword) < MIN_PASSWORD) return setResetError(`Passwords must be at least ${MIN_PASSWORD} characters.`);
+    if (passwordLength(resetPassword) < MIN_PASSWORD) return fail(setResetError, `Passwords must be at least ${MIN_PASSWORD} characters.`);
     setResetBusy(true);
     try {
       await api.resetPassword(resetting.id, resetPassword);
       setResetDone({ username: resetting.username, password: resetPassword });
+      toast.success(`Password reset for “${resetting.username}”.`);
       setResetting(null);
       setResetPassword("");
     } catch (err) {
-      setResetError(errorMessage(err));
+      fail(setResetError, errorMessage(err));
     } finally {
       setResetBusy(false);
     }
@@ -110,9 +118,10 @@ export function Superadmin() {
     setListError(null);
     try {
       await api.removeUser(removing.id);
+      toast.success(`Removed “${removing.username}”.`);
       refresh();
     } catch (err) {
-      setListError(errorMessage(err));
+      fail(setListError, errorMessage(err));
     } finally {
       setBusyRemove(false);
       setRemoving(null);

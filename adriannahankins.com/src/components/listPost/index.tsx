@@ -1,8 +1,10 @@
 import Image, { StrapiImage } from "@/components/image";
 import Typography from "@/components/typography";
 import {RouterInjectedProps} from "@/decorators/withRouter";
-import {ShopifyProductData} from "@/lib/shopify";
+import type {ArtworkStore, Availability} from "@/lib/api/types.ts";
 import {getListingAvailability} from "@/lib/productAvailability";
+import {forSale} from "@/lib/store";
+import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface PostProps {
     title: string;
@@ -12,11 +14,12 @@ interface PostProps {
     clickable: boolean;
     disabled?: boolean
     category?: string
-    shop?: ShopifyProductData | null;
+    store?: ArtworkStore;
+    availability?: Availability;
 }
 
 const ListPost =
-    ({ disabled, clickable, slug, title, description, image, goToPost, shop}: PostProps & RouterInjectedProps
+    ({ disabled, clickable, slug, title, description, image, goToPost, store, availability}: PostProps & RouterInjectedProps
     ) => {
         const handleClick = () => {
             if (clickable) {
@@ -24,7 +27,8 @@ const ListPost =
             }
         };
 
-        const {originalStatus, printsFromLabel, unavailable} = getListingAvailability(shop);
+        const { currency, locale } = useSite();
+        const {originalStatus, printsFromLabel, unavailable} = getListingAvailability(forSale(store, currency), availability, locale);
 
         return (
             <div

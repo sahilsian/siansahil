@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { formFromPage, getCollection, getPage, toPageSeo } from "@/lib/content";
-import { getShopifyProductsByHandles } from "@/lib/shopify";
 import FormRenderer from "@/components/renderers/formRenderer";
 import { pageHead } from "@/lib/seo.ts";
 import type { ComponentFormPaintingField, FormProps } from "@/hooks/useFormControl.ts";
@@ -22,7 +21,7 @@ export const Route = createFileRoute('/prints')({
         const form = formFromPage(page)
 
         // The painting picker's options: its collection's products, narrowed to
-        // those with at least one print variant for sale on Shopify.
+        // those with at least one print size in the store.
         const pickerField = form.fields.find((f) => f.metadata.fieldType === "painting") as ComponentFormPaintingField | undefined
         const products = pickerField?.collection
             ? (await context.queryClient.ensureQueryData({
@@ -31,19 +30,8 @@ export const Route = createFileRoute('/prints')({
             })).products
             : []
 
-        const handles = products
-            .map((product) => product.shopifyHandle)
-            .filter((handle): handle is string => !!handle)
-
-        const shopByHandle = handles.length > 0
-            ? await context.queryClient.ensureQueryData({
-                queryFn: () => getShopifyProductsByHandles({ data: { handles } }),
-                queryKey: ["shopifyProducts", handles.join(",")]
-            })
-            : {}
-
         const paintings = products
-            .filter((product) => product.shopifyHandle && shopByHandle[product.shopifyHandle]?.prints.some((print) => print.availableForSale))
+            .filter((product) => product.store?.prints?.some((print) => print.active))
             .map(({ slug, title, image, category, dateCreated }) => ({ slug, title, image, category, dateCreated }))
 
         const printForm: FormProps = {

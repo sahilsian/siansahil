@@ -1,8 +1,8 @@
 import Image, { StrapiImage } from "@/components/image";
 import Typography from "@/components/typography";
 import {RouterInjectedProps} from "@/decorators/withRouter";
-import {formatShopifyPrice, ShopifyProductData} from "@/lib/shopify";
-import type {Availability} from "@/lib/api/types.ts";
+import type {ArtworkStore, Availability} from "@/lib/api/types.ts";
+import {cardPriceLabel, forSale} from "@/lib/store";
 import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface PostProps {
@@ -13,13 +13,13 @@ interface PostProps {
     disabled?: boolean
     // Cards per row on laptop+ (lg); widths subtract the gap-6 (1.5rem) gaps.
     columns?: 3 | 4
-    shop?: ShopifyProductData | null
+    store?: ArtworkStore
     availability?: Availability
 }
 
 // Square card: the image fills whatever height the title row leaves.
 const Post =
-    ({ disabled, clickable, slug, title, image, goToPost, columns = 3, shop, availability}: PostProps & RouterInjectedProps
+    ({ disabled, clickable, slug, title, image, goToPost, columns = 3, store, availability}: PostProps & RouterInjectedProps
     ) => {
     const handleClick = () => {
         if (clickable) {
@@ -27,13 +27,9 @@ const Post =
         }
     };
 
-    // Shopify listing wins; otherwise the work's own availability (sold
-    // off-platform); otherwise it reads as unavailable.
-    const { labels } = useSite();
-    const original = shop?.original;
-    const price = original
-        ? (original.availableForSale ? formatShopifyPrice(original.price, original.currencyCode) : labels.unavailable)
-        : availabilityLabel(availability, labels);
+    // Price of the original when it is in the store; otherwise its availability.
+    const { labels, currency, locale } = useSite();
+    const price = cardPriceLabel(forSale(store, currency), availability, labels, locale);
 
     return (
         <div
@@ -57,15 +53,3 @@ const Post =
 
 export default Post;
 
-/** Card text for a work sold off-platform: its price, "Sold", or its label. */
-export function availabilityLabel(
-    availability: Availability | undefined,
-    labels: { available: string; sold: string; unavailable: string },
-): string {
-    switch (availability?.status) {
-        case "available": return availability.price ?? labels.available
-        case "sold": return labels.sold
-        case "unavailable": return availability.label ?? labels.unavailable
-        default: return labels.unavailable
-    }
-}

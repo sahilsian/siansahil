@@ -1,7 +1,6 @@
 import {StrapiImage} from "@/components/image";
 import {Tab} from "@/components/tabbedContent";
-import {ShopifyProductData} from "@/lib/shopify";
-import type {Availability} from "@/lib/api/types.ts";
+import type {ArtworkStore, Availability} from "@/lib/api/types.ts";
 
 export interface Product {
     title:string;
@@ -18,5 +17,5 @@ export interface Product {
     shopifyHandle?: string;
     availability?: Availability;
     gallery?: boolean;
-    shop?: ShopifyProductData | null;
+    store?: ArtworkStore;
 }

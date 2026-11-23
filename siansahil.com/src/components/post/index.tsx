@@ -1,7 +1,8 @@
 import Image, { StrapiImage } from "@/components/image";
 import Typography from "@/components/typography";
 import {RouterInjectedProps} from "@/decorators/withRouter";
-import {formatShopifyPrice, ShopifyProductData} from "@/lib/shopify";
+import type {ArtworkStore, Availability} from "@/lib/api/types.ts";
+import {cardPriceLabel, forSale} from "@/lib/store";
 import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface PostProps {
@@ -12,12 +13,13 @@ interface PostProps {
     disabled?: boolean
     // Cards per row on laptop+ (lg); widths subtract the gap-6 (1.5rem) gaps.
     columns?: 3 | 4
-    shop?: ShopifyProductData | null
+    store?: ArtworkStore
+    availability?: Availability
 }
 
 // Square card: the image fills whatever height the title row leaves.
 const Post =
-    ({ disabled, clickable, slug, title, image, goToPost, columns = 3, shop}: PostProps & RouterInjectedProps
+    ({ disabled, clickable, slug, title, image, goToPost, columns = 3, store, availability}: PostProps & RouterInjectedProps
     ) => {
     const handleClick = () => {
         if (clickable) {
@@ -25,13 +27,9 @@ const Post =
         }
     };
 
-    // Price of the original painting; anything not for sale (sold, no Shopify
-    // listing, or Shopify unreachable) reads as unavailable.
-    const { labels } = useSite();
-    const original = shop?.original;
-    const price = original?.availableForSale
-        ? formatShopifyPrice(original.price, original.currencyCode)
-        : labels.unavailable;
+    // Price of the original when it is in the store; otherwise its availability.
+    const { labels, currency, locale } = useSite();
+    const price = cardPriceLabel(forSale(store, currency), availability, labels, locale);
 
     return (
         <div

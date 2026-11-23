@@ -11,6 +11,8 @@ import { ArtworkEditor } from "./pages/ArtworkEditor";
 import { Superadmin } from "./pages/Superadmin";
 import { Login } from "./pages/Login";
 import { Account } from "./pages/Account";
+import { MailingList } from "./pages/MailingList";
+import { PrintEditor, Prints } from "./pages/Prints";
 
 function PageText({ slug, title, description }: { slug: string; title: string; description?: string }) {
   const { site } = useSite();
@@ -89,6 +91,11 @@ export function App() {
         <Route path="gallery/:slug" element={<ArtworkEditor />} />
         <Route path="superadmin" element={<SuperadminOnly />} />
         <Route path="account" element={<Account />} />
+        <Route path="mailing-list" element={<MailingList />} />
+        <Route path="prints" element={<Prints />} />
+        <Route path="prints/new" element={<PrintEditor />} />
+        <Route path="prints/:slug" element={<PrintEditor />} />
+        <Route path="store" element={<Navigate to="/prints" replace />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

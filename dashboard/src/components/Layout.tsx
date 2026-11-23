@@ -12,7 +12,9 @@ import {
   LogOut,
   Mail,
   Menu,
+  Newspaper,
   ShieldCheck,
+  ShoppingBag,
   UserRound,
   X,
 } from "lucide-react";
@@ -37,12 +39,14 @@ function useNavItems() {
   const main: NavItem[] = [];
   if (pages.has("home")) main.push({ to: "/home", label: "Home", icon: Home });
   if (pages.has("products") || hasProducts) main.push({ to: "/gallery", label: "Gallery", icon: ImageIcon });
+  if (pages.has("products") || hasProducts) main.push({ to: "/prints", label: "Prints", icon: ShoppingBag });
   if (pages.has("about")) main.push({ to: "/about", label: "About", icon: Info });
   if (pages.has("faq")) main.push({ to: "/faq", label: "FAQ", icon: HelpCircle });
   if (pages.has("contact")) main.push({ to: "/contact", label: "Contact", icon: Mail });
   main.push({ to: "/reusable", label: "Reusable", icon: Blocks });
+  main.push({ to: "/mailing-list", label: "Mailing list", icon: Newspaper });
 
-  const known = new Set(["home", "products", "about", "faq", "contact"]);
+  const known = new Set(["home", "products", "prints", "about", "faq", "contact"]);
   const other: NavItem[] = [...pages]
     .filter((p) => !known.has(p))
     .sort()

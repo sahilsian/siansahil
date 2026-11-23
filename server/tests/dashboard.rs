@@ -439,6 +439,36 @@ async fn artworks_can_be_created_updated_and_deleted() {
 }
 
 #[actix_web::test]
+async fn uploaded_and_used_images_can_be_picked_again() {
+    let app = spawn_app().await;
+    seed_sites(&app).await;
+    let boss = superadmin(&app).await;
+    let artist = editor(&app, &boss).await;
+
+    // An upload used on an artwork, and a static image another artwork already had.
+    let (_, uploaded) = artist.upload("acme", PNG_1X1).await;
+    let artwork = json!({
+        "title": "Old", "category": "paint", "tabs": [],
+        "images": [uploaded.clone(), { "url": "/static/old.jpg", "width": 4, "height": 3, "name": "old.jpg" }]
+    });
+    let (status, _) = artist.put("/sites/acme/artworks/old", json!({ "artwork": artwork, "collections": [] })).await;
+    assert_eq!(status, StatusCode::OK);
+
+    let (status, list) = artist.get("/sites/acme/media").await;
+    assert_eq!(status, StatusCode::OK, "{list}");
+    let images = list["images"].as_array().unwrap();
+    assert_eq!(images.len(), 2, "the upload is listed once, not again as an unused upload: {list}");
+    assert_eq!(images[0]["url"], uploaded["url"]);
+    assert_eq!(images[0]["usedIn"], json!(["Old"]));
+    assert_eq!(images[1]["name"], "old.jpg");
+
+    // Another site's uploads stay private.
+    assert_eq!(artist.get("/sites/other/media").await.0, StatusCode::FORBIDDEN);
+    let (_, other) = boss.get("/sites/other/media").await;
+    assert_eq!(other["images"], json!([]));
+}
+
+#[actix_web::test]
 async fn only_real_images_can_be_uploaded() {
     let app = spawn_app().await;
     seed_sites(&app).await;
@@ -515,4 +545,350 @@ async fn admin_api_bootstrap_requires_the_admin_key() {
         .await
         .unwrap();
     assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+}
+
+// ---------------------------------------------------------------- store (Stripe)
+
+/// A fake Stripe that hands out fresh ids and records every call.
+async fn mount_fake_stripe(app: &TestApp) {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    let counter = std::sync::Arc::new(AtomicUsize::new(0));
+    let products = counter.clone();
+    Mock::given(method("POST"))
+        .and(path_regex(r"^/v1/products$"))
+        .respond_with(move |_: &wiremock::Request| {
+            let n = products.fetch_add(1, Ordering::SeqCst);
+            ResponseTemplate::new(200).set_body_json(json!({ "id": format!("prod_{n}"), "default_price": format!("price_{n}") }))
+        })
+        .mount(&app.stripe_server)
+        .await;
+    let prices = counter.clone();
+    Mock::given(method("POST"))
+        .and(path_regex(r"^/v1/prices$"))
+        .respond_with(move |_: &wiremock::Request| {
+            let n = prices.fetch_add(1, Ordering::SeqCst);
+            ResponseTemplate::new(200).set_body_json(json!({ "id": format!("price_new_{n}") }))
+        })
+        .mount(&app.stripe_server)
+        .await;
+    let links = counter.clone();
+    Mock::given(method("POST"))
+        .and(path_regex(r"^/v1/payment_links$"))
+        .respond_with(move |_: &wiremock::Request| {
+            let n = links.fetch_add(1, Ordering::SeqCst);
+            ResponseTemplate::new(200)
+                .set_body_json(json!({ "id": format!("plink_{n}"), "url": format!("https://buy.stripe.com/test_{n}") }))
+        })
+        .mount(&app.stripe_server)
+        .await;
+    Mock::given(method("POST"))
+        .and(path_regex(r"^/v1/(products|prices|payment_links)/[a-z_0-9]+$"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({ "id": "ok" })))
+        .mount(&app.stripe_server)
+        .await;
+}
+
+async fn stripe_calls(app: &TestApp) -> Vec<(String, String)> {
+    app.stripe_server
+        .received_requests()
+        .await
+        .unwrap()
+        .iter()
+        .map(|r| (r.url.path().to_string(), String::from_utf8_lossy(&r.body).to_string()))
+        .collect()
+}
+
+#[actix_web::test]
+async fn artworks_can_be_added_to_updated_in_and_removed_from_the_store() {
+    let app = spawn_app().await;
+    seed_sites(&app).await;
+    mount_fake_stripe(&app).await;
+    let boss = superadmin(&app).await;
+    let artist = editor(&app, &boss).await;
+
+    let (status, settings) = artist
+        .put(
+            "/sites/acme/store",
+            json!({ "printSizes": [{ "label": "8 x 10", "priceCents": 4000 }, { "label": "12 x 16", "priceCents": 8000 }] }),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{settings}");
+    assert_eq!(settings["stripeConfigured"], true);
+    assert_eq!(settings["printSizes"][0]["id"], "8-x-10");
+
+    // Add to store: both print sizes become Stripe products; the original is
+    // inquiry-only (available, no price, nothing in Stripe).
+    let (status, listed) = artist
+        .put("/sites/acme/artworks/old/store", json!({ "originalAvailable": true, "printSizeIds": ["8-x-10", "12-x-16"] }))
+        .await;
+    assert_eq!(status, StatusCode::OK, "{listed}");
+    assert_eq!(listed["store"]["originalAvailable"], true);
+    assert!(listed["store"]["original"].is_null(), "the original has no Stripe product");
+    assert_eq!(listed["store"]["prints"].as_array().unwrap().len(), 2);
+    let calls = stripe_calls(&app).await;
+    assert_eq!(calls.iter().filter(|(p, _)| p == "/v1/products").count(), 2);
+    assert!(calls[0].1.contains("default_price_data%5Bunit_amount%5D=4000"), "{}", calls[0].1);
+    assert!(calls[0].1.contains("default_price_data%5Bcurrency%5D=cad"));
+    let requests = app.stripe_server.received_requests().await.unwrap();
+    let auth = requests[0].headers.get("authorization").unwrap().to_str().unwrap();
+    assert_eq!(auth, "Bearer sk_test_acme", "each site uses its own Stripe key");
+
+    // The website sees what's for sale (on the artwork and on gallery cards).
+    let public = reqwest::get(format!("{}/api/v1/content/acme/products/old", app.address))
+        .await
+        .unwrap()
+        .json::<Value>()
+        .await
+        .unwrap();
+    assert_eq!(public["store"]["originalAvailable"], true);
+    let gallery = reqwest::get(format!("{}/api/v1/content/acme/collections/gallery", app.address))
+        .await
+        .unwrap()
+        .json::<Value>()
+        .await
+        .unwrap();
+    assert_eq!(gallery["products"][0]["store"]["prints"][0]["priceCents"], 4000);
+
+    // A new site price + drop a size + original sold: new price, the size archived.
+    artist
+        .put("/sites/acme/store", json!({ "printSizes": [{ "id": "8-x-10", "label": "8 x 10", "priceCents": 4500 }, { "id": "12-x-16", "label": "12 x 16", "priceCents": 8000 }] }))
+        .await;
+    let before = stripe_calls(&app).await.len();
+    let (status, updated) =
+        artist.put("/sites/acme/artworks/old/store", json!({ "originalAvailable": false, "printSizeIds": ["8-x-10"] })).await;
+    assert_eq!(status, StatusCode::OK, "{updated}");
+    let calls = stripe_calls(&app).await[before..].to_vec();
+    assert!(calls.iter().any(|(p, b)| p == "/v1/prices" && b.contains("unit_amount=4500")), "{calls:?}");
+    assert!(calls.iter().any(|(p, b)| p.starts_with("/v1/prices/price_") && b == "active=false"), "old price archived");
+    assert!(calls.iter().any(|(p, b)| p.starts_with("/v1/products/prod_") && b == "active=false"), "dropped size archived");
+    assert_eq!(updated["store"]["originalAvailable"], false);
+    let prints = updated["store"]["prints"].as_array().unwrap();
+    assert_eq!(prints.iter().filter(|p| p["active"] == true).count(), 1);
+
+    // Remove from store: everything archived, nothing deleted.
+    let (status, removed) = artist.delete("/sites/acme/artworks/old/store").await;
+    assert_eq!(status, StatusCode::OK, "{removed}");
+    assert_eq!(removed["store"]["originalAvailable"], false);
+    assert!(removed["store"]["prints"].as_array().unwrap().iter().all(|p| p["active"] == false));
+
+    // Store settings can't be changed through the text editor.
+    let (_, site) = artist.get("/sites/acme/documents/site/main").await;
+    let mut data = site["data"].clone();
+    data["store"]["printSizes"][0]["label"] = json!("Huge");
+    let (status, _) = artist.put("/sites/acme/documents/site/main", json!({ "data": data, "baseVersion": site["version"] })).await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+}
+
+#[actix_web::test]
+async fn sites_without_a_stripe_key_can_offer_the_original_but_not_prints() {
+    let app = spawn_app().await;
+    seed_sites(&app).await;
+    let boss = superadmin(&app).await;
+    let (_, settings) = boss.get("/sites/other/store").await;
+    assert_eq!(settings["stripeConfigured"], false);
+    // The original is inquiry-only, so it needs no Stripe.
+    let (status, body) = boss.put("/sites/other/artworks/old/store", json!({ "originalAvailable": true })).await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    assert_eq!(body["store"]["originalAvailable"], true);
+    // Prints do.
+    boss.put("/sites/other/store", json!({ "printSizes": [{ "label": "8 x 10", "priceCents": 4000 }] })).await;
+    let (status, body) =
+        boss.put("/sites/other/artworks/old/store", json!({ "originalAvailable": true, "printSizeIds": ["8-x-10"] })).await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+    assert!(body["message"].as_str().unwrap().contains("Stripe isn't set up"));
+    assert!(app.stripe_server.received_requests().await.unwrap().is_empty());
+}
+
+#[actix_web::test]
+async fn bad_requests_are_refused_before_stripe_is_called() {
+    let app = spawn_app().await;
+    seed_sites(&app).await;
+    mount_fake_stripe(&app).await;
+    let boss = superadmin(&app).await;
+    for body in [
+        json!({ "originalPriceCents": 10 }),
+        json!({ "originalAvailable": true, "printSizeIds": ["nope"] }),
+    ] {
+        let (status, _) = boss.put("/sites/acme/artworks/old/store", body.clone()).await;
+        assert_eq!(status, StatusCode::BAD_REQUEST, "{body}");
+    }
+    assert!(app.stripe_server.received_requests().await.unwrap().is_empty());
+}
+
+#[actix_web::test]
+async fn a_stripe_failure_is_reported_clearly() {
+    let app = spawn_app().await;
+    seed_sites(&app).await;
+    Mock::given(method("POST"))
+        .respond_with(ResponseTemplate::new(401).set_body_json(json!({ "error": { "message": "Invalid API Key provided" } })))
+        .mount(&app.stripe_server)
+        .await;
+    let boss = superadmin(&app).await;
+    boss.put("/sites/acme/store", json!({ "printSizes": [{ "label": "8 x 10", "priceCents": 4000 }] })).await;
+    let (status, body) = boss.put("/sites/acme/artworks/old/store", json!({ "printSizeIds": ["8-x-10"] })).await;
+    assert_eq!(status, StatusCode::BAD_GATEWAY);
+    assert!(body["message"].as_str().unwrap().contains("Invalid API Key provided"), "{body}");
+}
+
+// ---------------------------------------------------------------- mailing list
+
+#[actix_web::test]
+async fn editors_see_and_manage_their_own_mailing_list() {
+    let app = spawn_app().await;
+    seed_sites(&app).await;
+    for (site, email) in [("acme", "fan@example.com"), ("acme", "second@example.com"), ("other", "elsewhere@example.com")] {
+        let response = reqwest::Client::new()
+            .post(format!("{}/api/v1/mailing-list/{site}/subscribers", app.address))
+            .json(&json!({ "email": email }))
+            .send()
+            .await
+            .unwrap();
+        assert!(response.status().is_success());
+    }
+    let boss = superadmin(&app).await;
+    let artist = editor(&app, &boss).await;
+
+    let (status, list) = artist.get("/sites/acme/mailing-list").await;
+    assert_eq!(status, StatusCode::OK);
+    let emails: Vec<&str> = list["subscribers"].as_array().unwrap().iter().map(|s| s["email"].as_str().unwrap()).collect();
+    assert_eq!(emails.len(), 2);
+    assert!(emails.contains(&"fan@example.com") && !emails.contains(&"elsewhere@example.com"));
+    assert_eq!(artist.get("/sites/other/mailing-list").await.0, StatusCode::FORBIDDEN);
+
+    let (status, _) = artist.post("/sites/acme/mailing-list/remove", json!({ "email": "FAN@example.com" })).await;
+    assert_eq!(status, StatusCode::NO_CONTENT);
+    let (_, list) = artist.get("/sites/acme/mailing-list").await;
+    assert_eq!(list["subscribers"].as_array().unwrap().len(), 1);
+}
+
+#[actix_web::test]
+async fn an_existing_list_can_be_added_from_the_dashboard() {
+    let app = spawn_app().await;
+    seed_sites(&app).await;
+    let boss = superadmin(&app).await;
+    let artist = editor(&app, &boss).await;
+    artist.post("/sites/acme/mailing-list/add", json!({ "emails": ["old@example.com"] })).await;
+
+    let (status, body) = artist
+        .post(
+            "/sites/acme/mailing-list/add",
+            json!({ "emails": [" New@Example.com ", "new@example.com", "old@example.com", "not-an-email", ""] }),
+        )
+        .await;
+    assert_eq!(status, StatusCode::OK, "{body}");
+    assert_eq!(body, json!({ "added": 1, "alreadySubscribed": 1, "invalid": ["not-an-email"] }));
+    let (_, list) = artist.get("/sites/acme/mailing-list").await;
+    let emails: Vec<&str> = list["subscribers"].as_array().unwrap().iter().map(|s| s["email"].as_str().unwrap()).collect();
+    assert_eq!(emails.len(), 2);
+    assert!(emails.contains(&"new@example.com"));
+
+    // Only into your own site.
+    let (status, _) = artist.post("/sites/other/mailing-list/add", json!({ "emails": ["x@example.com"] })).await;
+    assert_eq!(status, StatusCode::FORBIDDEN);
+}
+
+// ---------------------------------------------------------------- prints
+
+#[actix_web::test]
+async fn prints_are_their_own_listings_linked_to_a_painting() {
+    let app = spawn_app().await;
+    seed_sites(&app).await;
+    mount_fake_stripe(&app).await;
+    let boss = superadmin(&app).await;
+    let artist = editor(&app, &boss).await;
+    let print = json!({
+        "painting": "old", "title": "Archival Limited Edition",
+        "size": { "width": 24, "height": 36 }, "editionSize": 15, "priceCents": 18000
+    });
+
+    // It must be of one of the site's paintings.
+    let mut orphan = print.clone();
+    orphan["painting"] = json!("nope");
+    let (status, _) = artist.post("/sites/acme/prints", json!({ "slug": "x", "print": orphan })).await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+    assert!(app.stripe_server.received_requests().await.unwrap().is_empty());
+
+    // Creating it makes a Stripe product and a payment link limited to the edition.
+    let (status, created) = artist.post("/sites/acme/prints", json!({ "slug": "old-archival", "print": print })).await;
+    assert_eq!(status, StatusCode::CREATED, "{created}");
+    assert_eq!(created["print"]["stripe"]["active"], true);
+    let calls = stripe_calls(&app).await;
+    let product = calls.iter().find(|(p, _)| p == "/v1/products").unwrap();
+    assert!(product.1.contains("name=Old+%7C+Archival+Limited+Edition+24+x+36"), "{}", product.1);
+    assert!(product.1.contains("unit_amount%5D=18000"), "{}", product.1);
+    let link = calls.iter().find(|(p, _)| p == "/v1/payment_links").unwrap();
+    assert!(link.1.contains("restrictions%5Bcompleted_sessions%5D%5Blimit%5D=15"), "{}", link.1);
+    assert!(link.1.contains("shipping_address_collection"), "{}", link.1);
+    let (status, _) = artist.post("/sites/acme/prints", json!({ "slug": "old-archival", "print": print })).await;
+    assert_eq!(status, StatusCode::CONFLICT);
+
+    // The website lists it (with its painting and Buy link, no Stripe ids) and the painting links to it.
+    let get = |path: String| async move { reqwest::get(path).await.unwrap().json::<Value>().await.unwrap() };
+    let listed = get(format!("{}/api/v1/content/acme/prints", app.address)).await;
+    assert_eq!(listed[0]["name"], "Old | Archival Limited Edition 24 x 36");
+    assert_eq!(listed[0]["buyUrl"], "https://buy.stripe.com/test_1");
+    assert_eq!(listed[0]["artwork"]["slug"], "old");
+    assert!(listed[0].get("stripe").is_none());
+    let painting = get(format!("{}/api/v1/content/acme/products/old", app.address)).await;
+    assert_eq!(painting["prints"], json!([{ "slug": "old-archival", "title": "Archival Limited Edition", "size": { "width": 24.0, "height": 36.0, "unit": "in" }, "sizeLabel": "24 x 36", "editionSize": 15 }]));
+
+    // A new price needs a new payment link; the old one is switched off.
+    let mut dearer = print.clone();
+    dearer["priceCents"] = json!(20000);
+    let before = stripe_calls(&app).await.len();
+    let (status, updated) = artist.put("/sites/acme/prints/old-archival", json!({ "print": dearer })).await;
+    assert_eq!(status, StatusCode::OK, "{updated}");
+    let calls = stripe_calls(&app).await[before..].to_vec();
+    assert!(calls.iter().any(|(p, b)| p == "/v1/prices" && b.contains("unit_amount=20000")), "{calls:?}");
+    assert!(calls.iter().any(|(p, b)| p == "/v1/payment_links/plink_1" && b == "active=false"), "{calls:?}");
+    assert_ne!(updated["print"]["stripe"]["paymentLinkUrl"], "https://buy.stripe.com/test_1");
+
+    // Off sale: gone from the website, link and product switched off.
+    let mut off = dearer.clone();
+    off["forSale"] = json!(false);
+    let (status, _) = artist.put("/sites/acme/prints/old-archival", json!({ "print": off })).await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(get(format!("{}/api/v1/content/acme/prints", app.address)).await, json!([]));
+    assert_eq!(get(format!("{}/api/v1/content/acme/products/old", app.address)).await["prints"], json!([]));
+
+    // Other sites' prints are off limits, and prints aren't editable as raw documents.
+    assert_eq!(artist.get("/sites/other/prints").await.0, StatusCode::FORBIDDEN);
+    let (_, doc) = artist.get("/sites/acme/documents/print/old-archival").await;
+    let (status, _) = artist.put("/sites/acme/documents/print/old-archival", json!({ "data": doc["data"], "baseVersion": doc["version"] })).await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+
+    let (status, _) = artist.delete("/sites/acme/prints/old-archival").await;
+    assert_eq!(status, StatusCode::NO_CONTENT);
+    let (_, list) = artist.get("/sites/acme/prints").await;
+    assert_eq!(list["prints"], json!([]));
+}
+
+#[actix_web::test]
+async fn prints_can_be_saved_without_stripe_and_offer_inquiry() {
+    let app = spawn_app().await;
+    seed_sites(&app).await;
+    let boss = superadmin(&app).await;
+    let print = json!({ "painting": "old", "title": "Open Edition", "size": { "width": 8, "height": 10 }, "priceCents": 3000 });
+    let (status, created) = boss.post("/sites/other/prints", json!({ "slug": "old-open", "print": print })).await;
+    assert_eq!(status, StatusCode::CREATED, "{created}");
+    assert!(created["note"].as_str().unwrap().contains("Stripe isn't connected"));
+    let listed = reqwest::get(format!("{}/api/v1/content/other/prints", app.address)).await.unwrap().json::<Value>().await.unwrap();
+    assert_eq!(listed[0]["name"], "Old | Open Edition 8 x 10");
+    assert!(listed[0].get("buyUrl").is_none(), "no checkout without Stripe");
+    assert!(app.stripe_server.received_requests().await.unwrap().is_empty());
+}
+
+#[actix_web::test]
+async fn print_size_names_and_rates_are_checked() {
+    let app = spawn_app().await;
+    seed_sites(&app).await;
+    let boss = superadmin(&app).await;
+    let (status, _) = boss.put("/sites/acme/store", json!({ "printSizes": [{ "label": "Original", "priceCents": 4000 }] })).await;
+    assert_eq!(status, StatusCode::BAD_REQUEST, "that name is reserved for the original-size print");
+    for rate in [json!(0), json!(-1), json!(500)] {
+        let (status, _) = boss.put("/sites/acme/store", json!({ "printSizes": [], "originalSizeRate": rate })).await;
+        assert_eq!(status, StatusCode::BAD_REQUEST, "{rate}");
+    }
+    let (_, settings) = boss.get("/sites/acme/store").await;
+    assert_eq!(settings["originalSizeRate"], 0.2, "defaults when the site hasn't set one");
 }

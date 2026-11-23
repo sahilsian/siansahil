@@ -26,6 +26,16 @@ pub struct ProductInput {
     pub tabs: Vec<TabInput>,
     #[serde(default)]
     pub availability: Option<AvailabilityInput>,
+    /// The painting's size in inches; used for the original-size print.
+    #[serde(default)]
+    pub size: Option<SizeInput>,
+}
+
+#[derive(Debug, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SizeInput {
+    pub width: f64,
+    pub height: f64,
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -79,6 +89,20 @@ pub fn build_product(
         input.date_created.as_deref().map(|d| text("Year", d, 0, 32)).transpose()?,
     );
 
+    match &input.size {
+        None => {
+            doc.remove("size");
+        }
+        Some(s) => {
+            let ok = |v: f64| v.is_finite() && (1.0..=1000.0).contains(&v);
+            if !ok(s.width) || !ok(s.height) {
+                return Err("The size must be between 1 and 1000 inches each way.".into());
+            }
+            let round = |v: f64| (v * 100.0).round() / 100.0;
+            doc.insert("size".into(), json!({ "width": round(s.width), "height": round(s.height), "unit": "in" }));
+        }
+    }
+
     if input.images.is_empty() {
         return Err("Add at least one image.".into());
     }
@@ -118,7 +142,7 @@ pub fn build_product(
 }
 
 /// Trimmed text with a length range (in characters).
-fn text(field: &str, value: &str, min: usize, max: usize) -> Result<String, String> {
+pub(crate) fn text(field: &str, value: &str, min: usize, max: usize) -> Result<String, String> {
     let value = value.trim();
     let len = value.chars().count();
     if len < min {
@@ -147,7 +171,7 @@ fn category(raw: &str) -> Result<String, String> {
     if ok { Ok(c) } else { Err("Category must be lowercase letters, numbers and dashes.".into()) }
 }
 
-fn image(input: &ImageInput, media_base: &str) -> Result<Value, String> {
+pub(crate) fn image(input: &ImageInput, media_base: &str) -> Result<Value, String> {
     let url = input.url.trim();
     let uploaded = format!("{}/api/v1/media/", media_base.trim_end_matches('/'));
     let allowed_place = (url.starts_with('/') && !url.starts_with("//")) || url.starts_with("https://") || url.starts_with(&uploaded);

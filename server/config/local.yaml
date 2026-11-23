@@ -1,5 +1,9 @@
 application:
   host: 127.0.0.1
+stripe:
+  # Local development: let sites without a Stripe key try "Add to store" (nothing is sent
+  # to Stripe). Production leaves this off, so it needs a real key.
+  offline: true
 admin:
   # Local development only. Production sets APP_ADMIN__API_KEY.
   api_key: "local-dev-admin-key-0123456789abcdef"

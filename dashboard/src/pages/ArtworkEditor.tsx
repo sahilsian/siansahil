@@ -6,6 +6,10 @@ import { api, type Artwork, type ArtworkInput, type ArtworkList, type Image } fr
 import { useSite } from "../session";
 import { prepareImage, previewUrl, slugify } from "../lib/images";
 import { RichTextEditor } from "../components/RichTextEditor";
+import { StoreCard } from "../components/StoreCard";
+import { ImageLibraryButton } from "../components/ImageLibrary";
+import { PaintingPrints } from "./Prints";
+import { useToast } from "../components/Toast";
 import {
   Alert,
   Button,
@@ -29,6 +33,8 @@ interface Draft {
   category: string;
   material: string;
   dateCreated: string;
+  width: string;
+  height: string;
   images: Image[];
   tabs: { key: number; title: string; body: string }[];
   status: Status;
@@ -48,6 +54,8 @@ function toDraft(artwork: Artwork | null, list: ArtworkList): Draft {
       category: list.categories[0] ?? "",
       material: "",
       dateCreated: String(new Date().getFullYear()),
+      width: "",
+      height: "",
       images: [],
       tabs: [{ key: nextTabKey++, title: "Details", body: "" }],
       status: "",
@@ -64,6 +72,8 @@ function toDraft(artwork: Artwork | null, list: ArtworkList): Draft {
     category: artwork.category ?? "",
     material: artwork.material ?? "",
     dateCreated: artwork.dateCreated ?? "",
+    width: artwork.size ? String(artwork.size.width) : "",
+    height: artwork.size ? String(artwork.size.height) : "",
     images: artwork.images ?? [],
     tabs: (artwork.tabs ?? []).map((t) => ({ key: nextTabKey++, ...t })),
     status: artwork.availability?.status ?? "",
@@ -80,10 +90,27 @@ function toInput(d: Draft): ArtworkInput {
     category: d.category,
     material: d.material || undefined,
     dateCreated: d.dateCreated || undefined,
+    size: parseSize(d.width, d.height),
     images: d.images,
     tabs: d.tabs.map(({ title, body }) => ({ title, body })),
     availability: d.status ? { status: d.status, price: d.price || undefined, label: d.label || undefined } : undefined,
   };
+}
+
+/** "36 x 48 in" written in the description or a tab → { width: 36, height: 48 }. */
+function findSize(texts: string[]): { width: string; height: string } | null {
+  for (const text of texts) {
+    const m = text.match(/(\d+(?:\.\d+)?)\s*(?:"|in\b|inch(?:es)?\b)?\s*[x×]\s*(\d+(?:\.\d+)?)\s*(?:"|in\b|inch(?:es)?\b)/i);
+    if (m && Number(m[1]) > 0 && Number(m[2]) > 0) return { width: m[1], height: m[2] };
+  }
+  return null;
+}
+
+/** Both sides typed → the size; otherwise none. */
+function parseSize(width: string, height: string): { width: number; height: number } | undefined {
+  const w = Number(width);
+  const h = Number(height);
+  return width.trim() && height.trim() && w > 0 && h > 0 ? { width: w, height: h } : undefined;
 }
 
 /** Comparable form of a draft (ignores React-only tab keys). */
@@ -132,6 +159,13 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
   const [uploading, setUploading] = useState(0);
   const [errorText, setErrorText] = useState<string | null>(null);
   const [savedText, setSavedText] = useState<string | null>(null);
+  const toast = useToast();
+  const failWith = (text: string) => {
+    setErrorText(text);
+    toast.error(text);
+  };
+  const [storePending, setStorePending] = useState(false);
+  const storeSubmit = useRef<(() => Promise<boolean>) | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -151,6 +185,7 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
   }, [dirty]);
 
   const curated = list.collections.filter((c) => c.curated);
+  const foundSize = findSize([draft.description, ...draft.tabs.map((t) => t.body)]);
 
   const addImages = async (files: FileList | null) => {
     if (!files?.length) return;
@@ -163,7 +198,7 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
         const alt = draft.title ? draft.title : "";
         setDraft((d) => ({ ...d, images: [...d.images, { ...uploaded, alternativeText: alt || undefined }] }));
       } catch (e) {
-        setErrorText(errorMessage(e));
+        failWith(errorMessage(e));
       } finally {
         setUploading((n) => n - 1);
       }
@@ -174,27 +209,41 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
   const save = async () => {
     setErrorText(null);
     setSavedText(null);
-    if (!draft.title.trim()) return setErrorText("Give the artwork a title.");
-    if (draft.images.length === 0) return setErrorText("Add at least one photo.");
-    if (!draft.category.trim()) return setErrorText("Choose a category.");
-    if (isNew && !draft.slug) return setErrorText("Choose a web address.");
+    if (!draft.title.trim()) return failWith("Give the artwork a title.");
+    if (draft.images.length === 0) return failWith("Add at least one photo.");
+    if (!draft.category.trim()) return failWith("Choose a category.");
+    if (Boolean(draft.width.trim()) !== Boolean(draft.height.trim()) || (draft.width.trim() && !parseSize(draft.width, draft.height))) {
+      return failWith("Enter both the width and the height of the painting in inches (like 36 and 48), or leave both empty.");
+    }
+    if (isNew && !draft.slug) return failWith("Choose a web address.");
     setSaving(true);
     try {
-      if (isNew) {
-        await api.createArtwork(site.id, draft.slug, toInput(draft), draft.collections);
-      } else {
-        await api.updateArtwork(site.id, draft.slug, toInput(draft), draft.collections);
+      // The artwork first, then the original's availability.
+      if (isNew || dirty) {
+        if (isNew) {
+          await api.createArtwork(site.id, draft.slug, toInput(draft), draft.collections);
+        } else {
+          await api.updateArtwork(site.id, draft.slug, toInput(draft), draft.collections);
+        }
+        await queryClient.invalidateQueries({ queryKey: ["artworks", site.id] });
+        await queryClient.invalidateQueries({ queryKey: ["documents", site.id] });
       }
-      await queryClient.invalidateQueries({ queryKey: ["artworks", site.id] });
-      await queryClient.invalidateQueries({ queryKey: ["documents", site.id] });
       if (isNew) {
+        toast.success("Artwork created.");
         navigate(`/gallery/${draft.slug}`, { replace: true });
       } else {
         initial.current = snapshot(draft);
+        let storeUpdated = false;
+        if (storePending && storeSubmit.current) {
+          const storeOk = await storeSubmit.current();
+          if (!storeOk) return failWith("The artwork was saved, but the Original section needs attention (see above).");
+          storeUpdated = true;
+        }
         setSavedText("Saved. Changes appear on the website within about a minute.");
+        toast.success(storeUpdated ? "Saved, and the original's availability is updated." : "Saved. Changes appear on the website within about a minute.");
       }
     } catch (e) {
-      setErrorText(errorMessage(e));
+      failWith(errorMessage(e));
     } finally {
       setSaving(false);
     }
@@ -206,10 +255,11 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
       await api.deleteArtwork(site.id, draft.slug);
       await queryClient.invalidateQueries({ queryKey: ["artworks", site.id] });
       await queryClient.invalidateQueries({ queryKey: ["documents", site.id] });
+      toast.success("Artwork deleted.");
       navigate("/gallery", { replace: true });
     } catch (e) {
       setConfirmDelete(false);
-      setErrorText(errorMessage(e));
+      failWith(errorMessage(e));
     } finally {
       setDeleting(false);
     }
@@ -285,9 +335,17 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
             onChange={(e) => addImages(e.target.files)}
             id="artwork-photos"
           />
-          <Button variant="secondary" busy={uploading > 0} onClick={() => fileInput.current?.click()}>
-            <ImagePlus size={18} /> {uploading > 0 ? "Uploading…" : draft.images.length ? "Add more photos" : "Add photos"}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" busy={uploading > 0} onClick={() => fileInput.current?.click()}>
+              <ImagePlus size={18} /> {uploading > 0 ? "Uploading…" : "Upload new"}
+            </Button>
+            <ImageLibraryButton
+              siteId={site.id}
+              siteUrl={site.url}
+              current={draft.images}
+              onPick={(picked) => update({ images: [...draft.images, ...picked.map((i) => ({ ...i, alternativeText: i.alternativeText ?? (draft.title || undefined) }))] })}
+            />
+          </div>
         </Card>
 
         <Card title="Details">
@@ -337,6 +395,21 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
               {(id) => <TextInput id={id} inputMode="numeric" value={draft.dateCreated} onChange={(e) => update({ dateCreated: e.target.value })} />}
             </Field>
           </div>
+          <div className="grid gap-5 sm:grid-cols-3">
+            <Field label="Width (inches)" hint="The painting's own size.">
+              {(id) => <TextInput id={id} inputMode="decimal" placeholder="36" value={draft.width} onChange={(e) => update({ width: e.target.value })} />}
+            </Field>
+            <Field label="Height (inches)">
+              {(id) => <TextInput id={id} inputMode="decimal" placeholder="48" value={draft.height} onChange={(e) => update({ height: e.target.value })} />}
+            </Field>
+          </div>
+          {!draft.width.trim() && !draft.height.trim() && foundSize && (
+            <div>
+              <Button variant="secondary" onClick={() => update({ width: foundSize.width, height: foundSize.height })}>
+                Use {foundSize.width} x {foundSize.height} in (from the description)
+              </Button>
+            </div>
+          )}
         </Card>
 
         <Card title="Availability">
@@ -400,6 +473,17 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
           </Button>
         </Card>
 
+{artwork ? (
+          <>
+            <StoreCard siteId={site.id} artwork={artwork} submitRef={storeSubmit} onPendingChange={setStorePending} />
+            <PaintingPrints siteId={site.id} painting={artwork.slug} />
+          </>
+        ) : (
+          <Card title="Original and prints">
+            <p className="text-sm text-stone-500">Create the artwork first, then you can offer the original and create prints of it.</p>
+          </Card>
+        )}
+
         {curated.length > 0 && (
           <Card title="Show in" description="Which lists on the website include this artwork. New additions appear first.">
             <div className="space-y-1">
@@ -429,7 +513,7 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
             <Alert>{errorText}</Alert>
           </div>
         )}
-        {savedText && !dirty && (
+        {savedText && !dirty && !storePending && (
           <div className="mb-3">
             <Alert kind="success">{savedText}</Alert>
           </div>
@@ -444,9 +528,9 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
           )}
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => navigate("/gallery")}>
-              {dirty ? "Cancel" : "Done"}
+              {dirty || storePending ? "Cancel" : "Done"}
             </Button>
-            <Button onClick={save} busy={saving} disabled={uploading > 0 || (!dirty && !isNew)}>
+            <Button onClick={save} busy={saving} disabled={uploading > 0 || (!dirty && !storePending && !isNew)}>
               {isNew ? "Create artwork" : "Save changes"}
             </Button>
           </div>

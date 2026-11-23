@@ -17,6 +17,34 @@ pub struct Settings {
     pub dashboard: DashboardSettings,
     #[serde(default)]
     pub media: MediaSettings,
+    #[serde(default)]
+    pub stripe: StripeSettings,
+}
+
+/// Stripe, used to list artworks for sale. Each site sells through its own Stripe
+/// account, so keys are per site: `APP_STRIPE__SECRET_KEYS__<SITEID>` (e.g.
+/// `APP_STRIPE__SECRET_KEYS__SIANSAHIL`). A site without a key can't add to its store.
+#[derive(serde::Deserialize, Clone)]
+pub struct StripeSettings {
+    #[serde(default = "default_stripe_api_base")]
+    pub api_base: String,
+    /// Site id → Stripe secret (or restricted) key.
+    #[serde(default)]
+    pub secret_keys: std::collections::HashMap<String, Secret<String>>,
+    /// Local development only: sites without a key can still "add to store", with
+    /// placeholder ids and nothing created in Stripe. Never set this in production.
+    #[serde(default)]
+    pub offline: bool,
+}
+
+fn default_stripe_api_base() -> String {
+    "https://api.stripe.com".into()
+}
+
+impl Default for StripeSettings {
+    fn default() -> Self {
+        Self { api_base: default_stripe_api_base(), secret_keys: Default::default(), offline: false }
+    }
 }
 
 /// Where images uploaded from the dashboard are stored. With `r2` set they go to

@@ -6,6 +6,8 @@ pub enum DocType {
     Product,
     Collection,
     Form,
+    /// A print for sale, linked to one painting.
+    Print,
 }
 
 impl DocType {
@@ -17,7 +19,8 @@ impl DocType {
             "product" => Ok(DocType::Product),
             "collection" => Ok(DocType::Collection),
             "form" => Ok(DocType::Form),
-            other => Err(format!("'{other}' is not a document type (site, page, product, collection, form)")),
+            "print" => Ok(DocType::Print),
+            other => Err(format!("'{other}' is not a document type (site, page, product, collection, form, print)")),
         }
     }
 
@@ -28,6 +31,7 @@ impl DocType {
             DocType::Product => "product",
             DocType::Collection => "collection",
             DocType::Form => "form",
+            DocType::Print => "print",
         }
     }
 
@@ -39,6 +43,7 @@ impl DocType {
             DocType::Product => Some("products"),
             DocType::Collection => Some("collections"),
             DocType::Form => Some("forms"),
+            DocType::Print => Some("prints"),
         }
     }
 }

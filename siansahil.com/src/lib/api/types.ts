@@ -41,6 +41,24 @@ export interface SiteLabels {
     noPrintablePaintings: string;
     selected: string;
     showImage: string;
+    /** Breadcrumb root on artwork pages. */
+    gallery?: string;
+    /** Line above the list of print sizes on an artwork page. */
+    availableInPrints?: string;
+    /** Artwork page line after the prints list when the original is available; followed by the inquire link. */
+    originalAlsoAvailable?: string;
+    /** "15 copies" in a limited edition. */
+    copies?: string;
+    /** Print page: "Limited edition of 15 copies". */
+    limitedEdition?: string;
+    /** Print page: the checkout button. */
+    buy?: string;
+    /** Print page: link back to the painting. */
+    viewPainting?: string;
+    /** Prints page: shown when nothing is for sale. */
+    noPrints?: string;
+    /** Line under "Original Available" on the prints page; followed by the inquire link. */
+    originalAvailableNote?: string;
 }
 
 export interface SiteMessages {
@@ -86,6 +104,8 @@ export interface SiteDoc {
     labels: SiteLabels;
     messages: SiteMessages;
     integrations: { shopify: { printClubHandle: string }; email: { recipient: string; fromName: string } };
+    /** Print sizes set in the dashboard Store page. */
+    store?: { printSizes?: { id: string; label: string; priceCents: number }[] };
 }
 
 export interface PageSeo {
@@ -158,6 +178,8 @@ export interface ProductSummary {
     image: Image;
     dateCreated?: string;
     shopifyHandle?: string;
+    availability?: Availability;
+    store?: ArtworkStore;
 }
 
 export interface CollectionDoc extends CollectionSummary {
@@ -187,4 +209,60 @@ export interface ProductDoc {
     material?: string;
     dateCreated?: string;
     shopifyHandle?: string;
+    availability?: Availability;
+    store?: ArtworkStore;
+    /** Prints of this painting that are for sale (each is its own listing). */
+    prints?: PrintLink[];
+}
+
+/** A print as linked from its painting's page. */
+export interface PrintLink {
+    slug: string;
+    title: string;
+    size: { width: number; height: number; unit: "in" };
+    /** "24 x 36" */
+    sizeLabel: string;
+    editionSize?: number;
+}
+
+/** A print listing (GET /prints, /prints/{slug}). */
+export interface PrintDoc extends PrintLink {
+    $type: "print";
+    painting: string;
+    priceCents: number;
+    currency: string;
+    description?: string;
+    /** Mockups etc.; empty = use the painting's photo. */
+    images: Image[];
+    forSale: boolean;
+    /** Stripe checkout page; absent when it can't be bought online (then: inquire). */
+    buyUrl?: string;
+    /** "Mount Pleasant | Archival Limited Edition 24 x 36" */
+    name: string;
+    artwork: { slug: string; title: string; image: Image | null };
+}
+
+/** One thing for sale: a Stripe product with one price (set from the dashboard). */
+export interface StoreItem {
+    priceCents: number;
+    stripeProductId: string;
+    stripePriceId: string;
+    active: boolean;
+}
+
+/** What an artwork sells. Inactive items are no longer for sale. */
+export interface ArtworkStore {
+    currency: string;
+    /** Visitors can inquire about the original (it has no price). */
+    originalAvailable?: boolean;
+    /** Only on artworks priced before the original became inquiry-only. */
+    original: StoreItem | null;
+    prints: (StoreItem & { sizeId: string; label: string })[];
+}
+
+/** A work sold outside the store, e.g. privately. */
+export interface Availability {
+    status: "available" | "sold" | "unavailable";
+    price?: string;
+    label?: string;
 }

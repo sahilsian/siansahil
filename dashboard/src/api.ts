@@ -66,7 +66,7 @@ export interface Me {
   sites: Site[];
 }
 
-export type DocType = "site" | "page" | "product" | "collection" | "form";
+export type DocType = "site" | "page" | "product" | "collection" | "form" | "print";
 
 export interface DocumentMeta {
   type: DocType;
@@ -87,6 +87,11 @@ export interface Image {
   name?: string;
 }
 
+/** An image already on the site: uploaded, or used on artworks/prints (their titles in `usedIn`). */
+export interface LibraryImage extends Image {
+  usedIn: string[];
+}
+
 export interface Availability {
   status: "available" | "sold" | "unavailable";
   price?: string;
@@ -105,7 +110,88 @@ export interface Artwork {
   images: Image[];
   tabs: { title: string; body: string }[];
   availability?: Availability;
+  /** The painting's own size, in inches. */
+  size?: { width: number; height: number; unit: "in" };
+  store?: ArtworkStore;
   [key: string]: unknown;
+}
+
+/** One thing for sale (a Stripe product with one price). */
+export interface StoreItem {
+  priceCents: number;
+  stripeProductId: string;
+  stripePriceId: string;
+  active: boolean;
+}
+
+export interface ArtworkStore {
+  currency: string;
+  /** Visitors can inquire about the original (it has no price). */
+  originalAvailable?: boolean;
+  /** Only on artworks priced before the original became inquiry-only. */
+  original: StoreItem | null;
+  prints: (StoreItem & { sizeId: string; label: string })[];
+}
+
+export interface PrintSize {
+  id: string;
+  label: string;
+  priceCents: number;
+}
+
+export interface StoreSettings {
+  stripeConfigured: boolean;
+  /** Local test mode: adding to the store makes up ids instead of calling Stripe. */
+  stripeTestMode?: boolean;
+  currency: string;
+  printSizes: PrintSize[];
+  /** Dollars per square inch for original-size prints. */
+  originalSizeRate: number;
+  /** Every painting with a size also offers a print at its own size. */
+  originalSizePrints: boolean;
+}
+
+/** A print for sale: its own listing, linked to one painting. */
+export interface Print {
+  $type: "print";
+  slug: string;
+  /** The painting's slug. */
+  painting: string;
+  /** e.g. "Archival Limited Edition". */
+  title: string;
+  size: { width: number; height: number; unit: "in" };
+  /** Copies in the edition; absent = open edition. */
+  editionSize?: number;
+  priceCents: number;
+  currency?: string;
+  description?: string;
+  /** Mockups etc. Empty = the website uses the painting's photo. */
+  images: Image[];
+  forSale: boolean;
+  stripe?: { active?: boolean; paymentLinkUrl?: string | null };
+}
+
+export interface PrintInput {
+  painting: string;
+  title: string;
+  size: { width: number; height: number };
+  editionSize?: number;
+  priceCents: number;
+  description: string;
+  images: Image[];
+  forSale: boolean;
+}
+
+export interface PrintList {
+  prints: Print[];
+  stripeConfigured: boolean;
+  stripeTestMode: boolean;
+  currency: string;
+}
+
+export interface Subscriber {
+  email: string;
+  subscribedAt: string;
 }
 
 /** What the dashboard sends when saving an artwork. */
@@ -118,6 +204,7 @@ export interface ArtworkInput {
   images: Image[];
   tabs: { title: string; body: string }[];
   availability?: Availability;
+  size?: { width: number; height: number };
 }
 
 export interface CollectionInfo {
@@ -173,6 +260,35 @@ export const api = {
     }),
   deleteArtwork: (siteId: string, slug: string) =>
     request<void>("DELETE", `${site(siteId)}/artworks/${encodeURIComponent(slug)}`),
+  mailingList: (siteId: string) => request<{ subscribers: Subscriber[] }>("GET", `${site(siteId)}/mailing-list`),
+  addSubscribers: (siteId: string, emails: string[]) =>
+    request<{ added: number; alreadySubscribed: number; invalid: string[] }>("POST", `${site(siteId)}/mailing-list/add`, { emails }),
+  removeSubscriber: (siteId: string, email: string) =>
+    request<void>("POST", `${site(siteId)}/mailing-list/remove`, { email }),
+
+  storeSettings: (siteId: string) => request<StoreSettings>("GET", `${site(siteId)}/store`),
+  saveStoreSettings: (
+    siteId: string,
+    printSizes: { id?: string; label: string; priceCents: number }[],
+    originalSizeRate?: number,
+    originalSizePrints?: boolean,
+  ) => request<StoreSettings>("PUT", `${site(siteId)}/store`, { printSizes, originalSizeRate, originalSizePrints }),
+  setOriginalAvailable: (siteId: string, slug: string, originalAvailable: boolean) =>
+    request<{ store: ArtworkStore }>("PUT", `${site(siteId)}/artworks/${encodeURIComponent(slug)}/store`, {
+      originalAvailable,
+    }),
+
+  prints: (siteId: string) => request<PrintList>("GET", `${site(siteId)}/prints`),
+  createPrint: (siteId: string, slug: string, print: PrintInput) =>
+    request<{ print: Print; note?: string | null }>("POST", `${site(siteId)}/prints`, { slug, print }),
+  updatePrint: (siteId: string, slug: string, print: PrintInput) =>
+    request<{ print: Print; note?: string | null }>("PUT", `${site(siteId)}/prints/${encodeURIComponent(slug)}`, { print }),
+  deletePrint: (siteId: string, slug: string) =>
+    request<void>("DELETE", `${site(siteId)}/prints/${encodeURIComponent(slug)}`),
+  removeFromStore: (siteId: string, slug: string) =>
+    request<{ store: ArtworkStore }>("DELETE", `${site(siteId)}/artworks/${encodeURIComponent(slug)}/store`),
+
+  mediaLibrary: (siteId: string) => request<{ images: LibraryImage[] }>("GET", `${site(siteId)}/media`),
   uploadImage: (siteId: string, file: Blob, name: string) =>
     request<Image>("POST", `${site(siteId)}/media?name=${encodeURIComponent(name)}`, undefined, file),
 

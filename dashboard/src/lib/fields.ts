@@ -19,7 +19,7 @@ const LOCKED_KEYS = new Set([
   "imagePosition", "locale", "currency", "robots", "category", "sort", "status", "shopifyHandle",
   "subscriptionHandle", "printClubHandle", "titleTemplate",
 ]);
-const LOCKED_SECTIONS = new Set(["theme", "favicons", "integrations", "filter", "search", "fonts", "views"]);
+const LOCKED_SECTIONS = new Set(["theme", "favicons", "integrations", "filter", "search", "fonts", "views", "store"]);
 /** Image file names: not shown to visitors, so not worth editing. */
 const HIDDEN_KEYS = new Set(["name"]);
 

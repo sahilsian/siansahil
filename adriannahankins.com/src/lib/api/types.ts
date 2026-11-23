@@ -41,6 +41,12 @@ export interface SiteLabels {
     noPrintablePaintings: string;
     selected: string;
     showImage: string;
+    /** Breadcrumb root on artwork pages. */
+    gallery?: string;
+    /** Button on an artwork page when prints are for sale. */
+    availableInPrints?: string;
+    /** Line under "Original Available" on the prints page; followed by the inquire link. */
+    originalAvailableNote?: string;
 }
 
 export interface SiteMessages {
@@ -91,6 +97,8 @@ export interface SiteDoc {
     labels: SiteLabels;
     messages: SiteMessages;
     integrations: { shopify: { printClubHandle: string }; email: { recipient: string; fromName: string } };
+    /** Print sizes set in the dashboard Store page. */
+    store?: { printSizes?: { id: string; label: string; priceCents: number }[] };
 }
 
 export interface PageSeo {
@@ -173,6 +181,7 @@ export interface ProductSummary {
     dateCreated?: string;
     shopifyHandle?: string;
     availability?: Availability;
+    store?: ArtworkStore;
 }
 
 export interface CollectionDoc extends CollectionSummary {
@@ -203,4 +212,23 @@ export interface ProductDoc {
     dateCreated?: string;
     shopifyHandle?: string;
     availability?: Availability;
+    store?: ArtworkStore;
+}
+
+/** One thing for sale: a Stripe product with one price (set from the dashboard). */
+export interface StoreItem {
+    priceCents: number;
+    stripeProductId: string;
+    stripePriceId: string;
+    active: boolean;
+}
+
+/** What an artwork sells. Inactive items are no longer for sale. */
+export interface ArtworkStore {
+    currency: string;
+    /** Visitors can inquire about the original (it has no price). */
+    originalAvailable?: boolean;
+    /** Only on artworks priced before the original became inquiry-only. */
+    original: StoreItem | null;
+    prints: (StoreItem & { sizeId: string; label: string })[];
 }

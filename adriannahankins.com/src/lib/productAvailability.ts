@@ -1,4 +1,5 @@
-import {formatShopifyPrice, ShopifyProductData} from "@/lib/shopify";
+import type {Availability} from "@/lib/api/types.ts";
+import {ForSale, formatPrice} from "@/lib/store";
 
 export interface ListingAvailability {
     originalStatus: "available" | "sold" | null;
@@ -6,22 +7,13 @@ export interface ListingAvailability {
     unavailable: boolean;
 }
 
-export function getListingAvailability(shop?: ShopifyProductData | null): ListingAvailability {
-    const original = shop?.original;
-    const availablePrints = shop?.prints?.filter((print) => print.availableForSale) ?? [];
-
-    const originalStatus = original ? (original.availableForSale ? "available" : "sold") : null;
-
-    const cheapestPrint = availablePrints.reduce<typeof availablePrints[number] | null>((cheapest, print) => {
-        if (!cheapest) return print;
-        return parseFloat(print.price) < parseFloat(cheapest.price) ? print : cheapest;
-    }, null);
-
-    const printsFromLabel = cheapestPrint
-        ? formatShopifyPrice(cheapestPrint.price, cheapestPrint.currencyCode)
-        : null;
-
-    const unavailable = originalStatus !== "available" && availablePrints.length === 0;
-
+/** What a gallery list row shows: original available/sold, and "Prints from" the cheapest print. */
+export function getListingAvailability(sale: ForSale, availability?: Availability, locale?: string): ListingAvailability {
+    const originalStatus = sale.originalAvailable
+        ? "available"
+        : availability?.status === "sold" ? "sold" : availability?.status === "available" ? "available" : null;
+    const cheapest = sale.prints[0];
+    const printsFromLabel = cheapest ? formatPrice(cheapest.priceCents, sale.currency, locale) : null;
+    const unavailable = originalStatus !== "available" && sale.prints.length === 0;
     return {originalStatus, printsFromLabel, unavailable};
 }

@@ -12,7 +12,19 @@
 //!   POST   /api/v1/dashboard/sites/{siteId}/artworks                 { slug, artwork, collections }
 //!   PUT    /api/v1/dashboard/sites/{siteId}/artworks/{slug}          { artwork, collections }
 //!   DELETE /api/v1/dashboard/sites/{siteId}/artworks/{slug}
+//!   GET    /api/v1/dashboard/sites/{siteId}/media                    images already uploaded or in use
 //!   POST   /api/v1/dashboard/sites/{siteId}/media?name=photo.jpg     body = image bytes
+//!   GET    /api/v1/dashboard/sites/{siteId}/mailing-list
+//!   POST   /api/v1/dashboard/sites/{siteId}/mailing-list/add         { emails } (import an existing list)
+//!   POST   /api/v1/dashboard/sites/{siteId}/mailing-list/remove      { email }
+//!   GET    /api/v1/dashboard/sites/{siteId}/store                    print sizes + whether Stripe is set up
+//!   PUT    /api/v1/dashboard/sites/{siteId}/store                    { printSizes }
+//!   GET    /api/v1/dashboard/sites/{siteId}/prints
+//!   POST   /api/v1/dashboard/sites/{siteId}/prints                   { slug, print }
+//!   PUT    /api/v1/dashboard/sites/{siteId}/prints/{slug}            { print }
+//!   DELETE /api/v1/dashboard/sites/{siteId}/prints/{slug}
+//!   PUT    /api/v1/dashboard/sites/{siteId}/artworks/{slug}/store    { originalAvailable } (original by inquiry)
+//!   DELETE /api/v1/dashboard/sites/{siteId}/artworks/{slug}/store    (Remove from store)
 //!   GET    /api/v1/dashboard/admin/accounts                          (superadmin)
 //!   POST   /api/v1/dashboard/admin/users                             { username, password, siteId, email? } (superadmin)
 //!   PUT    /api/v1/dashboard/admin/users/{id}/password               { password } (superadmin)
@@ -31,7 +43,10 @@ pub mod account_admin;
 mod artworks;
 mod auth;
 mod documents;
+mod mailing_list;
 mod media;
+mod prints;
+pub(crate) mod store;
 mod superadmin;
 
 use std::future::Future;
@@ -118,7 +133,31 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
         .service(
             web::resource("/sites/{site}/media")
                 .app_data(web::PayloadConfig::new(crate::dashboard::media::MAX_UPLOAD_BYTES))
+                .route(web::get().to(media::list))
                 .route(web::post().to(media::upload)),
+        )
+        .route("/sites/{site}/mailing-list", web::get().to(mailing_list::list))
+        .route("/sites/{site}/mailing-list/add", web::post().to(mailing_list::add))
+        .route("/sites/{site}/mailing-list/remove", web::post().to(mailing_list::remove))
+        .service(
+            web::resource("/sites/{site}/store")
+                .route(web::get().to(store::settings))
+                .route(web::put().to(store::save_settings)),
+        )
+        .service(
+            web::resource("/sites/{site}/prints")
+                .route(web::get().to(prints::list))
+                .route(web::post().to(prints::create)),
+        )
+        .service(
+            web::resource("/sites/{site}/prints/{slug}")
+                .route(web::put().to(prints::update))
+                .route(web::delete().to(prints::delete)),
+        )
+        .service(
+            web::resource("/sites/{site}/artworks/{slug}/store")
+                .route(web::put().to(store::list))
+                .route(web::delete().to(store::unlist)),
         )
         .route("/admin/accounts", web::get().to(superadmin::accounts))
         .route("/admin/users", web::post().to(superadmin::create_user))

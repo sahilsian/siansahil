@@ -11,6 +11,7 @@ import type {
     NavItem,
     PageDoc,
     PageSeo,
+    PrintDoc,
     ProductDoc,
     ProductSummary,
     SiteDoc,
@@ -32,6 +33,10 @@ export const getFormDoc = (id: string) => contentGet<FormDoc>(`/forms/${encodeUR
 export const getCollectionSummaries = () => contentGet<CollectionSummary[]>("/collections");
 export const getCollection = (id: string, search?: string) =>
     contentGet<CollectionDoc>(`/collections/${encodeURIComponent(id)}`, { search });
+
+/** Prints for sale, ordered by painting then price. */
+export const getPrints = () => contentGet<PrintDoc[]>("/prints");
+export const getPrint = (slug: string) => contentGet<PrintDoc>(`/prints/${encodeURIComponent(slug)}`);
 
 export async function getProduct(slug: string): Promise<Product> {
     return toProduct(await getProductDoc(slug));
@@ -134,6 +139,9 @@ export function toProduct(doc: ProductDoc): Product {
         dateCreated: doc.dateCreated,
         material: doc.material,
         shopifyHandle: doc.shopifyHandle,
+        availability: doc.availability,
+        store: doc.store,
+        prints: doc.prints ?? [],
     };
 }
 

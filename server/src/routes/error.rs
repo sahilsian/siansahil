@@ -22,6 +22,9 @@ pub enum ApiError {
     Conflict(String),
     /// Too many failed attempts → 429 `too_many_requests`.
     TooManyRequests,
+    /// A service we depend on (e.g. Stripe) refused or failed → 502 `upstream_error`.
+    /// The message is shown to the user, so keep secrets out of it.
+    Upstream(String),
     Database(sqlx::Error),
     /// Any other server-side failure (details are logged, not returned) → 500.
     Internal(String),
@@ -30,7 +33,9 @@ pub enum ApiError {
 impl std::fmt::Display for ApiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ApiError::BadRequest(msg) | ApiError::Conflict(msg) | ApiError::Forbidden(msg) => write!(f, "{msg}"),
+            ApiError::BadRequest(msg) | ApiError::Conflict(msg) | ApiError::Forbidden(msg) | ApiError::Upstream(msg) => {
+                write!(f, "{msg}")
+            }
             ApiError::Unauthorized => write!(f, "A valid admin API key is required."),
             ApiError::NotSignedIn => write!(f, "Please sign in."),
             ApiError::InvalidCredentials => write!(f, "Incorrect username or password."),
@@ -65,6 +70,7 @@ impl ResponseError for ApiError {
             ApiError::TenantNotFound | ApiError::NotFound(..) => StatusCode::NOT_FOUND,
             ApiError::Conflict(_) => StatusCode::CONFLICT,
             ApiError::TooManyRequests => StatusCode::TOO_MANY_REQUESTS,
+            ApiError::Upstream(_) => StatusCode::BAD_GATEWAY,
             ApiError::Database(_) | ApiError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
@@ -80,6 +86,7 @@ impl ResponseError for ApiError {
             ApiError::NotFound(..) => "not_found",
             ApiError::Conflict(_) => "conflict",
             ApiError::TooManyRequests => "too_many_requests",
+            ApiError::Upstream(_) => "upstream_error",
             ApiError::Database(_) | ApiError::Internal(_) => "internal_error",
         };
         let mut response = HttpResponse::build(self.status_code());

@@ -87,6 +87,9 @@ pub async fn put(
     if doc_type == DocType::Product {
         return Err(ApiError::BadRequest("Artworks are edited from the Gallery.".into()));
     }
+    if doc_type == DocType::Print {
+        return Err(ApiError::BadRequest("Prints are edited from the Prints page.".into()));
+    }
 
     let mut tx = pool.begin().await?;
     let current: Option<(Value, i32)> = sqlx::query_as(

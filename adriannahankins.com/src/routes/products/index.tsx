@@ -8,7 +8,6 @@ import {
     toPageSeo,
 } from "@/lib/content";
 import CollectionRenderer from "@/components/renderers/collectionRenderer";
-import {getShopifyProductsByHandles} from "@/lib/shopify";
 import {pageHead} from "@/lib/seo.ts";
 
 // The page document that configures this listing (its `collection` block).
@@ -44,21 +43,8 @@ export const Route = createFileRoute('/products/')({
             }),
         ])
 
-        const handles = current.products
-            .map((product) => product.shopifyHandle)
-            .filter((handle): handle is string => !!handle)
-
-        const shopByHandle = handles.length > 0
-            ? await context.queryClient.ensureQueryData({
-                queryFn: () => getShopifyProductsByHandles({ data: { handles } }),
-                queryKey: ["shopifyProducts", handles.join(",")]
-            })
-            : {}
-
-        const items = current.products.map((product) => ({
-            ...toListItem(product),
-            shop: product.shopifyHandle ? shopByHandle[product.shopifyHandle] ?? null : null,
-        }))
+        // Prices and availability come with each product (`store`, `availability`).
+        const items = current.products.map(toListItem)
 
         return {
             items,

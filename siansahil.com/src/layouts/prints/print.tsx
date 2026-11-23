@@ -1,0 +1,67 @@
+import {Link} from "@tanstack/react-router";
+import Typography from "@/components/typography";
+import Spacer from "@/components/spacer";
+import Breadcrumb from "@/components/breadcrumb";
+import RichText from "@/components/richText";
+import InquiryButton from "@/components/inquiryDialog";
+import Background from "@/layouts/product/background.tsx";
+import {Media} from "@/layouts/product/media.tsx";
+import {useSite} from "@/contexts/site/siteContext.tsx";
+import {formatPrice} from "@/lib/store";
+import {getFontStyles} from "@/components/typography/fonts.ts";
+import type {PrintDoc} from "@/lib/api/types.ts";
+import {printListName} from "./list.tsx";
+
+const BUTTON_CLASS = "inline-block rounded-md border border-black px-5 py-2 font-serif text-[1rem] transition-colors hover:bg-black hover:text-white cursor-pointer"
+const LINK_CLASS = "underline text-[#2563EB] hover:text-[#1D4ED8]"
+
+/** One print: photos, name, price, edition, description and Buy (Stripe checkout). */
+const PrintLayout = ({print}: {print: PrintDoc}) => {
+    const {labels, locale} = useSite();
+    const name = printListName(print);
+    const images = print.images.length > 0 ? print.images : print.artwork.image ? [print.artwork.image] : [];
+    const copies = labels.copies ?? "copies";
+
+    return (
+        <div className={'bg-[#EDEDED] p-6 md:px-22 py-22 relative'}>
+            <Background></Background>
+            <div className={"relative z-30"}>
+                <Breadcrumb items={[
+                    { label: labels.prints ?? "Prints", to: "/prints" },
+                    { label: name },
+                ]} />
+                <Spacer height={"10px"}></Spacer>
+                <div className={"flex gap-10 flex-wrap"}>
+                    <div className={"flex-1"}>
+                        <Media images={images}></Media>
+                    </div>
+                    <div className={"flex-2 space-y-4"}>
+                        <Typography level={"2"} value={name} />
+                        <div className={getFontStyles("p")}>
+                            <p>{formatPrice(print.priceCents, print.currency.toUpperCase(), locale)}</p>
+                            <p>
+                                {print.sizeLabel} in
+                                {print.editionSize ? ` · ${labels.limitedEdition ?? "Limited edition of"} ${print.editionSize} ${copies}` : ""}
+                            </p>
+                        </div>
+                        <div>
+                            {print.buyUrl ? (
+                                <a href={print.buyUrl} className={BUTTON_CLASS}>{labels.buy ?? "Buy"}</a>
+                            ) : (
+                                <InquiryButton title={name} kind={"print"} label={labels.inquire ?? "Inquire"} className={BUTTON_CLASS} />
+                            )}
+                        </div>
+                        {print.description && <RichText richText={print.description} />}
+                        <p className={getFontStyles("p")}>
+                            <Link to={"/products/$slug"} params={{slug: print.artwork.slug}} className={LINK_CLASS}>
+                                {labels.viewPainting ?? "View the original painting"}
+                            </Link>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default PrintLayout;

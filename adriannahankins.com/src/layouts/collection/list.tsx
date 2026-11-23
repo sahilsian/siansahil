@@ -29,7 +29,7 @@ export const List = ({controlMachine, collection, categories, currentCollection}
                         clickable={true}
                         image={item.image}
                         columns={columns}
-                        shop={item.shop}
+                        store={item.store}
                         availability={item.availability}
                     />
                 ))}
