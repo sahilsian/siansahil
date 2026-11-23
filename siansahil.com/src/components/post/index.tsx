@@ -2,7 +2,7 @@ import Image, { StrapiImage } from "@/components/image";
 import Typography from "@/components/typography";
 import {RouterInjectedProps} from "@/decorators/withRouter";
 import type {ArtworkStore, Availability} from "@/lib/api/types.ts";
-import {cardPriceLabel, forSale} from "@/lib/store";
+import {cardPriceLabel} from "@/lib/store";
 import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface PostProps {
@@ -19,7 +19,7 @@ interface PostProps {
 
 // Square card: the image fills whatever height the title row leaves.
 const Post =
-    ({ disabled, clickable, slug, title, image, goToPost, columns = 3, store, availability}: PostProps & RouterInjectedProps
+    ({ disabled, clickable, slug, title, image, goToPost, columns = 3, availability}: PostProps & RouterInjectedProps
     ) => {
     const handleClick = () => {
         if (clickable) {
@@ -27,9 +27,9 @@ const Post =
         }
     };
 
-    // Price of the original when it is in the store; otherwise its availability.
-    const { labels, currency, locale } = useSite();
-    const price = cardPriceLabel(forSale(store, currency), availability, labels, locale);
+    // The artwork's price, or "Unavailable".
+    const { labels } = useSite();
+    const price = cardPriceLabel(availability, labels);
 
     return (
         <div

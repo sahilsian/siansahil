@@ -2,6 +2,7 @@
 // artwork is added to the store: prints (Stripe products) and whether the
 // original is available (by inquiry, no price).
 import type { ArtworkStore, Availability, SiteLabels } from "@/lib/api/types.ts";
+// (Prints are their own listings now; `store.prints` on an artwork is from the old model and ignored.)
 
 export interface ForSale {
     /** Visitors can inquire about the original painting. */
@@ -35,19 +36,8 @@ export function formatPrice(cents: number, currency: string, locale?: string): s
     }
 }
 
-/** Card text for an artwork: original available, else "Prints from", else its availability. */
-export function cardPriceLabel(
-    sale: ForSale,
-    availability: Availability | undefined,
-    labels: Pick<SiteLabels, "available" | "sold" | "unavailable" | "printsFrom">,
-    locale?: string,
-): string {
-    if (sale.originalAvailable) return labels.available;
-    if (sale.prints.length > 0) return `${labels.printsFrom} ${formatPrice(sale.prints[0].priceCents, sale.currency, locale)}`;
-    switch (availability?.status) {
-        case "available": return availability.price ?? labels.available;
-        case "sold": return labels.sold;
-        case "unavailable": return availability.label ?? labels.unavailable;
-        default: return labels.unavailable;
-    }
+/** Gallery card text: the artwork's price when it is available with one, otherwise "Unavailable". */
+export function cardPriceLabel(availability: Availability | undefined, labels: Pick<SiteLabels, "unavailable">): string {
+    const price = availability?.status === "available" ? availability.price?.trim() : undefined;
+    return price || labels.unavailable;
 }

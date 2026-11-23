@@ -2,8 +2,7 @@ import Image, { StrapiImage } from "@/components/image";
 import Typography from "@/components/typography";
 import {RouterInjectedProps} from "@/decorators/withRouter";
 import type {ArtworkStore, Availability} from "@/lib/api/types.ts";
-import {getListingAvailability} from "@/lib/productAvailability";
-import {forSale} from "@/lib/store";
+import {cardPriceLabel} from "@/lib/store";
 import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface PostProps {
@@ -19,7 +18,7 @@ interface PostProps {
 }
 
 const ListPost =
-    ({ disabled, clickable, slug, title, description, image, goToPost, store, availability}: PostProps & RouterInjectedProps
+    ({ disabled, clickable, slug, title, description, image, goToPost, availability}: PostProps & RouterInjectedProps
     ) => {
         const handleClick = () => {
             if (clickable) {
@@ -27,8 +26,9 @@ const ListPost =
             }
         };
 
-        const { currency, locale } = useSite();
-        const {originalStatus, printsFromLabel, unavailable} = getListingAvailability(forSale(store, currency), availability, locale);
+        // The artwork's price, or "Unavailable".
+        const { labels } = useSite();
+        const price = cardPriceLabel(availability, labels);
 
         return (
             <div
@@ -56,19 +56,9 @@ const ListPost =
                        
                     </div>
                     <Typography level={"p"} value={description} className={"line-clamp-3"} />
-                    <div className={'flex items-center justify-between mt-2'}>
-                        <div>
-                            {printsFromLabel && <Typography level={"small"} value={`Prints from: ${printsFromLabel}`} />}
-                        </div>
-                        <div>
-                            {unavailable && <Typography secondary level={"small"} value={"Unavailable"} />}
-                        </div>
+                    <div className={'mt-2'}>
+                        <Typography secondary level={"small"} value={price} />
                     </div>
-                     {originalStatus && (
-                            <span className={`font-serif text-[0.8rem] lg:text-[1.75rem] font-medium ${originalStatus === "available" ? "text-[#4e9e39]" : "text-[#c44b57]"}`}>
-                                {originalStatus === "available" ? "Available" : "Sold"}
-                            </span>
-                        )}
                 </div>
 
             </div>
