@@ -1,24 +1,18 @@
-// What an artwork has for sale, from the `store` the dashboard writes when an
-// artwork is added to the store: prints (Stripe products) and whether the
-// original is available (by inquiry, no price).
-import type { ArtworkStore, Availability, SiteLabels } from "@/lib/api/types.ts";
+// What an artwork has for sale. Prints are their own listings (see /prints and
+// ProductDoc.prints); on the artwork itself the dashboard only records whether
+// the original is available (by inquiry, no price). Works sold off-platform
+// carry an `availability` instead (status, optional display price).
+import type { Availability, ArtworkStore, SiteLabels } from "@/lib/api/types.ts";
 
 export interface ForSale {
     /** Visitors can inquire about the original painting. */
     originalAvailable: boolean;
-    /** Print sizes for sale, cheapest first. */
-    prints: { sizeId: string; label: string; priceCents: number }[];
     currency: string;
 }
 
 export function forSale(store: ArtworkStore | undefined, fallbackCurrency: string): ForSale {
-    const prints = (store?.prints ?? [])
-        .filter((p) => p.active)
-        .map(({ sizeId, label, priceCents }) => ({ sizeId, label, priceCents }))
-        .sort((a, b) => a.priceCents - b.priceCents);
     return {
         originalAvailable: Boolean(store?.originalAvailable),
-        prints,
         currency: (store?.currency || fallbackCurrency || "CAD").toUpperCase(),
     };
 }
@@ -35,19 +29,21 @@ export function formatPrice(cents: number, currency: string, locale?: string): s
     }
 }
 
-/** Card text for an artwork: original available, else "Prints from", else its availability. */
-export function cardPriceLabel(
+/**
+ * Gallery card text under the title (only when the site's theme.galleryStatus is on):
+ * the price or "Available", "Sold", or the unavailable note (e.g. "Personal Collection").
+ * Null (nothing shown) for items with no status at all, such as events.
+ */
+export function cardStatusLabel(
     sale: ForSale,
     availability: Availability | undefined,
-    labels: Pick<SiteLabels, "available" | "sold" | "unavailable" | "printsFrom">,
-    locale?: string,
-): string {
+    labels: Pick<SiteLabels, "available" | "sold" | "unavailable">,
+): string | null {
     if (sale.originalAvailable) return labels.available;
-    if (sale.prints.length > 0) return `${labels.printsFrom} ${formatPrice(sale.prints[0].priceCents, sale.currency, locale)}`;
     switch (availability?.status) {
-        case "available": return availability.price ?? labels.available;
+        case "available": return availability.price?.trim() || labels.available;
         case "sold": return labels.sold;
         case "unavailable": return availability.label ?? labels.unavailable;
-        default: return labels.unavailable;
+        default: return null;
     }
 }

@@ -42,7 +42,7 @@ export const Media = ({images}:MediaProps) => {
                             onClick={() => setSelected(index)}
                             aria-label={`${labels.showImage} ${index + 1}`}
                             aria-current={index === selected}
-                            className={`w-12 h-12 cursor-pointer ${index === selected ? "outline-2 outline-black outline-offset-2" : "opacity-70 hover:opacity-100"}`}
+                            className={`w-12 h-12 cursor-pointer ${index === selected ? "outline-2 outline-[var(--color-border)] outline-offset-2" : "opacity-70 hover:opacity-100"}`}
                         >
                             <Image className={"w-full h-full"} image={image}></Image>
                         </button>

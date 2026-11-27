@@ -3,9 +3,9 @@
 import {Font} from "@/components/typography/fonts.ts";
 
 export const RICH_FONT_STYLES_MAP: Record<Font, string> = {
-    "1": "text-[1.7rem] lg:text-[2.1rem] font-medium leading-[1.2] mb-5 font-serif",
-    "2": "text-[1.5rem] lg:text-[1.7rem] leading-[1.2] mb-[0.8rem] font-normal font-serif",
-    "3": "text-[1.2rem] mb-3 font-semibold font-serif",
+    "1": "text-[1.7rem] lg:text-[2.1rem] font-medium leading-[1.2] mb-5 font-display text-[var(--color-heading)]",
+    "2": "text-[1.5rem] lg:text-[1.7rem] leading-[1.2] mb-[0.8rem] font-normal font-display text-[var(--color-heading)]",
+    "3": "text-[1.2rem] mb-3 font-semibold font-display text-[var(--color-heading)]",
     "4": "text-[1rem] font-medium leading-[1.4] font-serif",
     "5": "text-[0.9rem] font-medium leading-[1.5] font-serif",
     "6": "text-[0.8rem] font-medium leading-[1.5] font-serif",

@@ -30,11 +30,15 @@
       "available": "#4e9e39",
       "sold": "#c44b57",
       "highlight": "#FDE26B",
-      "disabled": "#E3E3E3"
+      "disabled": "#E3E3E3",
+      "link": "#2563EB",
+      "linkHover": "#1D4ED8"
     },
     "fonts": {
       "body": "Inria Serif"
-    }
+    },
+    "hero": "cutout",
+    "galleryStatus": false
   },
   "seo": {
     "siteName": "Sahil Sian",

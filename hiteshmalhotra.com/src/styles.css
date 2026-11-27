@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/* Fonts come from the tenant theme: __root sets --font-body / --font-heading
+   from site.theme.fonts. `font-serif` = body text, `font-display` = headings. */
+@theme {
+    --font-serif: var(--font-body), ui-serif, Georgia, serif;
+    --font-display: var(--font-heading), var(--font-body), ui-serif, Georgia, serif;
+}
+
+@layer base {
+    body {
+        @apply m-0;
+        font-family: var(--font-body), serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.typewriter-title {
+    opacity: 0;
+}
+
+.typewriter-title.animate {
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+.typewriter-description {
+    opacity: 0;
+}
+
+.typewriter-description.animate {
+    animation: fadeIn 1.2s ease-out 0.3s forwards;
+}

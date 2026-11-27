@@ -19,7 +19,7 @@ const DateField = ({handleChange, value, error, label, disabled, isRequired}: Da
             { isRequired &&  <span className={"text-red-500"}>*</span> }
         </div>
         <Spacer height={'10px'}></Spacer>
-        <div className={`border-1 ${error && "border-red-500"} px-2 py-2 ${disabled && "bg-[#E3E3E3] text-gray-500"}`}>
+        <div className={`border-1 ${error && "border-red-500"} px-2 py-2 ${disabled && "bg-[var(--color-disabled)] text-[var(--color-muted)]"}`}>
             <Input placeholder={""} disabled={disabled} type={"date"} value={value} handleChange={(e) => handleChange(e)}></Input>
         </div>
     </div>

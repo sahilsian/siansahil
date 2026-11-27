@@ -59,6 +59,8 @@ export interface SiteLabels {
     noPrints?: string;
     /** Line under "Original Available" on the prints page; followed by the inquire link. */
     originalAvailableNote?: string;
+    /** Inquiry pop-up's starting message when theme.itemInquiry is on; {title} = the item's name. */
+    inquiryMessage?: string;
 }
 
 export interface SiteMessages {
@@ -79,7 +81,29 @@ export interface SiteDoc {
     currency: string;
     contact: { email: string };
     social: { instagram?: { handle: string; url: string } };
-    theme: { colors: Record<string, string>; fonts: { body: string } };
+    /**
+     * How this site looks. Every site runs the same code; anything that should
+     * differ between sites is set here (missing values fall back to the defaults).
+     */
+    theme: {
+        /** See src/lib/theme.ts for the keys, e.g. paper, border, link, buttonBackground. */
+        colors: Record<string, string>;
+        /** heading defaults to body; stylesheet loads the web fonts (e.g. a Google Fonts URL). */
+        fonts: { body: string; heading?: string; stylesheet?: string };
+        /**
+         * Home page hero: "photo" (default) = a full rectangular photo beside the text;
+         * "cutout" = a transparent cut-out photo anchored to the bottom right behind the text.
+         */
+        hero?: "cutout" | "photo";
+        /** Gallery cards show the price / Sold / Unavailable under the title (default true). */
+        galleryStatus?: boolean;
+        /** Every item's page has an Inquire button (e.g. events to book), not just available works. */
+        itemInquiry?: boolean;
+    };
+    /** What this site's gallery items are called (default "artwork" / "artworks"), e.g. "event" / "events". */
+    terms?: { item?: string; items?: string };
+    /** Dashboard sections a site doesn't use (default all on). */
+    features?: { prints?: boolean };
     seo: {
         siteName: string;
         title: string;
@@ -94,7 +118,8 @@ export interface SiteDoc {
         header: { title: string; items: NavItem[] };
         footer: { title: string; description: string; groups: { title: string; items: NavItem[] }[] };
     };
-    mailing: {
+    /** null when the tenant has no mailing list. */
+    mailing: null | {
         formId: string;
         title: string;
         description: string;
@@ -143,8 +168,12 @@ export type Block =
           description: string;
           primary: ButtonDoc;
           secondary: ButtonDoc;
-          heroImage: Image;
-          profileImage: Image;
+          /** Required unless heroVideo is set. */
+          heroImage?: Image;
+          /** Plays (muted, looping) in place of heroImage, centre-cropped to the same frame; heroImage (if any) is its poster. */
+          heroVideo?: { url: string; type?: string };
+          /** The round avatar beside the name; left out = no avatar. */
+          profileImage?: Image;
       }
     | { type: "collection"; defaultCollection: string; views: { id: string; columns: number }[] }
     | { type: "imageText"; image: Image; imagePosition: "start" | "end"; body: string }

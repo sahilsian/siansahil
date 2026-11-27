@@ -21,7 +21,7 @@ const RadioField = ({handleChange, value, error, label, name, options, disabled,
         <Spacer height={'10px'}></Spacer>
         <div className={`flex flex-wrap gap-x-6 gap-y-2 ${error && "border-1 border-red-500 px-2 py-2"}`}>
             {options.map((option) => (
-                <label key={option} className={`flex items-center gap-2 ${disabled ? "text-gray-500 cursor-not-allowed" : "cursor-pointer"}`}>
+                <label key={option} className={`flex items-center gap-2 ${disabled ? "text-[var(--color-muted)] cursor-not-allowed" : "cursor-pointer"}`}>
                     <input
                         type={"radio"}
                         name={name}

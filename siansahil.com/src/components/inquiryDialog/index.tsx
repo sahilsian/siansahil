@@ -9,8 +9,11 @@ interface InquiryButtonProps {
     label: string;
     /** Classes for the trigger (looks like a link or a button, depending on where it sits). */
     className?: string;
-    /** What's being asked about: the original painting (default) or a print of it. */
-    kind?: "original" | "print";
+    /**
+     * What's being asked about: the original painting (default), a print of it, or any
+     * gallery item (e.g. an event to book; see theme.itemInquiry), worded from the site's settings.
+     */
+    kind?: "original" | "print" | "item";
 }
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -20,7 +23,9 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * price. Sent by email the same way as the contact form, with the painting named.
  */
 export const InquiryButton = ({title, label, className, kind = "original"}: InquiryButtonProps) => {
-    const {messages} = useSite();
+    const {messages, labels, terms} = useSite();
+    // "Event", "Painting", ...: names the item in the email the site owner receives.
+    const itemWord = terms?.item ? terms.item[0].toUpperCase() + terms.item.slice(1) : "Item";
     const dialog = useRef<HTMLDialogElement>(null);
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
@@ -37,8 +42,9 @@ export const InquiryButton = ({title, label, className, kind = "original"}: Inqu
     }, [open]);
 
     const start = () => {
-        setMessage(kind === "print"
-            ? `Hello, I'd like to buy the print “${title}”. Is it still available?`
+        setMessage(
+            kind === "print" ? `Hello, I'd like to buy the print “${title}”. Is it still available?`
+            : kind === "item" ? (labels.inquiryMessage ?? "Hello, I'd like to ask about “{title}”.").replaceAll("{title}", title)
             : `Hello, I'm interested in the original painting “${title}”. Could you tell me the price and whether it's still available?`);
         setState("idle");
         setProblem(null);
@@ -56,11 +62,11 @@ export const InquiryButton = ({title, label, className, kind = "original"}: Inqu
         try {
             const result = await submitForm({
                 data: {
-                    formId: kind === "print" ? "print-inquiry" : "original-inquiry",
-                    formTitle: kind === "print" ? `Print inquiry: ${title}` : `Original inquiry: ${title}`,
+                    formId: kind === "print" ? "print-inquiry" : kind === "item" ? "item-inquiry" : "original-inquiry",
+                    formTitle: kind === "print" ? `Print inquiry: ${title}` : kind === "item" ? `${itemWord} inquiry: ${title}` : `Original inquiry: ${title}`,
                     payload: {
                         fields: [
-                            {fieldId: "painting", fieldName: kind === "print" ? "Print" : "Painting", fieldType: "text", value: title},
+                            {fieldId: "painting", fieldName: kind === "print" ? "Print" : kind === "item" ? itemWord : "Painting", fieldType: "text", value: title},
                             {fieldId: "name", fieldName: "Name", fieldType: "text", value: name.trim()},
                             {fieldId: "email", fieldName: "Email", fieldType: "email", value: email.trim()},
                             {fieldId: "message", fieldName: "Message", fieldType: "textarea", value: message.trim()},
@@ -80,7 +86,7 @@ export const InquiryButton = ({title, label, className, kind = "original"}: Inqu
         }
     };
 
-    const input = "w-full border border-black bg-white px-3 py-2 font-serif text-[1rem] outline-none focus:ring-2 focus:ring-black/20";
+    const input = "w-full border border-[var(--color-border)] bg-[var(--color-page)] text-[var(--color-text)] px-3 py-2 font-serif text-[1rem] outline-none focus:ring-2 focus:ring-[var(--color-hover)]";
 
     return (
         <>
@@ -89,7 +95,7 @@ export const InquiryButton = ({title, label, className, kind = "original"}: Inqu
                 ref={dialog}
                 onClose={() => setOpen(false)}
                 onCancel={() => setOpen(false)}
-                className={"m-auto w-[calc(100%-2rem)] max-w-lg bg-[#EDEDED] p-0 text-black backdrop:bg-black/50"}
+                className={"m-auto w-[calc(100%-2rem)] max-w-lg bg-[var(--color-surface)] p-0 text-[var(--color-text)] backdrop:bg-black/50"}
             >
                 <div className={"p-6 font-serif"}>
                     <div className={"flex items-start justify-between gap-4"}>
@@ -117,12 +123,12 @@ export const InquiryButton = ({title, label, className, kind = "original"}: Inqu
                                 <textarea className={`${input} min-h-32`} value={message} onChange={(e) => setMessage(e.target.value)} required />
                             </label>
                             {(problem || state === "error") && (
-                                <p role="alert" className={"text-[0.95rem] text-[#c44b57]"}>{problem ?? messages.formError}</p>
+                                <p role="alert" className={"text-[0.95rem] text-[var(--color-sold)]"}>{problem ?? messages.formError}</p>
                             )}
                             <button
                                 type="submit"
                                 disabled={state === "sending"}
-                                className={"border border-black px-4 py-2 transition-colors hover:bg-black hover:text-white disabled:opacity-50"}
+                                className={"border border-[var(--color-border)] px-4 py-2 transition-colors hover:bg-[var(--color-button-bg)] hover:text-[var(--color-button-text)] disabled:opacity-50"}
                             >
                                 {state === "sending" ? "Sending…" : "Send inquiry"}
                             </button>

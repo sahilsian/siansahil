@@ -44,14 +44,14 @@ export const Content = ({title, description, block, subscription}:ContentProps) 
             </div>
             <Spacer height={SECTION_SPACING}></Spacer>
 
-            <div className={"border border-black px-6 py-6 shadow-[-12px_12px_0_0_#000]"}>
+            <div className={"border border-[var(--color-border)] px-6 py-6 shadow-[-12px_12px_0_0_var(--color-border)]"}>
                 <div className={"flex flex-col md:flex-row md:items-start justify-between gap-6 mb-4"}>
                     <div>
                         {announcement.headlineLines.map((line) => (
                             <Typography key={line} level={"2"} value={line} className={`!mb-0 ${HEADLINE_CLASSES}`}></Typography>
                         ))}
                     </div>
-                    <div className={"border border-black bg-[#FDE26B] px-4 py-3 self-start shrink-0"}>
+                    <div className={"border border-[var(--color-border)] bg-[var(--color-highlight)] px-4 py-3 self-start shrink-0"}>
                         <Typography level={"small"} value={announcement.price.prefix}></Typography>
                         <Typography level={"3"} value={announcement.price.amount} className={"!text-[1.6rem] lg:!text-[2.2rem]"}></Typography>
                         <Typography level={"small"} value={announcement.price.note}></Typography>

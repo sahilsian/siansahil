@@ -2,8 +2,7 @@ import Image, { StrapiImage } from "@/components/image";
 import Typography from "@/components/typography";
 import {RouterInjectedProps} from "@/decorators/withRouter";
 import type {ArtworkStore, Availability} from "@/lib/api/types.ts";
-import {getListingAvailability} from "@/lib/productAvailability";
-import {forSale} from "@/lib/store";
+import {cardStatusLabel, forSale} from "@/lib/store";
 import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface PostProps {
@@ -27,8 +26,11 @@ const ListPost =
             }
         };
 
-        const { currency, locale } = useSite();
-        const {originalStatus, printsFromLabel, unavailable} = getListingAvailability(forSale(store, currency), availability, locale);
+        // Same rule as the square card: only when the site shows it (theme.galleryStatus).
+        const site = useSite();
+        const status = site.theme.galleryStatus !== false
+            ? cardStatusLabel(forSale(store, site.currency), availability, site.labels)
+            : null;
 
         return (
             <div
@@ -53,24 +55,14 @@ const ListPost =
                 <div className={"flex-1"}>
                     <div className={'flex items-baseline gap-2 flex-wrap'}>
                         <Typography underline level={"3"} value={title} />
-                       
                     </div>
                     <Typography level={"p"} value={description} className={"line-clamp-3"} />
-                    <div className={'flex items-center justify-between mt-2'}>
-                        <div>
-                            {printsFromLabel && <Typography level={"small"} value={`Prints from: ${printsFromLabel}`} />}
+                    {status && (
+                        <div className={'mt-2'}>
+                            <Typography secondary level={"small"} value={status} />
                         </div>
-                        <div>
-                            {unavailable && <Typography secondary level={"small"} value={"Unavailable"} />}
-                        </div>
-                    </div>
-                     {originalStatus && (
-                            <span className={`font-serif text-[0.8rem] lg:text-[1.75rem] font-medium ${originalStatus === "available" ? "text-[var(--color-available)]" : "text-[var(--color-sold)]"}`}>
-                                {originalStatus === "available" ? "Available" : "Sold"}
-                            </span>
-                        )}
+                    )}
                 </div>
-
             </div>
         );
     };

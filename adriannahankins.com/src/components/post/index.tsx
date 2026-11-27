@@ -2,7 +2,7 @@ import Image, { StrapiImage } from "@/components/image";
 import Typography from "@/components/typography";
 import {RouterInjectedProps} from "@/decorators/withRouter";
 import type {ArtworkStore, Availability} from "@/lib/api/types.ts";
-import {cardPriceLabel, forSale} from "@/lib/store";
+import {cardStatusLabel, forSale} from "@/lib/store";
 import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface PostProps {
@@ -27,9 +27,11 @@ const Post =
         }
     };
 
-    // Price of the original when it is in the store; otherwise its availability.
-    const { labels, currency, locale } = useSite();
-    const price = cardPriceLabel(forSale(store, currency), availability, labels, locale);
+    // Price / Sold / Unavailable under the title, when the site shows it (theme.galleryStatus).
+    const site = useSite();
+    const status = site.theme.galleryStatus !== false
+        ? cardStatusLabel(forSale(store, site.currency), availability, site.labels)
+        : null;
 
     return (
         <div
@@ -45,11 +47,10 @@ const Post =
             <Image image={image} className={'w-full flex-1 min-h-0 object-cover object-top'} />
             <div>
                 <Typography underline level={"4"} value={title} />
-                <Typography secondary level={"small"} value={price} />
+                {status && <Typography secondary level={"small"} value={status} />}
             </div>
         </div>
     );
 };
 
 export default Post;
-

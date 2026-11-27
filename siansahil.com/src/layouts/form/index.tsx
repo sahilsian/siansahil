@@ -17,7 +17,7 @@ interface FormLayoutProps {
 
 const FormLayout = ({type, formTitle, formDescription, form, image, initialValues}:FormLayoutProps) => {
     return (
-        <div className={`Form ${type} lg:px-22 px-6 pb-22 bg-[#EDEDED] relative`}>
+        <div className={`Form ${type} lg:px-22 px-6 pb-22 bg-[var(--color-surface)] relative`}>
             <Background></Background>
             {image || form.fullWidth ? (
                 <>

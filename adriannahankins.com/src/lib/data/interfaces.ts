@@ -1,6 +1,6 @@
 import {StrapiImage} from "@/components/image";
 import {Tab} from "@/components/tabbedContent";
-import type {ArtworkStore, Availability} from "@/lib/api/types.ts";
+import type {ArtworkStore, Availability, PrintLink} from "@/lib/api/types.ts";
 
 export interface Product {
     title:string;
@@ -15,7 +15,9 @@ export interface Product {
     dateCreated?: string;
     material?: string;
     shopifyHandle?: string;
-    availability?: Availability;
     gallery?: boolean;
+    availability?: Availability;
     store?: ArtworkStore;
+    /** Prints of this painting that are for sale. */
+    prints?: PrintLink[];
 }

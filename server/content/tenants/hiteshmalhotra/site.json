@@ -1,0 +1,179 @@
+{
+  "$type": "site",
+  "name": "Hitesh Malhotra",
+  "url": "https://hiteshmalhotra.com",
+  "locale": "en-CA",
+  "currency": "CAD",
+  "contact": {
+    "email": "sahilsiantech@gmail.com"
+  },
+  "social": {},
+  "theme": {
+    "colors": {
+      "background": "#F3EBDD",
+      "paper": "#F3EBDD",
+      "textPrimary": "#2B2A24",
+      "heading": "#1F3A2B",
+      "textSecondary": "#5E5A4E",
+      "border": "#1F3A2B",
+      "hover": "#E8DCC6",
+      "menu": "#F3EBDD",
+      "nav": "#1F3A2B",
+      "disabled": "#E3D8C4",
+      "available": "#1F3A2B",
+      "sold": "#8A3B2E",
+      "highlight": "#E8DCC6",
+      "link": "#1F3A2B",
+      "linkHover": "#2F5A41",
+      "buttonBackground": "#1F3A2B",
+      "buttonText": "#F3EBDD",
+      "buttonSecondaryBackground": "transparent",
+      "buttonSecondaryText": "#1F3A2B",
+      "buttonSecondaryBorder": "#1F3A2B",
+      "iconActive": "#E8DCC6"
+    },
+    "fonts": {
+      "body": "Lato",
+      "heading": "Playfair Display",
+      "stylesheet": "https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:wght@500;700&display=swap"
+    },
+    "hero": "photo",
+    "galleryStatus": true,
+    "itemInquiry": true
+  },
+  "terms": {
+    "item": "event",
+    "items": "events"
+  },
+  "features": {
+    "prints": false
+  },
+  "seo": {
+    "siteName": "Hitesh Malhotra",
+    "title": "Hitesh Malhotra",
+    "description": "Hitesh Malhotra is a Bollywood singer and musician performing at weddings, restaurants and events across the Lower Mainland.",
+    "keywords": "Bollywood singer, wedding singer, live music, Vancouver, Surrey, Lower Mainland",
+    "ogImage": {
+      "url": "/og-image.png",
+      "width": 1200,
+      "height": 630,
+      "alternativeText": "Hitesh Malhotra, Bollywood singer for weddings, restaurants and events",
+      "name": "og-image.png"
+    },
+    "robots": "index,follow",
+    "titleTemplate": "%s — Hitesh Malhotra"
+  },
+  "favicons": {
+    "png96": "/favicon-96x96.png",
+    "svg": "/favicon.svg",
+    "ico": "/favicon-96x96.png",
+    "appleTouch": "/apple-touch-icon.png",
+    "manifest": "/manifest.json"
+  },
+  "nav": {
+    "header": {
+      "title": "Hitesh Malhotra",
+      "items": [
+        {
+          "label": "Events",
+          "to": "/products",
+          "search": {
+            "collection": "events"
+          }
+        },
+        {
+          "label": "About",
+          "to": "/about"
+        },
+        {
+          "label": "Inquire",
+          "to": "/inquire"
+        }
+      ]
+    },
+    "footer": {
+      "title": "Hitesh Malhotra",
+      "description": "Bollywood singer and musician for weddings, restaurants and events across the Lower Mainland.",
+      "groups": [
+        {
+          "title": "",
+          "items": [
+            {
+              "label": "Events",
+              "to": "/products",
+              "search": {
+                "collection": "events"
+              }
+            },
+            {
+              "label": "About",
+              "to": "/about"
+            },
+            {
+              "label": "Inquire",
+              "to": "/inquire"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "mailing": {
+    "formId": "mailing-list",
+    "title": "Mailing List",
+    "description": "Hear about upcoming public shows and performances.",
+    "consentPrefix": "Unsubscribe any time by getting in",
+    "consentLink": {
+      "label": "touch",
+      "to": "/inquire"
+    }
+  },
+  "labels": {
+    "back": "Back",
+    "search": "Search",
+    "searchPlaceholder": "Search...",
+    "reset": "Reset",
+    "purchase": "Book",
+    "available": "Available",
+    "sold": "Booked",
+    "soldOut": "Booked",
+    "unavailable": "Unavailable",
+    "prints": "Prints",
+    "printsFrom": "Prints from:",
+    "originalAvailable": "Available",
+    "originalSold": "Booked",
+    "size": "Size",
+    "price": "Price",
+    "customPrinting": "Custom Printing",
+    "customPrintingFeatures": [],
+    "varies": "Varies",
+    "inquire": "Inquire",
+    "remove": "Remove",
+    "of": "of",
+    "enlargeImage": "Enlarge image",
+    "noResults": "No events found.",
+    "noPrintablePaintings": "",
+    "selected": "Selected:",
+    "showImage": "Show image",
+    "gallery": "Events",
+    "inquiryMessage": "Hello, I'd like to book Hitesh for an event like “{title}”. Here are my date, venue and guest count:"
+  },
+  "messages": {
+    "notFound": "This page doesn't exist.",
+    "loadError": "This site couldn't load right now. Please try again in a moment.",
+    "collectionError": "Something went wrong loading the events. Please try again.",
+    "formInvalid": "Please fix the highlighted fields above.",
+    "formError": "Error submitting form.",
+    "formSuccessDefault": "Form Successfully Submitted.",
+    "fieldNotSupported": "Field not supported."
+  },
+  "integrations": {
+    "shopify": {
+      "printClubHandle": ""
+    },
+    "email": {
+      "recipient": "sahilsiantech@gmail.com",
+      "fromName": "Hitesh Malhotra website"
+    }
+  }
+}

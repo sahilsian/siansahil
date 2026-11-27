@@ -11,7 +11,7 @@ interface CheckboxFieldProps {
 
 const CheckboxField = ({handleChange, value, error, label, disabled, isRequired}: CheckboxFieldProps) => {
     return <div className={'mb-2'}>
-        <label className={`flex items-start gap-2 ${error && "border-1 border-red-500 px-2 py-2"} ${disabled ? "text-gray-500 cursor-not-allowed" : "cursor-pointer"}`}>
+        <label className={`flex items-start gap-2 ${error && "border-1 border-red-500 px-2 py-2"} ${disabled ? "text-[var(--color-muted)] cursor-not-allowed" : "cursor-pointer"}`}>
             <input
                 type={"checkbox"}
                 checked={value}

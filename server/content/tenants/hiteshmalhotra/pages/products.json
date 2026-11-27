@@ -1,0 +1,24 @@
+{
+  "$type": "page",
+  "slug": "products",
+  "seo": {
+    "title": "Events",
+    "description": "Weddings, restaurants and events with Hitesh Malhotra. Inquire to book."
+  },
+  "blocks": [
+    {
+      "type": "collection",
+      "defaultCollection": "events",
+      "views": [
+        {
+          "id": "post",
+          "columns": 3
+        },
+        {
+          "id": "list",
+          "columns": 4
+        }
+      ]
+    }
+  ]
+}

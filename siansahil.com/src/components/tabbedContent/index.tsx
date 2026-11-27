@@ -19,14 +19,14 @@ const TabbedContent = ({ tabs, header }: TabbedContentProps) => {
 
     return (
         <div>
-            <div className="flex gap-4 border-b border-black">
+            <div className="flex gap-4 border-b border-[var(--color-border)]">
                 {tabs.map((tab) => (
                     <button
                         key={tab.title}
                         onClick={() => setActiveTitle(tab.title)}
                         className={`px-5 py-1 rounded-t-2xl transition-colors ${
                             activeTitle === tab.title
-                                ? 'border-1 border-black text-black'
+                                ? 'border-1 border-[var(--color-border)] text-[var(--color-text)]'
                                 : 'border-1 border-gray-300 text-gray-400 hover:text-gray-600'
                         }`}
                     >

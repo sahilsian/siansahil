@@ -14,6 +14,7 @@ import Footer from "@/components/footer"
 import Providers from "@/decorators/providers"
 import RouterSync from "@/components/routerSync"
 import { SiteProvider } from "@/contexts/site/siteContext.tsx"
+import { themeCss, themeFontStylesheet } from "@/lib/theme.ts"
 import type { SiteDoc } from "@/lib/api/types.ts"
 import type { FormProps } from "@/hooks/useFormControl.ts"
 
@@ -39,11 +40,15 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
                 queryKey: ['site'],
                 queryFn: getSite,
             })
-            const mailingForm = await context.queryClient.ensureQueryData({
-                queryKey: ['form', site.mailing.formId],
-                queryFn: () => getFormDoc(site.mailing.formId),
-            })
-            return { site, mailingForm: toForm(mailingForm) }
+            // The mailing list is optional per tenant (site.mailing null = no signup form).
+            const mailing = site.mailing
+            const mailingForm = mailing
+                ? toForm(await context.queryClient.ensureQueryData({
+                    queryKey: ['form', mailing.formId],
+                    queryFn: () => getFormDoc(mailing.formId),
+                }))
+                : null
+            return { site, mailingForm }
         } catch (error) {
             console.error("Failed to load site content", error)
             return { site: null, mailingForm: null }
@@ -72,6 +77,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
             ],
             links: [
                 { rel: 'stylesheet', href: appCss },
+                ...(themeFontStylesheet(site) ? [
+                    { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' as const },
+                    { rel: 'stylesheet', href: themeFontStylesheet(site)! },
+                ] : []),
                 { rel: 'icon', type: "image/png", href: site.favicons.png96, sizes: "96x96" },
                 { rel: 'icon', type: "image/svg+xml", href: site.favicons.svg },
                 { rel: 'shortcut icon', href: site.favicons.ico },
@@ -87,7 +96,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RootDocument({ children }: { children: React.ReactNode }) {
     const { site, mailingForm } = Route.useRouteContext()
 
-    if (!site || !mailingForm) {
+    if (!site) {
         // Tenant-agnostic on purpose: with no content server there is no tenant copy to show.
         return (
             <html lang="en">
@@ -110,33 +119,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <html lang={site.locale}>
         <head>
             <HeadContent />
-            <style>{`
-          body {
-            background-color: ${styles.backgroundHex};
-          }
-
-          .text_button {
-            color: ${styles.textButtonHex};
-          }
-
-          .text_highlighted {
-            color: ${styles.secondaryHex};
-          }
-
-          .text_secondary {
-            color: ${styles.textSecondaryHex};
-          }
-
-          .icon_active {
-            background-color: ${styles.iconActiveHex};
-          }
-        `}</style>
+            {/* Tenant theme: colours and fonts as CSS variables (src/lib/theme.ts). */}
+            <style>{themeCss(site)}</style>
         </head>
 
         <SiteProvider site={site}>
         <Providers styles={styles}>
             <RouterSync />
-            <Menu backgroundColor={styles.menuHex} title={menu.title} menuItems={menu.mainMenuItems}></Menu>
+            <Menu backgroundColor={"var(--color-menu)"} title={menu.title} menuItems={menu.mainMenuItems}></Menu>
             {children}
             <Footer title={footer.title} description={footer.description} menuItems={footer.footerMenuItems} mailingForm={mailingForm}></Footer>
         </Providers>

@@ -58,7 +58,7 @@ const FileField = ({handleChange, value, error, label, disabled, isRequired, acc
             { isRequired &&  <span className={"text-red-500"}>*</span> }
         </div>
         <Spacer height={'10px'}></Spacer>
-        <div className={`border-1 border-dashed ${error && "border-red-500"} px-2 py-4 ${disabled && "bg-[#E3E3E3] text-gray-500"}`}>
+        <div className={`border-1 border-dashed ${error && "border-red-500"} px-2 py-4 ${disabled && "bg-[var(--color-disabled)] text-[var(--color-muted)]"}`}>
             <input
                 ref={inputRef}
                 type={"file"}

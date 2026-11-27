@@ -35,7 +35,7 @@ const Button = ({ button, onClick, disabled }: Props) => {
                 type="button"
                 onClick={onClick}
                 disabled={disabled}
-                className={`${classes} ${ctx.isProcessing && "bg-[#E3E3E3] text-gray-500"} ${disabled ? "opacity-50 !cursor-not-allowed" : ""}`}
+                className={`${classes} ${ctx.isProcessing && "bg-[var(--color-disabled)] text-[var(--color-muted)]"} ${disabled ? "opacity-50 !cursor-not-allowed" : ""}`}
             >
                 {icon && <Icon size={icon.size} icon={icon.component} />}
                 <Typography button={variant === "primary"} level="button" value={label} className={disabled ? "!cursor-not-allowed" : ""} />
@@ -47,7 +47,7 @@ const Button = ({ button, onClick, disabled }: Props) => {
     if (target === "external" && route) {
         return (
             <a href={route} target="_blank" rel="noopener noreferrer">
-                <button className={`${classes} ${ctx.isProcessing && "bg-[#E3E3E3] text-gray-500"}`}>
+                <button className={`${classes} ${ctx.isProcessing && "bg-[var(--color-disabled)] text-[var(--color-muted)]"}`}>
                     {icon && <Icon size={icon.size} icon={icon.component} />}
                     <Typography button={variant === "primary"} level="button" value={label} />
                 </button>
@@ -58,7 +58,7 @@ const Button = ({ button, onClick, disabled }: Props) => {
     // Internal
     return (
         <Link to={route || "/"} search={search || {}}>
-            <button className={`${classes}  ${ctx.isProcessing && "bg-[#E3E3E3] text-gray-500"}`}>
+            <button className={`${classes}  ${ctx.isProcessing && "bg-[var(--color-disabled)] text-[var(--color-muted)]"}`}>
                 {icon && <Icon size={icon.size} icon={icon.component} />}
                 <Typography button={variant === "primary"} level="button" value={label} />
             </button>

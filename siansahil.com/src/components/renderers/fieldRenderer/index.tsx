@@ -214,7 +214,7 @@ const FieldRenderer = ({formController}: FieldRendererProps) => {
                 return (
                     <Fragment key={config.id}>
                         {showSectionHeading && (
-                            <div className={`${index > 0 ? 'mt-10' : ''} mb-4 pb-2 border-b-1 border-[#000000]`}>
+                            <div className={`${index > 0 ? 'mt-10' : ''} mb-4 pb-2 border-b-1 border-[var(--color-border)]`}>
                                 <Typography level={'3'} value={config.section}></Typography>
                             </div>
                         )}

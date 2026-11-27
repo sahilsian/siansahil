@@ -12,7 +12,7 @@ interface PageLayoutProps extends PropsWithChildren {
 // Use this for every new page; put the page body in children.
 const PageLayout = ({title, description, children}: PageLayoutProps) => {
     return (
-        <div className={"Page lg:px-22 px-6 pb-22 bg-[#EDEDED] relative min-h-screen"}>
+        <div className={"Page lg:px-22 px-6 pb-22 bg-[var(--color-surface)] relative min-h-screen"}>
             <Background></Background>
             <Content title={title} description={description}></Content>
             <div className={"z-[30] relative w-full"}>

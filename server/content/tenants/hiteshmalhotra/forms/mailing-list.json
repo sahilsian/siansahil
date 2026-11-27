@@ -1,0 +1,26 @@
+{
+  "$type": "form",
+  "id": "mailing-list",
+  "title": "Mailing List",
+  "description": "Hear about upcoming public shows and performances.",
+  "successMessage": "Thanks for subscribing!",
+  "errorMessage": "Something went wrong. Please try again.",
+  "fields": [
+    {
+      "id": "email",
+      "name": "Email",
+      "placeholder": "you@example.com",
+      "required": true,
+      "metadata": {
+        "fieldType": "email"
+      }
+    },
+    {
+      "id": "submit",
+      "name": "Send",
+      "metadata": {
+        "fieldType": "submit"
+      }
+    }
+  ]
+}

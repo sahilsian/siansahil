@@ -7,6 +7,7 @@ import { useSite } from "../session";
 import { previewUrl } from "../lib/images";
 import { Alert, PageHeader, Spinner, TextInput, errorMessage } from "../components/ui";
 import { TextEditor, type DocRef } from "./TextEditor";
+import { useTerms } from "../lib/terms";
 
 const STATUS_STYLES: Record<string, string> = {
   available: "bg-green-100 text-green-800",
@@ -50,6 +51,7 @@ function ArtworkCard({ artwork, siteUrl }: { artwork: Artwork; siteUrl: string |
 
 function ArtworkList() {
   const { site } = useSite();
+  const terms = useTerms();
   const { data, isLoading, error } = useQuery({ queryKey: ["artworks", site.id], queryFn: () => api.artworks(site.id) });
   const [search, setSearch] = useState("");
 
@@ -76,15 +78,15 @@ function ArtworkList() {
         <Search size={18} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-stone-400" />
         <TextInput
           type="search"
-          placeholder="Search artworks"
-          aria-label="Search artworks"
+          placeholder={`Search ${terms.items}`}
+          aria-label={`Search ${terms.items}`}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-10"
         />
       </div>
       {sorted.length === 0 ? (
-        <Alert kind="info">{search ? "No artworks match your search." : "No artworks yet. Add your first one!"}</Alert>
+        <Alert kind="info">{search ? `No ${terms.items} match your search.` : `No ${terms.items} yet. Add your first one!`}</Alert>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {sorted.map((a) => (
@@ -98,33 +100,36 @@ function ArtworkList() {
 
 function GalleryText() {
   const { site } = useSite();
+  const terms = useTerms();
   const { data } = useQuery({ queryKey: ["documents", site.id], queryFn: () => api.documents(site.id) });
   if (!data) return <Spinner />;
   const refs: DocRef[] = [];
   if (data.some((d) => d.type === "page" && d.key === "products")) {
-    refs.push({ type: "page", key: "products", title: "Gallery page" });
+    refs.push({ type: "page", key: "products", title: `${terms.isArt ? "Gallery" : terms.Items} page` });
   }
   for (const d of data.filter((d) => d.type === "collection")) {
     refs.push({ type: "collection", key: d.key, title: `List: ${d.key}` });
   }
-  if (refs.length === 0) return <Alert kind="info">This site has no gallery text to edit.</Alert>;
+  if (refs.length === 0) return <Alert kind="info">{`This site has no ${terms.isArt ? "gallery" : terms.items} text to edit.`}</Alert>;
   return <TextEditor refs={refs} />;
 }
 
 export function Gallery() {
   const [tab, setTab] = useState<"artworks" | "text">("artworks");
+  const terms = useTerms();
+  const section = terms.isArt ? "Gallery" : terms.Items;
   return (
     <div>
       <PageHeader
-        title="Gallery"
-        description="Add, edit and remove artworks."
+        title={section}
+        description={`Add, edit and remove ${terms.items}.`}
         actions={
           tab === "artworks" && (
             <Link
               to="/gallery/new"
               className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-stone-900 px-4 text-sm font-medium text-white hover:bg-stone-700"
             >
-              <Plus size={18} /> Add artwork
+              <Plus size={18} /> Add {terms.item}
             </Link>
           )
         }
@@ -132,8 +137,8 @@ export function Gallery() {
       <div className="mb-5 inline-flex rounded-lg border border-stone-200 bg-white p-1" role="tablist">
         {(
           [
-            ["artworks", "Artworks"],
-            ["text", "Gallery text"],
+            ["artworks", terms.Items],
+            ["text", `${section} text`],
           ] as const
         ).map(([id, label]) => (
           <button

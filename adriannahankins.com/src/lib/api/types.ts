@@ -43,10 +43,24 @@ export interface SiteLabels {
     showImage: string;
     /** Breadcrumb root on artwork pages. */
     gallery?: string;
-    /** Button on an artwork page when prints are for sale. */
+    /** Line above the list of print sizes on an artwork page. */
     availableInPrints?: string;
+    /** Artwork page line after the prints list when the original is available; followed by the inquire link. */
+    originalAlsoAvailable?: string;
+    /** "15 copies" in a limited edition. */
+    copies?: string;
+    /** Print page: "Limited edition of 15 copies". */
+    limitedEdition?: string;
+    /** Print page: the checkout button. */
+    buy?: string;
+    /** Print page: link back to the painting. */
+    viewPainting?: string;
+    /** Prints page: shown when nothing is for sale. */
+    noPrints?: string;
     /** Line under "Original Available" on the prints page; followed by the inquire link. */
     originalAvailableNote?: string;
+    /** Inquiry pop-up's starting message when theme.itemInquiry is on; {title} = the item's name. */
+    inquiryMessage?: string;
 }
 
 export interface SiteMessages {
@@ -67,11 +81,29 @@ export interface SiteDoc {
     currency: string;
     contact: { email: string };
     social: { instagram?: { handle: string; url: string } };
+    /**
+     * How this site looks. Every site runs the same code; anything that should
+     * differ between sites is set here (missing values fall back to the defaults).
+     */
     theme: {
+        /** See src/lib/theme.ts for the keys, e.g. paper, border, link, buttonBackground. */
         colors: Record<string, string>;
         /** heading defaults to body; stylesheet loads the web fonts (e.g. a Google Fonts URL). */
         fonts: { body: string; heading?: string; stylesheet?: string };
+        /**
+         * Home page hero: "photo" (default) = a full rectangular photo beside the text;
+         * "cutout" = a transparent cut-out photo anchored to the bottom right behind the text.
+         */
+        hero?: "cutout" | "photo";
+        /** Gallery cards show the price / Sold / Unavailable under the title (default true). */
+        galleryStatus?: boolean;
+        /** Every item's page has an Inquire button (e.g. events to book), not just available works. */
+        itemInquiry?: boolean;
     };
+    /** What this site's gallery items are called (default "artwork" / "artworks"), e.g. "event" / "events". */
+    terms?: { item?: string; items?: string };
+    /** Dashboard sections a site doesn't use (default all on). */
+    features?: { prints?: boolean };
     seo: {
         siteName: string;
         title: string;
@@ -136,8 +168,12 @@ export type Block =
           description: string;
           primary: ButtonDoc;
           secondary: ButtonDoc;
-          heroImage: Image;
-          profileImage: Image;
+          /** Required unless heroVideo is set. */
+          heroImage?: Image;
+          /** Plays (muted, looping) in place of heroImage, centre-cropped to the same frame; heroImage (if any) is its poster. */
+          heroVideo?: { url: string; type?: string };
+          /** The round avatar beside the name; left out = no avatar. */
+          profileImage?: Image;
       }
     | { type: "collection"; defaultCollection: string; views: { id: string; columns: number }[] }
     | { type: "imageText"; image: Image; imagePosition: "start" | "end"; body: string }
@@ -156,15 +192,6 @@ export interface FormDoc {
     fullWidth?: boolean;
     image?: Image;
     fields: Fields[];
-}
-
-/** Sale status for works sold off-platform (no Shopify listing). */
-export interface Availability {
-    status: "available" | "sold" | "unavailable";
-    /** Display price, e.g. "$850" or "$200, Framed". */
-    price?: string;
-    /** Shown instead of a price when unavailable, e.g. "Personal Collection". */
-    label?: string;
 }
 
 export interface CollectionSummary {
@@ -213,6 +240,35 @@ export interface ProductDoc {
     shopifyHandle?: string;
     availability?: Availability;
     store?: ArtworkStore;
+    /** Prints of this painting that are for sale (each is its own listing). */
+    prints?: PrintLink[];
+}
+
+/** A print as linked from its painting's page. */
+export interface PrintLink {
+    slug: string;
+    title: string;
+    size: { width: number; height: number; unit: "in" };
+    /** "24 x 36" */
+    sizeLabel: string;
+    editionSize?: number;
+}
+
+/** A print listing (GET /prints, /prints/{slug}). */
+export interface PrintDoc extends PrintLink {
+    $type: "print";
+    painting: string;
+    priceCents: number;
+    currency: string;
+    description?: string;
+    /** Mockups etc.; empty = use the painting's photo. */
+    images: Image[];
+    forSale: boolean;
+    /** Stripe checkout page; absent when it can't be bought online (then: inquire). */
+    buyUrl?: string;
+    /** "Mount Pleasant | Archival Limited Edition 24 x 36" */
+    name: string;
+    artwork: { slug: string; title: string; image: Image | null };
 }
 
 /** One thing for sale: a Stripe product with one price (set from the dashboard). */
@@ -231,4 +287,11 @@ export interface ArtworkStore {
     /** Only on artworks priced before the original became inquiry-only. */
     original: StoreItem | null;
     prints: (StoreItem & { sizeId: string; label: string })[];
+}
+
+/** A work sold outside the store, e.g. privately. */
+export interface Availability {
+    status: "available" | "sold" | "unavailable";
+    price?: string;
+    label?: string;
 }

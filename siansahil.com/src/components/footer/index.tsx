@@ -8,7 +8,8 @@ interface FooterProps {
     menuItems?: MenuItemProps[],
     title: string,
     description: string
-    mailingForm: FormProps
+    /** Omitted when the tenant has no mailing list. */
+    mailingForm?: FormProps | null
 }
 
 interface CategoryGroup {
@@ -39,7 +40,7 @@ const Footer = ( {backgroundColor, menuItems, title, description, mailingForm}:F
         <Screen backgroundColor={backgroundColor}>
             <div className={"w-full"}>
                 <div className={""}>
-                    <Mailing form={mailingForm}></Mailing>
+                    {mailingForm && <Mailing form={mailingForm}></Mailing>}
                 </div>
 
                 <footer className={"flex  px-6 lg:px-22 py-12 gap-x-20 gap-y-4 flex-wrap"}>

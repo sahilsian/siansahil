@@ -2,7 +2,7 @@ import Image, { StrapiImage } from "@/components/image";
 import Typography from "@/components/typography";
 import {RouterInjectedProps} from "@/decorators/withRouter";
 import type {ArtworkStore, Availability} from "@/lib/api/types.ts";
-import {cardPriceLabel} from "@/lib/store";
+import {cardStatusLabel, forSale} from "@/lib/store";
 import {useSite} from "@/contexts/site/siteContext.tsx";
 
 interface PostProps {
@@ -19,7 +19,7 @@ interface PostProps {
 
 // Square card: the image fills whatever height the title row leaves.
 const Post =
-    ({ disabled, clickable, slug, title, image, goToPost, columns = 3, availability}: PostProps & RouterInjectedProps
+    ({ disabled, clickable, slug, title, image, goToPost, columns = 3, store, availability}: PostProps & RouterInjectedProps
     ) => {
     const handleClick = () => {
         if (clickable) {
@@ -27,9 +27,11 @@ const Post =
         }
     };
 
-    // The artwork's price, or "Unavailable".
-    const { labels } = useSite();
-    const price = cardPriceLabel(availability, labels);
+    // Price / Sold / Unavailable under the title, when the site shows it (theme.galleryStatus).
+    const site = useSite();
+    const status = site.theme.galleryStatus !== false
+        ? cardStatusLabel(forSale(store, site.currency), availability, site.labels)
+        : null;
 
     return (
         <div
@@ -38,14 +40,14 @@ const Post =
                 w-full md:w-[calc((100%-1.5rem)/2)]
                 ${columns === 4 ? "lg:w-[calc((100%-4.5rem)/4)]" : "lg:w-[calc((100%-3rem)/3)]"}
                 aspect-square flex flex-col gap-4
-                ${disabled ? "bg-[#E3E3E3] text-gray-500" : ""}
+                ${disabled ? "bg-[var(--color-disabled)] text-[var(--color-muted)]" : ""}
                 ${clickable ? "cursor-pointer" : ""}
             `}
         >
             <Image image={image} className={'w-full flex-1 min-h-0 object-cover object-top'} />
             <div>
                 <Typography underline level={"4"} value={title} />
-                <Typography secondary level={"small"} value={price} />
+                {status && <Typography secondary level={"small"} value={status} />}
             </div>
         </div>
     );

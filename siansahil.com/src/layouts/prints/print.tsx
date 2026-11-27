@@ -12,8 +12,8 @@ import {getFontStyles} from "@/components/typography/fonts.ts";
 import type {PrintDoc} from "@/lib/api/types.ts";
 import {printListName} from "./list.tsx";
 
-const BUTTON_CLASS = "inline-block rounded-md border border-black px-5 py-2 font-serif text-[1rem] transition-colors hover:bg-black hover:text-white cursor-pointer"
-const LINK_CLASS = "underline text-[#2563EB] hover:text-[#1D4ED8]"
+const BUTTON_CLASS = "inline-block rounded-md border border-[var(--color-border)] px-5 py-2 font-serif text-[1rem] transition-colors hover:bg-[var(--color-button-bg)] hover:text-[var(--color-button-text)] cursor-pointer"
+const LINK_CLASS = "underline text-[var(--color-link)] hover:text-[var(--color-link-hover)]"
 
 /** One print: photos, name, price, edition, description and Buy (Stripe checkout). */
 const PrintLayout = ({print}: {print: PrintDoc}) => {
@@ -23,7 +23,7 @@ const PrintLayout = ({print}: {print: PrintDoc}) => {
     const copies = labels.copies ?? "copies";
 
     return (
-        <div className={'bg-[#EDEDED] p-6 md:px-22 py-22 relative'}>
+        <div className={'bg-[var(--color-surface)] p-6 md:px-22 py-22 relative'}>
             <Background></Background>
             <div className={"relative z-30"}>
                 <Breadcrumb items={[

@@ -1,0 +1,21 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+count.txt
+.env
+.nitro
+.tanstack
+.wrangler
+.output
+.vinxi
+todos.json
+siansahil.com/.env.development
+siansahil.com/.env.production
+# Local secrets for wrangler dev (paths here are relative to this folder)
+.dev.vars
+.dev.vars.*
+
+# Local Netlify folder
+.netlify

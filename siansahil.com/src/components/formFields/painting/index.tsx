@@ -43,11 +43,11 @@ const PaintingField = ({handleChange, value, label, paintings, error, disabled, 
                         onClick={() => handleChange(painting.slug)}
                         className={`
                          text-left
-                         border-1 border-[#000000]
-                         hover:bg-[#ffffff]
+                         border-1 border-[var(--color-border)]
+                         hover:bg-[var(--color-hover)]
                          transition-all
-                         ${selected && "bg-[#ffffff] ring-2 ring-[#000000]"}
-                         ${disabled ? "bg-[#E3E3E3] text-gray-500 cursor-not-allowed" : "cursor-pointer"}
+                         ${selected && "bg-[var(--color-hover)] ring-2 ring-[var(--color-border)]"}
+                         ${disabled ? "bg-[var(--color-disabled)] text-[var(--color-muted)] cursor-not-allowed" : "cursor-pointer"}
                          rounded-3xl p-3`}
                     >
                         <Image image={painting.image} className={'rounded-xl w-full aspect-square object-cover object-top'} />

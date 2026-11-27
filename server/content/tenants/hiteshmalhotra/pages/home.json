@@ -1,0 +1,32 @@
+{
+  "$type": "page",
+  "slug": "home",
+  "seo": {
+    "title": "Hitesh Malhotra",
+    "description": "Hitesh Malhotra is a Bollywood singer and musician performing at weddings, restaurants and events across the Lower Mainland."
+  },
+  "blocks": [
+    {
+      "type": "hero",
+      "title": "Hitesh Malhotra",
+      "description": "Bollywood singer and musician for weddings, restaurants and events. Hundreds of shows across the Lower Mainland, and every request sung.",
+      "primary": {
+        "label": "Inquire",
+        "variant": "primary",
+        "to": "/inquire"
+      },
+      "secondary": {
+        "label": "Events",
+        "variant": "secondary",
+        "to": "/products",
+        "search": {
+          "collection": "events"
+        }
+      },
+      "heroVideo": {
+        "url": "/hitesh_hero.mov",
+        "type": "video/mp4"
+      }
+    }
+  ]
+}

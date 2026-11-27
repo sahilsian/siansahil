@@ -1,0 +1,14 @@
+{
+  "$type": "collection",
+  "id": "events",
+  "title": "Events",
+  "description": "Weddings, restaurants and events. Inquire on any event to book Hitesh for yours.",
+  "filter": {
+    "type": "curated",
+    "productSlugs": []
+  },
+  "seo": {
+    "title": "Events",
+    "description": "Weddings, restaurants and events with Hitesh Malhotra. Inquire to book."
+  }
+}

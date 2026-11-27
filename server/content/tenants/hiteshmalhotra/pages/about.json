@@ -1,0 +1,18 @@
+{
+  "$type": "page",
+  "slug": "about",
+  "seo": {
+    "title": "About",
+    "description": "Hitesh Malhotra is a Bollywood singer and musician who performs at restaurants, events and weddings across the Lower Mainland."
+  },
+  "layout": {
+    "title": "About",
+    "description": "Bollywood singer and musician for restaurants, events and weddings."
+  },
+  "blocks": [
+    {
+      "type": "richText",
+      "body": "Hitesh Malhotra is a legendary singer and musician who performs for restaurants, events and weddings. He performs extravagantly, with a voice that has impressed thousands, and he has played hundreds of shows across the Lower Mainland.\n\n## Bollywood, live\n\nHitesh specializes in Bollywood music, from the classics your parents danced to at their own weddings to the songs topping the charts today. He can sing every request, so the night is built around the music your guests love rather than a fixed setlist. Romantic ballads for a first dance, high-energy hits that fill the floor, and the song someone asks for at the very last minute all have a place.\n\n## Weddings\n\nA wedding deserves more than a playlist. Hitesh brings a voice that can quiet a hall for a grand entrance and then lift everyone onto the dance floor. Sangeet, reception or after-party, he plans the music around your moments and the songs that matter to your family.\n\n## Restaurants\n\nFor restaurants, Hitesh turns an ordinary dinner service into an evening guests talk about. His sets read the room: warm and melodic while people dine, and bigger and livelier as the night goes on.\n\n## Private and corporate events\n\nBirthdays, anniversaries, festivals, galas and celebrations of every size: whatever the occasion, Hitesh brings the same energy and showmanship to every performance, whether it's an intimate gathering at home or a packed banquet hall.\n\n## Book Hitesh\n\nHave a date in mind? Send an inquiry with your date, venue and guest count, and Hitesh will get back to you.\n\n[Inquire](/inquire)"
+    }
+  ]
+}

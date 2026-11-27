@@ -1,0 +1,43 @@
+{
+  "$type": "form",
+  "id": "inquire",
+  "title": "Inquire",
+  "description": "Tell Hitesh about your wedding, restaurant night or event, and he'll get back to you.",
+  "successMessage": "Thank you! Hitesh will be in touch soon.",
+  "fields": [
+    {
+      "id": "name",
+      "name": "Name",
+      "placeholder": "Your full name",
+      "required": true,
+      "metadata": {
+        "fieldType": "text"
+      }
+    },
+    {
+      "id": "email",
+      "name": "Email",
+      "placeholder": "you@example.com",
+      "required": true,
+      "metadata": {
+        "fieldType": "email"
+      }
+    },
+    {
+      "id": "message",
+      "name": "Message",
+      "placeholder": "Your date, venue, guest count and any songs you'd love to hear.",
+      "required": true,
+      "metadata": {
+        "fieldType": "textarea"
+      }
+    },
+    {
+      "id": "submit",
+      "name": "Send",
+      "metadata": {
+        "fieldType": "submit"
+      }
+    }
+  ]
+}

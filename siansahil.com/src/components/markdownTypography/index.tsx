@@ -19,7 +19,8 @@ const splitInternalHref = (href: string) => {
 };
 
 const renderToken = (token: InlineToken, index: number): React.ReactNode => {
-    const linkClass = "underline text-[#2563EB] hover:text-[#1D4ED8]";
+    // Link colours come from the site theme (colors.link / colors.linkHover).
+    const linkClass = "underline text-[var(--color-link)] hover:text-[var(--color-link-hover)]";
 
     switch (token.type) {
         case TokenType.LINK:

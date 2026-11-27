@@ -78,11 +78,18 @@ struct SiteSummary {
     id: String,
     name: Option<String>,
     url: Option<String>,
+    /// What the site's gallery items are called, e.g. { item: "event", items: "events" } (site.terms).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    terms: Option<serde_json::Value>,
+    /// Dashboard sections the site uses, e.g. { prints: false } (site.features).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    features: Option<serde_json::Value>,
 }
 
 async fn sites_for(pool: &PgPool, only: Option<&str>) -> Result<Vec<SiteSummary>, sqlx::Error> {
     sqlx::query_as(
-        "SELECT t.id, d.data->>'name' AS name, d.data->>'url' AS url
+        "SELECT t.id, d.data->>'name' AS name, d.data->>'url' AS url,
+                d.data->'terms' AS terms, d.data->'features' AS features
          FROM tenants t
          LEFT JOIN documents d ON d.tenant_id = t.id AND d.doc_type = 'site' AND d.key = 'main'
          WHERE $1::text IS NULL OR t.id = $1

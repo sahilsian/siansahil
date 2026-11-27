@@ -47,7 +47,9 @@
       "body": "Geist",
       "heading": "Shrikhand",
       "stylesheet": "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Shrikhand&display=swap"
-    }
+    },
+    "hero": "photo",
+    "galleryStatus": true
   },
   "seo": {
     "siteName": "adrianna hankins",

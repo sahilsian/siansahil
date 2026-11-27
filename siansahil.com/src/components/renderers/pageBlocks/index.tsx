@@ -26,10 +26,10 @@ const PageBlocks = ({ blocks }: { blocks: Block[] }) => (
                 }
                 case "faq":
                     return (
-                        <div key={index} className={"max-w-[760px] border-t border-black"}>
+                        <div key={index} className={"max-w-[760px] border-t border-[var(--color-border)]"}>
                             {block.items.map(({ question, answer }) => (
                                 // Native <details>: accessible, keyboard-friendly dropdown with no JS state.
-                                <details key={question} className={"group border-b border-black"}>
+                                <details key={question} className={"group border-b border-[var(--color-border)]"}>
                                     <summary className={"flex items-center justify-between gap-4 py-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden"}>
                                         <span className={getFontStyles("4")}>{question}</span>
                                         <ChevronDown className={"shrink-0 transition-transform duration-200 group-open:rotate-180"} size={20} aria-hidden />

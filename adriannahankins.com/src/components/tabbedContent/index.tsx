@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Typography from "@/components/typography";
 import RichText from "@/components/richText";
 
 export interface TabbedContentProps {
     tabs?: Tab[]
+    /** Shown under the tab buttons, above the selected tab's text. */
+    header?: ReactNode
 }
 
 export interface Tab {
@@ -11,10 +13,10 @@ export interface Tab {
     richDescription: string;
 }
 
-const TabbedContent = ({ tabs }: TabbedContentProps) => {
-    if (!tabs || tabs.length === 0) return null;
+const TabbedContent = ({ tabs, header }: TabbedContentProps) => {
+    const [activeTitle, setActiveTitle] = useState(tabs?.[0]?.title);
+    if (!tabs || tabs.length === 0) return header ? <div className="py-6">{header}</div> : null;
 
-    const [activeTitle, setActiveTitle] = useState(tabs[0].title);
     return (
         <div>
             <div className="flex gap-4 border-b border-[var(--color-border)]">
@@ -34,6 +36,7 @@ const TabbedContent = ({ tabs }: TabbedContentProps) => {
             </div>
 
             <div className="py-6">
+                {header && <div className="mb-6">{header}</div>}
                 {tabs.map((tab) => (
                     <div
                         key={tab.title}

@@ -8,8 +8,8 @@ interface ControlButtonProps extends PropsWithChildren {
 const ControlButton = ({secondary, onClick, children}:ControlButtonProps) => {
     const ctx = useAppState()
     return (
-        <div onClick={onClick} className={`border-1 ${secondary && "border-none"} h-full flex justify-center items-center p-[3px] px-2 hover:bg-white transition-all 
-        ${ctx.isProcessing && "bg-[#E3E3E3] text-gray-500"}`}>
+        <div onClick={onClick} className={`border-1 ${secondary && "border-none"} h-full flex justify-center items-center p-[3px] px-2 hover:bg-[var(--color-hover)] transition-all 
+        ${ctx.isProcessing && "bg-[var(--color-disabled)] text-[var(--color-muted)]"}`}>
             {children}
         </div>
     )

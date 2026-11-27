@@ -27,7 +27,7 @@ const Menu = ({title, menuItems, backgroundColor="#ffffff"}:MenuProps) => {
 
     return (
         <header
-            style={{backgroundColor: scrolled ? backgroundColor : "transparent"}}
+            style={{backgroundColor: scrolled ? backgroundColor : "transparent", color: "var(--color-nav)"}}
             className={"fixed z-40 top-0 left-0 w-full flex items-center justify-between gap-10 px-6 lg:px-22 py-2 transition-colors duration-300"}>
             <nav className={'flex gap-10 w-full'}>
                 <Link to={"/"}>

@@ -32,6 +32,7 @@ function HomePage() {
                 primary: toButton(block.primary, 1),
                 secondary: toButton(block.secondary, 2),
                 hero_image: block.heroImage,
+                hero_video: block.heroVideo,
                 profile_image: block.profileImage,
             }]
             : []

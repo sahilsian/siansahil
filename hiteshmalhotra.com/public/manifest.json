@@ -1,0 +1,27 @@
+{
+  "short_name": "Hitesh Malhotra",
+  "name": "Hitesh Malhotra — Bollywood singer",
+  "icons": [
+    {
+      "src": "favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "web-app-manifest-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "web-app-manifest-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#1F3A2B",
+  "background_color": "#F3EBDD"
+}

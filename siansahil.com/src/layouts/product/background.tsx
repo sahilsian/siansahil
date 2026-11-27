@@ -1,7 +1,7 @@
 export const Background = () => {
     return (
         <div className={"absolute left-0 z-[0] w-full h-full "}>
-            <div className={"MarginLine relative bg-[#F67E7E] opacity-[46%] w-[1px] h-[100%] left-[21px] sm:hidden md:hidden lg:block lg:left-[86px]"}
+            <div className={"MarginLine relative bg-[var(--color-margin-red)] opacity-[46%] w-[1px] h-[100%] left-[21px] sm:hidden md:hidden lg:block lg:left-[86px]"}
                  style={{
                      WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0), black 20%, black 80%, rgba(0,0,0,0))',
                      WebkitMaskRepeat: 'no-repeat',

@@ -9,7 +9,7 @@ import {useSite} from "@/contexts/site/siteContext.tsx";
 import {subscribeToMailingList} from "@/lib/api/client.ts";
 
 interface MailingProps {
-    /** The tenant's mailing-list form (site.mailing.formId): an email field + a submit field. */
+    /** The tenant's mailing-list form (mailing.formId): an email field + a submit field. */
     form: FormProps
 }
 
@@ -26,7 +26,8 @@ const Mailing = ({form}: MailingProps) => {
     const emailField = emailConfig ? formController.state.runtimeFields.get(emailConfig.id) : undefined
     const disabled = formController.isProcessing || formController.state.mode === "success"
 
-    if (!emailConfig) return null
+    const mailing = site.mailing
+    if (!emailConfig || !mailing) return null
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         formController.writeField(emailConfig.id, e.target.value)
@@ -35,11 +36,11 @@ const Mailing = ({form}: MailingProps) => {
     return (
         <div className="w-full">
         <div className={"min-w-[300px] max-w-[720px] w-full p-4 m-auto"}>
-            <Typography level={"3"} alignment="center" value={site.mailing.title}></Typography>
-            <Typography level={"p"} alignment="center" value={site.mailing.description}></Typography>
+            <Typography level={"3"} alignment="center" value={mailing.title}></Typography>
+            <Typography level={"p"} alignment="center" value={mailing.description}></Typography>
             <Spacer height={"10px"}></Spacer>
             <div className={"flex w-full gap-2 items-stretch"}>
-                <div className={`flex-3 border-1 px-2 py-2 ${disabled && "bg-[#E3E3E3] text-gray-500"}`}>
+                <div className={`flex-3 border-1 px-2 py-2 ${disabled && "bg-[var(--color-disabled)] text-[var(--color-muted)]"}`}>
                     <Input
                         placeholder={(emailConfig as { placeholder?: string }).placeholder ?? ""}
                         type={"email"}
@@ -67,9 +68,9 @@ const Mailing = ({form}: MailingProps) => {
             )}
             <Spacer height={"10px"}></Spacer>
             <div className={"flex gap-1 flex-wrap justify-center items-center"}>
-                <Typography secondary level={"6"} alignment="center" value={site.mailing.consentPrefix}></Typography>
-                <Link to={site.mailing.consentLink.to}>
-                    <Typography secondary underline level={"6"} value={site.mailing.consentLink.label}></Typography>
+                <Typography secondary level={"6"} alignment="center" value={mailing.consentPrefix}></Typography>
+                <Link to={mailing.consentLink.to}>
+                    <Typography secondary underline level={"6"} value={mailing.consentLink.label}></Typography>
                 </Link>
             </div>
         </div>

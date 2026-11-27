@@ -17,6 +17,7 @@ const BlockRenderer = ({blocks}:BlockRendererProps) => {
                         description={block.description}
                         variation={'flex-row'}
                         image={block.hero_image}
+                        video={block.hero_video}
                         profile={block.profile_image}
                         primary={block.primary}
                         secondary={block.secondary}

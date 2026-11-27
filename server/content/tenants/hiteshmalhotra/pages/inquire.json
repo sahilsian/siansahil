@@ -1,0 +1,14 @@
+{
+  "$type": "page",
+  "slug": "inquire",
+  "seo": {
+    "title": "Inquire",
+    "description": "Book Hitesh Malhotra for your wedding, restaurant or event."
+  },
+  "blocks": [
+    {
+      "type": "form",
+      "formId": "inquire"
+    }
+  ]
+}

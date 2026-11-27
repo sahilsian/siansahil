@@ -1,9 +1,16 @@
 @import "tailwindcss";
 
+/* Fonts come from the tenant theme: __root sets --font-body / --font-heading
+   from site.theme.fonts. `font-serif` = body text, `font-display` = headings. */
+@theme {
+    --font-serif: var(--font-body), ui-serif, Georgia, serif;
+    --font-display: var(--font-heading), var(--font-body), ui-serif, Georgia, serif;
+}
+
 @layer base {
     body {
         @apply m-0;
-        font-family: 'Inria Serif', serif;
+        font-family: var(--font-body), serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }

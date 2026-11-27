@@ -59,6 +59,10 @@ export interface Site {
   id: string;
   name: string | null;
   url: string | null;
+  /** What this site's gallery items are called (site.json `terms`); default artwork/artworks. */
+  terms?: { item?: string; items?: string } | null;
+  /** Sections this site uses (site.json `features`); default all on. */
+  features?: { prints?: boolean } | null;
 }
 
 export interface Me {

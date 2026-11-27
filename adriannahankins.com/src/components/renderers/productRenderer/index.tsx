@@ -21,6 +21,7 @@ const ProductRenderer = ({blocks, product, type}:ProductRendererProps) => {
             dateCreated={product.dateCreated}
             material={product.material}
             store={product.store}
+            prints={product.prints}
             availability={product.availability}
         ></ProductLayout>
         <BlockRenderer blocks={blocks}></BlockRenderer>

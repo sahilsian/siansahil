@@ -1,9 +1,10 @@
 import type { SiteDoc } from "@/lib/api/types.ts";
 
 // Tenant theme → CSS custom properties. Components use var(--color-*) and the
-// Tailwind `font-serif` / `font-display` utilities (see styles.css). Every
-// colour falls back to the original site's look, so a site document only needs
-// to set what it changes.
+// Tailwind `font-serif` / `font-display` utilities (see styles.css). Missing
+// colours fall back to the defaults below, so a site document only sets what it
+// changes. Layout defaults follow Adrianna's site (no notebook margin lines,
+// photo hero, status on gallery cards); siansahil's site.json opts into its own.
 
 /** CSS variable → [site.theme.colors key, default]. */
 const COLOR_VARS: Record<string, [string, string]> = {
@@ -16,12 +17,16 @@ const COLOR_VARS: Record<string, [string, string]> = {
     "--color-hover": ["hover", "#ffffff"],
     "--color-menu": ["menu", "#ffffff"],
     "--color-nav": ["nav", "#000000"],
-    "--color-margin-red": ["marginRed", "#F67E7E"],
-    "--color-margin-blue": ["marginBlue", "#6AAAF6"],
+    // Notebook margin lines behind pages: off unless a site sets them (siansahil: #F67E7E / #6AAAF6).
+    "--color-margin-red": ["marginRed", "transparent"],
+    "--color-margin-blue": ["marginBlue", "transparent"],
     "--color-disabled": ["disabled", "#E3E3E3"],
     "--color-available": ["available", "#4e9e39"],
     "--color-sold": ["sold", "#c44b57"],
     "--color-highlight": ["highlight", "#FDE26B"],
+    // Links in rich text and on artwork pages; "inherit" = same colour as the text (just underlined).
+    "--color-link": ["link", "inherit"],
+    "--color-link-hover": ["linkHover", "inherit"],
     "--color-button-bg": ["buttonBackground", "#191515"],
     "--color-button-text": ["buttonText", "#ffffff"],
     "--color-button-secondary-bg": ["buttonSecondaryBackground", "#FFFFFF"],

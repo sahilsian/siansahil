@@ -22,6 +22,7 @@ const ProductRenderer = ({blocks, product, type}:ProductRendererProps) => {
             material={product.material}
             store={product.store}
             prints={product.prints}
+            availability={product.availability}
         ></ProductLayout>
         <BlockRenderer blocks={blocks}></BlockRenderer>
     </div>

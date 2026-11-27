@@ -21,6 +21,7 @@ import {
 import { api } from "../api";
 import { useSite } from "../session";
 import { humanize } from "../lib/fields";
+import { useTerms } from "../lib/terms";
 import { Select } from "./ui";
 
 interface NavItem {
@@ -32,21 +33,23 @@ interface NavItem {
 /** Sidebar entries for the pages this site actually has. */
 function useNavItems() {
   const { site } = useSite();
+  const terms = useTerms();
   const { data: docs } = useQuery({ queryKey: ["documents", site.id], queryFn: () => api.documents(site.id) });
   const pages = new Set((docs ?? []).filter((d) => d.type === "page").map((d) => d.key));
   const hasProducts = (docs ?? []).some((d) => d.type === "product");
 
   const main: NavItem[] = [];
   if (pages.has("home")) main.push({ to: "/home", label: "Home", icon: Home });
-  if (pages.has("products") || hasProducts) main.push({ to: "/gallery", label: "Gallery", icon: ImageIcon });
-  if (pages.has("products") || hasProducts) main.push({ to: "/prints", label: "Prints", icon: ShoppingBag });
+  if (pages.has("products") || hasProducts) main.push({ to: "/gallery", label: terms.isArt ? "Gallery" : terms.Items, icon: ImageIcon });
+  if ((pages.has("products") || hasProducts) && terms.prints) main.push({ to: "/prints", label: "Prints", icon: ShoppingBag });
   if (pages.has("about")) main.push({ to: "/about", label: "About", icon: Info });
   if (pages.has("faq")) main.push({ to: "/faq", label: "FAQ", icon: HelpCircle });
   if (pages.has("contact")) main.push({ to: "/contact", label: "Contact", icon: Mail });
+  if (pages.has("inquire")) main.push({ to: "/pages/inquire", label: "Inquire", icon: Mail });
   main.push({ to: "/reusable", label: "Reusable", icon: Blocks });
   main.push({ to: "/mailing-list", label: "Mailing list", icon: Newspaper });
 
-  const known = new Set(["home", "products", "prints", "about", "faq", "contact"]);
+  const known = new Set(["home", "products", "prints", "about", "faq", "contact", "inquire"]);
   const other: NavItem[] = [...pages]
     .filter((p) => !known.has(p))
     .sort()

@@ -7,6 +7,7 @@ import { useSite } from "../session";
 import { prepareImage, previewUrl, slugify } from "../lib/images";
 import { RichTextEditor } from "../components/RichTextEditor";
 import { StoreCard } from "../components/StoreCard";
+import { useTerms } from "../lib/terms";
 import { ImageLibraryButton } from "../components/ImageLibrary";
 import { PaintingPrints } from "./Prints";
 import { useToast } from "../components/Toast";
@@ -132,15 +133,16 @@ export function ArtworkEditor() {
   const { site } = useSite();
   const { data: list, isLoading, error } = useQuery({ queryKey: ["artworks", site.id], queryFn: () => api.artworks(site.id) });
   const artwork = list?.artworks.find((a) => a.slug === slug) ?? null;
+  const terms = useTerms();
 
   if (isLoading) return <Spinner />;
   if (error || !list) return <Alert>{errorMessage(error)}</Alert>;
   if (!isNew && !artwork) {
     return (
       <div className="space-y-4">
-        <Alert>That artwork doesn't exist (it may have been deleted).</Alert>
+        <Alert>That {terms.item} doesn't exist (it may have been deleted).</Alert>
         <Link to="/gallery" className="text-sm underline">
-          Back to the gallery
+          Back to {terms.isArt ? "the gallery" : terms.items}
         </Link>
       </div>
     );
@@ -154,6 +156,7 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState<Draft>(() => toDraft(artwork, list));
+  const terms = useTerms();
   const [slugTouched, setSlugTouched] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(0);
@@ -209,7 +212,7 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
   const save = async () => {
     setErrorText(null);
     setSavedText(null);
-    if (!draft.title.trim()) return failWith("Give the artwork a title.");
+    if (!draft.title.trim()) return failWith(`Give the ${terms.item} a title.`);
     if (draft.images.length === 0) return failWith("Add at least one photo.");
     if (!draft.category.trim()) return failWith("Choose a category.");
     if (Boolean(draft.width.trim()) !== Boolean(draft.height.trim()) || (draft.width.trim() && !parseSize(draft.width, draft.height))) {
@@ -218,7 +221,7 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
     if (isNew && !draft.slug) return failWith("Choose a web address.");
     setSaving(true);
     try {
-      // The artwork first, then the original's availability.
+      // The item first, then (artworks) the original's availability.
       if (isNew || dirty) {
         if (isNew) {
           await api.createArtwork(site.id, draft.slug, toInput(draft), draft.collections);
@@ -229,14 +232,14 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
         await queryClient.invalidateQueries({ queryKey: ["documents", site.id] });
       }
       if (isNew) {
-        toast.success("Artwork created.");
+        toast.success(`${terms.Item} created.`);
         navigate(`/gallery/${draft.slug}`, { replace: true });
       } else {
         initial.current = snapshot(draft);
         let storeUpdated = false;
         if (storePending && storeSubmit.current) {
           const storeOk = await storeSubmit.current();
-          if (!storeOk) return failWith("The artwork was saved, but the Original section needs attention (see above).");
+          if (!storeOk) return failWith(`The ${terms.item} was saved, but the Original section needs attention (see above).`);
           storeUpdated = true;
         }
         setSavedText("Saved. Changes appear on the website within about a minute.");
@@ -255,7 +258,7 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
       await api.deleteArtwork(site.id, draft.slug);
       await queryClient.invalidateQueries({ queryKey: ["artworks", site.id] });
       await queryClient.invalidateQueries({ queryKey: ["documents", site.id] });
-      toast.success("Artwork deleted.");
+      toast.success(`${terms.Item} deleted.`);
       navigate("/gallery", { replace: true });
     } catch (e) {
       setConfirmDelete(false);
@@ -268,10 +271,10 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
   return (
     <div className="pb-4">
       <Link to="/gallery" className="mb-3 inline-flex min-h-10 items-center gap-1 text-sm text-stone-600 hover:text-stone-900">
-        <ArrowLeft size={16} /> Gallery
+        <ArrowLeft size={16} /> {terms.isArt ? "Gallery" : terms.Items}
       </Link>
       <PageHeader
-        title={isNew ? "New artwork" : draft.title || "Untitled"}
+        title={isNew ? `New ${terms.item}` : draft.title || "Untitled"}
         actions={
           !isNew && site.url ? (
             <a
@@ -359,7 +362,7 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
             )}
           </Field>
           {isNew && (
-            <Field label="Web address" hint={`The artwork's page will be ${site.url ?? ""}/products/${draft.slug || "…"}. This can't be changed later.`}>
+            <Field label="Web address" hint={`The ${terms.item}'s page will be ${site.url ?? ""}/products/${draft.slug || "…"}. This can't be changed later.`}>
               {(id) => (
                 <TextInput
                   id={id}
@@ -395,15 +398,15 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
               {(id) => <TextInput id={id} inputMode="numeric" value={draft.dateCreated} onChange={(e) => update({ dateCreated: e.target.value })} />}
             </Field>
           </div>
-          <div className="grid gap-5 sm:grid-cols-3">
+          {terms.isArt && <div className="grid gap-5 sm:grid-cols-3">
             <Field label="Width (inches)" hint="The painting's own size.">
               {(id) => <TextInput id={id} inputMode="decimal" placeholder="36" value={draft.width} onChange={(e) => update({ width: e.target.value })} />}
             </Field>
             <Field label="Height (inches)">
               {(id) => <TextInput id={id} inputMode="decimal" placeholder="48" value={draft.height} onChange={(e) => update({ height: e.target.value })} />}
             </Field>
-          </div>
-          {!draft.width.trim() && !draft.height.trim() && foundSize && (
+          </div>}
+          {terms.isArt && !draft.width.trim() && !draft.height.trim() && foundSize && (
             <div>
               <Button variant="secondary" onClick={() => update({ width: foundSize.width, height: foundSize.height })}>
                 Use {foundSize.width} x {foundSize.height} in (from the description)
@@ -437,7 +440,7 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
           </div>
         </Card>
 
-        <Card title="Description sections" description="Each section is a tab on the artwork's page.">
+        <Card title="Description sections" description={`Each section is a tab on the ${terms.item}'s page.`}>
           {draft.tabs.map((tab, i) => (
             <div key={tab.key} className="space-y-3 rounded-lg border border-stone-200 p-3">
               <div className="flex items-end gap-2">
@@ -473,10 +476,10 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
           </Button>
         </Card>
 
-{artwork ? (
+{!terms.isArt ? null : artwork ? (
           <>
             <StoreCard siteId={site.id} artwork={artwork} submitRef={storeSubmit} onPendingChange={setStorePending} />
-            <PaintingPrints siteId={site.id} painting={artwork.slug} />
+            {terms.prints && <PaintingPrints siteId={site.id} painting={artwork.slug} />}
           </>
         ) : (
           <Card title="Original and prints">
@@ -485,7 +488,7 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
         )}
 
         {curated.length > 0 && (
-          <Card title="Show in" description="Which lists on the website include this artwork. New additions appear first.">
+          <Card title="Show in" description={`Which lists on the website include this ${terms.item}. New additions appear first.`}>
             <div className="space-y-1">
               {curated.map((c) => (
                 <label key={c.id} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-1 hover:bg-stone-50">
@@ -531,7 +534,7 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
               {dirty || storePending ? "Cancel" : "Done"}
             </Button>
             <Button onClick={save} busy={saving} disabled={uploading > 0 || (!dirty && !storePending && !isNew)}>
-              {isNew ? "Create artwork" : "Save changes"}
+              {isNew ? `Create ${terms.item}` : "Save changes"}
             </Button>
           </div>
         </div>
@@ -539,9 +542,9 @@ function ArtworkForm({ artwork, list }: { artwork: Artwork | null; list: Artwork
 
       <ConfirmDialog
         open={confirmDelete}
-        title="Delete this artwork?"
+        title={`Delete this ${terms.item}?`}
         body={<>“{draft.title}” will be removed from the website. This can't be undone.</>}
-        confirmLabel="Delete artwork"
+        confirmLabel={`Delete ${terms.item}`}
         busy={deleting}
         onConfirm={remove}
         onCancel={() => setConfirmDelete(false)}

@@ -20,7 +20,7 @@ const TextField = ({handleChange, value, error, label, disabled, placeholder, is
             { isRequired &&  <span className={"text-red-500"}>*</span> }
         </div>
         <Spacer height={'10px'}></Spacer>
-        <div className={`border-1 ${error && "border-red-500"} px-2 py-2 ${disabled && "bg-[#E3E3E3] text-gray-500"}`}>
+        <div className={`border-1 ${error && "border-red-500"} px-2 py-2 ${disabled && "bg-[var(--color-disabled)] text-[var(--color-muted)]"}`}>
             <Input placeholder={placeholder} disabled={disabled} type={"text"} value={value} handleChange={(e) => handleChange(e)}></Input>
         </div>
     </div>

@@ -26,7 +26,7 @@ const SearchInput = ({disabled, showClear, onEnter, onSearch, onClear, handleCha
                     <button
                         type={"button"}
                         onClick={onClear}
-                        className={'absolute left-0 top-full mt-1 font-serif text-[0.75rem] underline text-gray-500 cursor-pointer whitespace-nowrap'}
+                        className={'absolute left-0 top-full mt-1 font-serif text-[0.75rem] underline text-[var(--color-muted)] cursor-pointer whitespace-nowrap'}
                     >
                         {labels.reset}
                     </button>
