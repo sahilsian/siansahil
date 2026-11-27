@@ -23,7 +23,7 @@ const CollectionLayout = ({collection, pageInfo, type, categories, currentCollec
     ) || {}
 
     return (
-        <div className={`Collection ${type} lg:px-22 px-6 bg-[var(--color-surface)] relative min-h-screen`}>
+        <div className={`Collection ${type} lg:px-22 px-6 relative min-h-screen`}>
             <Background></Background>
             <Content categoryKey={currentCategory} controlMachine={controlMachine} title={layoutTitle} description={layoutDescription}></Content>
             <List categories={categories} currentCollection={currentCollection} controlMachine={controlMachine} pageInfo={pageInfo} collection={collection}></List>

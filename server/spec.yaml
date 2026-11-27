@@ -85,6 +85,16 @@ services:
       - key: APP_STRIPE__SECRET_KEYS__ADRIANNAHANKINS
         scope: RUN_TIME
         type: SECRET
+      # Signing secret (whsec_...) of each site's Stripe webhook endpoint,
+      # https://<this server>/api/v1/stripe/<siteid>/webhook with the events
+      # checkout.session.completed and checkout.session.async_payment_succeeded.
+      # Without it, that site's sales aren't recorded as orders or emailed.
+      - key: APP_STRIPE__WEBHOOK_SECRETS__SIANSAHIL
+        scope: RUN_TIME
+        type: SECRET
+      - key: APP_STRIPE__WEBHOOK_SECRETS__ADRIANNAHANKINS
+        scope: RUN_TIME
+        type: SECRET
 databases:
   # A managed Postgres cluster (not a dev database: those don't let the app user
   # create tables in `public` on Postgres 15+). The cluster is created in the

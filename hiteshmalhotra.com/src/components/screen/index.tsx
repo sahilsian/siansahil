@@ -4,7 +4,7 @@ type ScreenProps = {
     classOverride?: string;
 }
 
-const Screen = ({children, backgroundColor="var(--color-surface)", classOverride}:ScreenProps) => {
+const Screen = ({children, backgroundColor="transparent", classOverride}:ScreenProps) => {
     return (
         <div style={{backgroundColor: backgroundColor}} className={`w-full flex ${classOverride}`}>
             {children}

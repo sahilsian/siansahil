@@ -7,13 +7,17 @@
 //!   "painting": "mount-pleasant", "title": "Archival Limited Edition",
 //!   "size": { "width": 24, "height": 36, "unit": "in" }, "editionSize": 15,
 //!   "priceCents": 18000, "currency": "cad", "description": "...", "images": [...],
-//!   "forSale": true, "buyUrl": "https://buy.stripe.com/...", "stripe": { ... } }
+//!   "forSale": true, "comingSoon": false, "soldOut": false, "stripe": { ... } }
 //! ```
+//! `soldOut` is set once a limited edition's last copy sells (see `routes::stripe_webhook`);
+//! the website then shows "Sold out" instead of Buy. `comingSoon` lets a drop be prepared:
+//! the print is shown with "Coming soon" and can't be bought (its payment link is off)
+//! until it's switched off.
 
 use serde_json::{json, Map, Value};
 
 use super::products::{image, text, ImageInput, SizeInput};
-use super::stripe::{StripeAccount, StripeError};
+use super::stripe::{NewPaymentLink, StripeAccount, StripeError};
 
 pub const MAX_IMAGES: usize = 20;
 /// Largest limited edition (and a sanity cap for Stripe's purchase limit).
@@ -39,6 +43,14 @@ pub struct PrintInput {
     pub images: Vec<ImageInput>,
     #[serde(default = "yes")]
     pub for_sale: bool,
+    /// Shown but not buyable yet (a drop being prepared). The dashboard starts new prints with it on.
+    #[serde(default)]
+    pub coming_soon: bool,
+}
+
+/// A print whose drop hasn't happened yet.
+pub fn is_coming_soon(print: &Value) -> bool {
+    print["comingSoon"].as_bool().unwrap_or(false)
 }
 
 fn yes() -> bool {
@@ -89,6 +101,7 @@ pub fn build_print(slug: &str, input: &PrintInput, existing: Option<&Value>, med
     let images = input.images.iter().map(|i| image(i, media_base)).collect::<Result<Vec<_>, _>>()?;
     doc.insert("images".into(), Value::Array(images));
     doc.insert("forSale".into(), json!(input.for_sale));
+    doc.insert("comingSoon".into(), json!(input.coming_soon));
     Ok(Value::Object(doc))
 }
 
@@ -124,11 +137,15 @@ pub struct PrintStripe {
     pub payment_link_id: Option<String>,
     #[serde(default)]
     pub payment_link_url: Option<String>,
-    /// The price and limit the current payment link was made with.
+    /// The price, limit, shipping rate and thank-you page the current payment link was made with.
     #[serde(default)]
     pub link_price_id: Option<String>,
     #[serde(default)]
     pub link_limit: Option<u32>,
+    #[serde(default)]
+    pub link_shipping_rate: Option<String>,
+    #[serde(default)]
+    pub link_success_url: Option<String>,
     /// The product and payment link are live.
     #[serde(default)]
     pub active: bool,
@@ -152,6 +169,10 @@ pub struct Wanted<'a> {
     pub currency: &'a str,
     pub limit: Option<u32>,
     pub shipping_countries: &'a [String],
+    /// The site's flat shipping charge (a Stripe shipping rate), if it has one.
+    pub shipping_rate: Option<&'a str>,
+    /// Where buyers land after paying (the site's thank-you page).
+    pub success_url: Option<&'a str>,
     pub tenant: &'a str,
     pub slug: &'a str,
 }
@@ -159,6 +180,17 @@ pub struct Wanted<'a> {
 /// Make Stripe match `wanted` (`None` = take it off sale). `state` is updated as
 /// each step succeeds, so a failure part-way still leaves an accurate record.
 pub async fn sync(account: &StripeAccount<'_>, state: &mut PrintStripe, wanted: Option<&Wanted<'_>>) -> Result<(), StripeError> {
+    // Set up in local test mode, now with a real key: those ids exist nowhere in
+    // Stripe, so start over and create the real product and link.
+    let stale = |id: &Option<String>| id.as_deref().is_some_and(|id| account.is_stale_id(id));
+    if stale(&state.product_id) || stale(&state.payment_link_id) {
+        *state = PrintStripe::default();
+    }
+    if let Some(rate) = wanted.and_then(|w| w.shipping_rate).filter(|r| account.is_stale_id(r)) {
+        return Err(StripeError(format!(
+            "the shipping charge ({rate}) was set up in test mode. Save the shipping charge again so it's created in Stripe"
+        )));
+    }
     let Some(w) = wanted else {
         if let (Some(link), true) = (&state.payment_link_id, state.active) {
             account.set_payment_link_active(link, false).await?;
@@ -201,8 +233,12 @@ pub async fn sync(account: &StripeAccount<'_>, state: &mut PrintStripe, wanted: 
         }
     }
 
-    // Payment links can't change price or limit: make a new one when either changed.
-    let link_current = state.payment_link_id.is_some() && state.link_price_id == state.price_id && state.link_limit == w.limit;
+    // Payment links can't change price, limit, shipping or redirect: make a new one when any changed.
+    let link_current = state.payment_link_id.is_some()
+        && state.link_price_id == state.price_id
+        && state.link_limit == w.limit
+        && state.link_shipping_rate.as_deref() == w.shipping_rate
+        && state.link_success_url.as_deref() == w.success_url;
     if link_current {
         if !state.active {
             account.set_payment_link_active(state.payment_link_id.as_deref().unwrap_or_default(), true).await?;
@@ -213,13 +249,23 @@ pub async fn sync(account: &StripeAccount<'_>, state: &mut PrintStripe, wanted: 
             state.payment_link_url = None;
         }
         let price = state.price_id.clone().unwrap_or_default();
+        let metadata = [("tenant", w.tenant), ("print", w.slug)];
         let link = account
-            .create_payment_link(&price, w.limit, w.shipping_countries, &[("tenant", w.tenant), ("print", w.slug)])
+            .create_payment_link(&NewPaymentLink {
+                price_id: &price,
+                limit: w.limit,
+                shipping_countries: w.shipping_countries,
+                shipping_rate: w.shipping_rate,
+                success_url: w.success_url,
+                metadata: &metadata,
+            })
             .await?;
         state.payment_link_id = Some(link.id);
         state.payment_link_url = link.url;
         state.link_price_id = state.price_id.clone();
         state.link_limit = w.limit;
+        state.link_shipping_rate = w.shipping_rate.map(str::to_string);
+        state.link_success_url = w.success_url.map(str::to_string);
     }
     state.active = true;
     Ok(())
@@ -240,12 +286,52 @@ pub fn shipping_countries(site: &Value) -> Vec<String> {
     if configured.is_empty() { vec!["CA".into(), "US".into()] } else { configured }
 }
 
+/// The site's flat shipping charge: `store.shipping` in the site document.
+/// `{ "label": "Shipping", "amountCents": 1500, "stripe": { "rateId", "amountCents", "currency", "label" } }`
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Shipping {
+    pub label: String,
+    pub amount_cents: i64,
+    #[serde(default)]
+    pub stripe: Option<ShippingRate>,
+}
+
+/// The Stripe shipping rate made for `Shipping` (rates can't be edited, so this
+/// records what it charges, to tell when a new one is needed).
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ShippingRate {
+    pub rate_id: String,
+    pub label: String,
+    pub amount_cents: i64,
+    pub currency: String,
+}
+
+pub fn shipping_of(site: &Value) -> Option<Shipping> {
+    serde_json::from_value(site["store"]["shipping"].clone()).ok()
+}
+
+/// The thank-you page buyers land on after paying (Stripe fills in the session id).
+pub fn success_url(site: &Value) -> Option<String> {
+    let base = site["url"].as_str()?.trim().trim_end_matches('/');
+    (base.starts_with("https://") || base.starts_with("http://"))
+        .then(|| format!("{base}/order-complete?session_id={{CHECKOUT_SESSION_ID}}"))
+}
+
 /// The public view of a print: no Stripe ids, plus a summary of its painting.
 pub fn public_print(print: &Value, painting: &Value) -> Value {
     let mut out = print.clone();
     if let Some(map) = out.as_object_mut() {
         map.remove("stripe");
-        let live = print["forSale"].as_bool().unwrap_or(false) && print["stripe"]["active"].as_bool().unwrap_or(false);
+        let sold_out = print["soldOut"].as_bool().unwrap_or(false);
+        map.insert("soldOut".into(), json!(sold_out));
+        let coming_soon = is_coming_soon(print);
+        map.insert("comingSoon".into(), json!(coming_soon));
+        let live = print["forSale"].as_bool().unwrap_or(false)
+            && !sold_out
+            && !coming_soon
+            && print["stripe"]["active"].as_bool().unwrap_or(false);
         match print["stripe"]["paymentLinkUrl"].as_str().filter(|_| live) {
             Some(url) => map.insert("buyUrl".into(), json!(url)),
             None => map.remove("buyUrl"),
@@ -339,7 +425,7 @@ mod tests {
         let countries = vec!["CA".to_string()];
         let wanted = Wanted {
             name: "MP | A 8 x 10", image: None, price_cents: 3000, currency: "cad", limit: Some(15),
-            shipping_countries: &countries, tenant: "acme", slug: "x",
+            shipping_countries: &countries, shipping_rate: None, success_url: None, tenant: "acme", slug: "x",
         };
         let mut state = PrintStripe::default();
         sync(&account, &mut state, Some(&wanted)).await.unwrap();
@@ -352,7 +438,52 @@ mod tests {
         assert_ne!(state.payment_link_id, first_link);
         assert_eq!(state.price_cents, Some(4000));
 
+        // A new shipping rate means a new payment link too.
+        let before = state.payment_link_id.clone();
+        let shipped = Wanted { shipping_rate: Some("shr_1"), ..dearer };
+        sync(&account, &mut state, Some(&shipped)).await.unwrap();
+        assert_ne!(state.payment_link_id, before);
+        assert_eq!(state.link_shipping_rate.as_deref(), Some("shr_1"));
+
         sync(&account, &mut state, None).await.unwrap();
         assert!(!state.active);
+    }
+
+    #[test]
+    fn sold_out_prints_offer_no_buy_link() {
+        let painting = json!({ "slug": "mp", "title": "MP", "images": [] });
+        let mut print = build_print("x", &input(), None, BASE).unwrap();
+        print["stripe"] = json!({ "paymentLinkUrl": "https://buy.stripe.com/x", "active": true });
+        print["soldOut"] = json!(true);
+        let public = public_print(&print, &painting);
+        assert_eq!(public["soldOut"], true);
+        assert!(public.get("buyUrl").is_none());
+    }
+
+    #[test]
+    fn coming_soon_prints_are_shown_without_a_buy_link() {
+        let painting = json!({ "slug": "mp", "title": "MP", "images": [] });
+        let mut soon = input();
+        soon.coming_soon = true;
+        let mut print = build_print("x", &soon, None, BASE).unwrap();
+        assert_eq!(print["comingSoon"], true);
+        print["stripe"] = json!({ "paymentLinkUrl": "https://buy.stripe.com/x", "active": true });
+        let public = public_print(&print, &painting);
+        assert_eq!(public["comingSoon"], true);
+        assert!(public.get("buyUrl").is_none());
+
+        // Switched off: the drop is live.
+        let live = build_print("x", &input(), Some(&print), BASE).unwrap();
+        assert_eq!(live["comingSoon"], false);
+        assert_eq!(public_print(&live, &painting)["buyUrl"], "https://buy.stripe.com/x");
+    }
+
+    #[test]
+    fn success_url_points_at_the_sites_thank_you_page() {
+        assert_eq!(
+            success_url(&json!({ "url": "https://siansahil.com/" })).as_deref(),
+            Some("https://siansahil.com/order-complete?session_id={CHECKOUT_SESSION_ID}")
+        );
+        assert_eq!(success_url(&json!({})), None);
     }
 }

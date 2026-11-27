@@ -172,7 +172,41 @@ export interface Print {
   /** Mockups etc. Empty = the website uses the painting's photo. */
   images: Image[];
   forSale: boolean;
+  /** Shown on the website but not buyable yet (a drop being prepared). */
+  comingSoon?: boolean;
+  /** Every copy of the limited edition has sold. */
+  soldOut?: boolean;
   stripe?: { active?: boolean; paymentLinkUrl?: string | null };
+}
+
+/** The site's flat shipping charge at checkout. */
+export interface ShippingSettings {
+  label: string;
+  amountCents: number;
+}
+
+/** A print sale, recorded from Stripe. */
+export interface Order {
+  id: string;
+  printSlug: string | null;
+  printName: string;
+  amountTotalCents: number;
+  shippingCents: number;
+  currency: string;
+  customerName: string | null;
+  customerEmail: string | null;
+  customerPhone: string | null;
+  shippingAddress: {
+    name?: string | null;
+    line1?: string | null;
+    line2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postal_code?: string | null;
+    country?: string | null;
+  } | null;
+  createdAt: string;
+  shippedAt: string | null;
 }
 
 export interface PrintInput {
@@ -184,6 +218,7 @@ export interface PrintInput {
   description: string;
   images: Image[];
   forSale: boolean;
+  comingSoon: boolean;
 }
 
 export interface PrintList {
@@ -191,6 +226,9 @@ export interface PrintList {
   stripeConfigured: boolean;
   stripeTestMode: boolean;
   currency: string;
+  shipping: ShippingSettings | null;
+  /** Stripe's webhook is set up for this site, so sales are recorded as orders. */
+  ordersConnected: boolean;
 }
 
 export interface Subscriber {
@@ -289,6 +327,15 @@ export const api = {
     request<{ print: Print; note?: string | null }>("PUT", `${site(siteId)}/prints/${encodeURIComponent(slug)}`, { print }),
   deletePrint: (siteId: string, slug: string) =>
     request<void>("DELETE", `${site(siteId)}/prints/${encodeURIComponent(slug)}`),
+  saveShipping: (siteId: string, shipping: ShippingSettings | null) =>
+    request<{ shipping: ShippingSettings | null; updated: number; failed: string[]; note?: string | null }>(
+      "PUT",
+      `${site(siteId)}/shipping`,
+      { shipping },
+    ),
+  orders: (siteId: string) => request<{ orders: Order[]; connected: boolean }>("GET", `${site(siteId)}/orders`),
+  setShipped: (siteId: string, id: string, shipped: boolean) =>
+    request<void>("PUT", `${site(siteId)}/orders/${encodeURIComponent(id)}`, { shipped }),
   removeFromStore: (siteId: string, slug: string) =>
     request<{ store: ArtworkStore }>("DELETE", `${site(siteId)}/artworks/${encodeURIComponent(slug)}/store`),
 

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VancouverPrintClubRouteImport } from './routes/vancouver-print-club'
 import { Route as PrintsRouteImport } from './routes/prints'
+import { Route as OrderCompleteRouteImport } from './routes/order-complete'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CommissionsRouteImport } from './routes/commissions'
 import { Route as SlugRouteImport } from './routes/$slug'
@@ -29,6 +30,11 @@ const VancouverPrintClubRoute = VancouverPrintClubRouteImport.update({
 const PrintsRoute = PrintsRouteImport.update({
   id: '/prints',
   path: '/prints',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrderCompleteRoute = OrderCompleteRouteImport.update({
+  id: '/order-complete',
+  path: '/order-complete',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/$slug': typeof SlugRoute
   '/commissions': typeof CommissionsRoute
   '/contact': typeof ContactRoute
+  '/order-complete': typeof OrderCompleteRoute
   '/prints': typeof PrintsRoute
   '/vancouver-print-club': typeof VancouverPrintClubRoute
   '/forms/$id': typeof FormsIdRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/$slug': typeof SlugRoute
   '/commissions': typeof CommissionsRoute
   '/contact': typeof ContactRoute
+  '/order-complete': typeof OrderCompleteRoute
   '/prints': typeof PrintsRoute
   '/vancouver-print-club': typeof VancouverPrintClubRoute
   '/forms/$id': typeof FormsIdRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/$slug': typeof SlugRoute
   '/commissions': typeof CommissionsRoute
   '/contact': typeof ContactRoute
+  '/order-complete': typeof OrderCompleteRoute
   '/prints': typeof PrintsRoute
   '/vancouver-print-club': typeof VancouverPrintClubRoute
   '/forms/$id': typeof FormsIdRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/commissions'
     | '/contact'
+    | '/order-complete'
     | '/prints'
     | '/vancouver-print-club'
     | '/forms/$id'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/commissions'
     | '/contact'
+    | '/order-complete'
     | '/prints'
     | '/vancouver-print-club'
     | '/forms/$id'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/commissions'
     | '/contact'
+    | '/order-complete'
     | '/prints'
     | '/vancouver-print-club'
     | '/forms/$id'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   SlugRoute: typeof SlugRoute
   CommissionsRoute: typeof CommissionsRoute
   ContactRoute: typeof ContactRoute
+  OrderCompleteRoute: typeof OrderCompleteRoute
   PrintsRoute: typeof PrintsRoute
   VancouverPrintClubRoute: typeof VancouverPrintClubRoute
   FormsIdRoute: typeof FormsIdRoute
@@ -187,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/prints'
       fullPath: '/prints'
       preLoaderRoute: typeof PrintsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/order-complete': {
+      id: '/order-complete'
+      path: '/order-complete'
+      fullPath: '/order-complete'
+      preLoaderRoute: typeof OrderCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -260,6 +280,7 @@ const rootRouteChildren: RootRouteChildren = {
   SlugRoute: SlugRoute,
   CommissionsRoute: CommissionsRoute,
   ContactRoute: ContactRoute,
+  OrderCompleteRoute: OrderCompleteRoute,
   PrintsRoute: PrintsRoute,
   VancouverPrintClubRoute: VancouverPrintClubRoute,
   FormsIdRoute: FormsIdRoute,

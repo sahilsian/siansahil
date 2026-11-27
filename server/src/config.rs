@@ -35,6 +35,10 @@ pub struct StripeSettings {
     /// placeholder ids and nothing created in Stripe. Never set this in production.
     #[serde(default)]
     pub offline: bool,
+    /// Site id → the signing secret (`whsec_...`) of that site's Stripe webhook endpoint
+    /// (`APP_STRIPE__WEBHOOK_SECRETS__<SITEID>`). Without it, the site's sales aren't recorded.
+    #[serde(default)]
+    pub webhook_secrets: std::collections::HashMap<String, Secret<String>>,
 }
 
 fn default_stripe_api_base() -> String {
@@ -43,7 +47,12 @@ fn default_stripe_api_base() -> String {
 
 impl Default for StripeSettings {
     fn default() -> Self {
-        Self { api_base: default_stripe_api_base(), secret_keys: Default::default(), offline: false }
+        Self {
+            api_base: default_stripe_api_base(),
+            secret_keys: Default::default(),
+            offline: false,
+            webhook_secrets: Default::default(),
+        }
     }
 }
 

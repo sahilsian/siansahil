@@ -28,7 +28,17 @@ const PrintList = ({prints}: {prints: PrintDoc[]}) => {
                         </div>
                         <div>
                             <Typography underline level={"4"} value={printListName(print)} />
-                            <Typography secondary level={"small"} value={formatPrice(print.priceCents, print.currency.toUpperCase(), locale)} />
+                            <Typography
+                                secondary
+                                level={"small"}
+                                value={
+                                    print.soldOut
+                                        ? (labels.soldOut ?? "Sold out")
+                                        : print.comingSoon
+                                          ? `${labels.comingSoon ?? "Coming soon"} · ${formatPrice(print.priceCents, print.currency.toUpperCase(), locale)}`
+                                          : formatPrice(print.priceCents, print.currency.toUpperCase(), locale)
+                                }
+                            />
                         </div>
                     </Link>
                 );

@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { getPage, toButton, toPageSeo } from "@/lib/content";
 import BlockRenderer from "@/components/renderers/blockRenderer";
+import PageBlocks from "@/components/renderers/pageBlocks";
 import { pageHead } from "@/lib/seo.ts";
 
 const HOME_SLUG = "home"
@@ -37,9 +38,16 @@ function HomePage() {
             }]
             : []
     )
+    // Everything after the hero (e.g. stacked Col sections), full height by default.
+    const rest = page.blocks.filter((block) => block.type !== "hero")
     return (
         <div>
             <BlockRenderer blocks={blocks} />
+            {rest.length > 0 && (
+                <div className={"px-6 lg:px-22 pb-22"}>
+                    <PageBlocks blocks={rest} colHeight={"screen"} />
+                </div>
+            )}
         </div>
     )
 }

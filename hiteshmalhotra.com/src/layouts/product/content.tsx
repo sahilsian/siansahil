@@ -10,7 +10,7 @@ import Breadcrumb from "@/components/breadcrumb";
 import InquiryButton from "@/components/inquiryDialog";
 import type {ArtworkStore, Availability, PrintLink} from "@/lib/api/types.ts";
 import {forSale} from "@/lib/store";
-import {getFontStyles} from "@/components/typography/fonts.ts";
+import {getRichFontStyles} from "@/components/typography/richFonts.ts";
 import {getButtonType} from "@/components/routerButton/button.ts";
 import {useSite} from "@/contexts/site/siteContext.tsx";
 
@@ -32,7 +32,9 @@ interface ContentProps {
 }
 
 // Colours from the site theme (colors.link / colors.linkHover).
-const LINK_CLASS = "underline text-[var(--color-link)] hover:text-[var(--color-link-hover)]"
+// A print size on an artwork page, shaped like a small button.
+const PRINT_BUTTON = "inline-block rounded-md border border-[var(--color-border)] px-3 py-1 transition-colors"
+const LINK_CLASS ="underline text-[var(--color-link)] hover:text-[var(--color-link-hover)]"
 
 export const Content = ({title, description, image, images = [], tabs, store, prints = [], availability}:ContentProps) => {
     const ctx = useAppState()
@@ -120,22 +122,36 @@ function AvailabilityBox({title, availability}: { title: string; availability: A
  */
 function ForSaleText({title, prints, originalAvailable}: { title: string; prints: PrintLink[]; originalAvailable: boolean }) {
     const { labels } = useSite()
-    const copies = labels.copies ?? "copies"
+    const limited = labels.limited ?? "Limited"
+    const sold = labels.sold ?? "Sold"
     return (
-        <div className={`space-y-3 ${getFontStyles("p")}`}>
+        // Same size as the tab text below it (rich-text paragraphs), without their bottom margin.
+        <div className={`space-y-3 ${getRichFontStyles("p").replace("mb-5", "")}`}>
             {prints.length > 0 && (
                 <div>
                     <p>{labels.availableInPrints ?? "This item is available in prints"}</p>
-                    <ul className={"mt-1 list-disc pl-6 space-y-0.5"}>
-                        {prints.map((print) => (
-                            <li key={print.slug}>
-                                <Link to={"/prints/$slug"} params={{ slug: print.slug }} className={LINK_CLASS}>
-                                    {`${title} | ${print.title} ${print.sizeLabel}`}
-                                    {print.editionSize ? ` ${print.editionSize} ${copies}` : ""}
+                    {/* One button per print: its size, "(Limited)" for a limited edition, and
+                        greyed out with "Sold" once it has sold out. */}
+                    <div className={"mt-2 flex flex-wrap gap-2"}>
+                        {prints.map((print) => {
+                            const label = `${print.sizeLabel}${print.editionSize ? ` (${limited})` : ""}${print.comingSoon ? ` · ${labels.comingSoon ?? "Coming soon"}` : ""}`
+                            return print.soldOut ? (
+                                <span key={print.slug} aria-disabled={"true"} className={`${PRINT_BUTTON} cursor-not-allowed opacity-50`}>
+                                    {label} {sold}
+                                </span>
+                            ) : (
+                                <Link
+                                    key={print.slug}
+                                    to={"/prints/$slug"}
+                                    params={{ slug: print.slug }}
+                                    aria-label={`${title} | ${print.title} ${label}`}
+                                    className={`${PRINT_BUTTON} hover:bg-[var(--color-button-bg)] hover:text-[var(--color-button-text)]`}
+                                >
+                                    {label}
                                 </Link>
-                            </li>
-                        ))}
-                    </ul>
+                            )
+                        })}
+                    </div>
                 </div>
             )}
             {originalAvailable && (

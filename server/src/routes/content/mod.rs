@@ -17,7 +17,7 @@ use crate::content::{
     get_document, list_documents, product_summaries, referenced_documents, tenant_exists, CollectionQuery, DocType,
     DocumentKey, DocumentLookup, TenantId, SITE_KEY,
 };
-use crate::dashboard::prints::{public_print, size_label};
+use crate::dashboard::prints::{is_coming_soon, public_print, size_label};
 use crate::routes::error::ApiError;
 
 /// Short shared caching: heads/CDNs reuse a response for a minute and may
@@ -98,7 +98,7 @@ pub async fn get_product(path: web::Path<(String, String)>, pool: web::Data<PgPo
     let tenant = parse_tenant(&path.0)?;
     let slug = parse_key(&path.1)?;
     let mut product = fetch(&pool, &tenant, DocType::Product, slug.as_ref()).await?;
-    // Prints of this painting that are for sale: { slug, title, size, sizeLabel, editionSize? }.
+    // Prints of this painting that are for sale: { slug, title, size, sizeLabel, editionSize?, soldOut?, comingSoon? }.
     let prints: Vec<Value> = list_documents(&pool, &tenant, DocType::Print)
         .await?
         .into_iter()
@@ -107,6 +107,12 @@ pub async fn get_product(path: web::Path<(String, String)>, pool: web::Data<PgPo
             let mut out = json!({ "slug": p["slug"], "title": p["title"], "size": p["size"], "sizeLabel": size_label(&p["size"]) });
             if let Some(n) = p.get("editionSize") {
                 out["editionSize"] = n.clone();
+            }
+            if p["soldOut"].as_bool().unwrap_or(false) {
+                out["soldOut"] = json!(true);
+            }
+            if is_coming_soon(&p) {
+                out["comingSoon"] = json!(true);
             }
             out
         })

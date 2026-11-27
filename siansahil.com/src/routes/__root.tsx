@@ -8,7 +8,7 @@ import appCss from '../styles.css?url'
 import type { QueryClient } from "@tanstack/react-query"
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query"
 import type { TRPCRouter } from "@/integrations/trpc/router.ts"
-import { getFormDoc, getSite, toFooterMenu, toForm, toHeaderMenu, toRootSeo, toStyles } from "@/lib/content"
+import { getFormDoc, getPage, getSite, toFooterMenu, toForm, toHeaderMenu, toRootSeo, toStyles } from "@/lib/content"
 import Menu from "@/components/menu"
 import Footer from "@/components/footer"
 import Providers from "@/decorators/providers"
@@ -21,6 +21,8 @@ import type { FormProps } from "@/hooks/useFormControl.ts"
 interface LoaderData {
     site: SiteDoc | null
     mailingForm: FormProps | null
+    /** The home page hero's description: the footer's text under the name when the footer sets none. */
+    heroDescription: string
 }
 
 interface MyRouterContext {
@@ -48,10 +50,16 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
                     queryFn: () => getFormDoc(mailing.formId),
                 }))
                 : null
-            return { site, mailingForm }
+            // Same query as the home page, so it's fetched once and shared.
+            const home = await context.queryClient
+                .ensureQueryData({ queryKey: ['page', 'home'], queryFn: () => getPage('home') })
+                .catch(() => null)
+            const hero = home?.blocks.find((block) => block.type === "hero")
+            const heroDescription = hero && hero.type === "hero" ? hero.description : ""
+            return { site, mailingForm, heroDescription }
         } catch (error) {
             console.error("Failed to load site content", error)
-            return { site: null, mailingForm: null }
+            return { site: null, mailingForm: null, heroDescription: "" }
         }
     },
 
@@ -94,7 +102,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-    const { site, mailingForm } = Route.useRouteContext()
+    const { site, mailingForm, heroDescription } = Route.useRouteContext()
 
     if (!site) {
         // Tenant-agnostic on purpose: with no content server there is no tenant copy to show.
@@ -128,7 +136,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <RouterSync />
             <Menu backgroundColor={"var(--color-menu)"} title={menu.title} menuItems={menu.mainMenuItems}></Menu>
             {children}
-            <Footer title={footer.title} description={footer.description} menuItems={footer.footerMenuItems} mailingForm={mailingForm}></Footer>
+            <Footer title={footer.title} description={footer.description?.trim() || heroDescription} menuItems={footer.footerMenuItems} mailingForm={mailingForm}></Footer>
         </Providers>
         </SiteProvider>
 

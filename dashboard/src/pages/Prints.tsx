@@ -32,6 +32,8 @@ function usePrintsAndArtworks() {
 
 function StatusBadge({ print }: { print: Print }) {
   if (!print.forSale) return <span className="rounded-full bg-stone-200 px-2 py-0.5 text-xs font-medium text-stone-700">Hidden</span>;
+  if (print.soldOut) return <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">Sold out</span>;
+  if (print.comingSoon) return <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-800">Coming soon</span>;
   return <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">For sale</span>;
 }
 
@@ -72,13 +74,80 @@ function PrintList() {
   const sorted = [...prints.data.prints].sort(
     (a, b) => (bySlug.get(a.painting)?.title ?? "").localeCompare(bySlug.get(b.painting)?.title ?? "") || a.priceCents - b.priceCents,
   );
-  if (sorted.length === 0) return <Alert kind="info">No prints yet. Create one and choose which painting it's of.</Alert>;
   return (
-    <div className="space-y-2">
-      {sorted.map((p) => (
-        <PrintRow key={p.slug} print={p} painting={bySlug.get(p.painting)} currency={prints.data.currency} />
-      ))}
+    <div className="space-y-6">
+      {sorted.length === 0 ? (
+        <Alert kind="info">No prints yet. Create one and choose which painting it's of.</Alert>
+      ) : (
+        <div className="space-y-2">
+          {sorted.map((p) => (
+            <PrintRow key={p.slug} print={p} painting={bySlug.get(p.painting)} currency={prints.data.currency} />
+          ))}
+        </div>
+      )}
+      <ShippingCard key={JSON.stringify(prints.data.shipping)} shipping={prints.data.shipping} currency={prints.data.currency} />
     </div>
+  );
+}
+
+/** The site's flat shipping charge, added at Stripe checkout for every print. */
+function ShippingCard({ shipping, currency }: { shipping: { label: string; amountCents: number } | null; currency: string }) {
+  const { site } = useSite();
+  const toast = useToast();
+  const queryClient = useQueryClient();
+  const [label, setLabel] = useState(shipping?.label ?? "Shipping");
+  const [amount, setAmount] = useState(shipping ? centsToInput(shipping.amountCents) : "");
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  const save = async (remove: boolean) => {
+    setProblem(null);
+    let body: { label: string; amountCents: number } | null = null;
+    if (!remove) {
+      const cents = parseDollars(amount);
+      if (cents === null) return setProblem("Enter the shipping price in dollars, like 15 or 12.50 (0 for free shipping).");
+      if (!label.trim()) return setProblem("Give the shipping a name buyers see at checkout, like \"Shipping\".");
+      body = { label: label.trim(), amountCents: cents };
+    }
+    setBusy(true);
+    try {
+      const result = await api.saveShipping(site.id, body);
+      await queryClient.invalidateQueries({ queryKey: ["prints", site.id] });
+      if (result.note) toast.error(result.note);
+      else toast.success(remove ? "Shipping removed from checkout." : `Saved. ${result.updated} print${result.updated === 1 ? "" : "s"} updated.`);
+    } catch (e) {
+      setProblem(errorMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Card
+      title="Shipping"
+      description="One flat shipping charge, added at checkout to every print. Saving updates every print's checkout page."
+    >
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label="Name at checkout" hint={'e.g. "Shipping" or "Tracked shipping"'}>
+          {(id) => <TextInput id={id} value={label} onChange={(e) => setLabel(e.target.value)} />}
+        </Field>
+        <Field label={`Price (${currency})`} hint="0 for free shipping">
+          {(id) => <TextInput id={id} inputMode="decimal" placeholder="15" value={amount} onChange={(e) => setAmount(e.target.value)} />}
+        </Field>
+      </div>
+      {problem && <Alert>{problem}</Alert>}
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={() => save(false)} busy={busy}>
+          Save shipping
+        </Button>
+        {shipping && (
+          <Button variant="secondary" onClick={() => save(true)} disabled={busy}>
+            Remove shipping charge
+          </Button>
+        )}
+      </div>
+      {shipping && <p className="text-sm text-stone-600">Buyers now pay {formatMoney(shipping.amountCents, currency)} for “{shipping.label}”.</p>}
+    </Card>
   );
 }
 
@@ -176,6 +245,7 @@ interface Draft {
   description: string;
   images: Image[];
   forSale: boolean;
+  comingSoon: boolean;
 }
 
 const TITLE_IDEAS = ["Archival Limited Edition", "Open Edition", "Giclée Print", "Canvas Print", "Signed Print"];
@@ -194,6 +264,8 @@ function toDraft(print: Print | null, painting: string, artworks: Artwork[]): Dr
       description: "",
       images: [],
       forSale: true,
+      // New prints start as part of an upcoming drop.
+      comingSoon: true,
     };
   }
   return {
@@ -207,6 +279,7 @@ function toDraft(print: Print | null, painting: string, artworks: Artwork[]): Dr
     description: print.description ?? "",
     images: print.images ?? [],
     forSale: print.forSale,
+    comingSoon: print.comingSoon ?? false,
   };
 }
 
@@ -332,7 +405,7 @@ function PrintForm({
       editionSize = Number(draft.edition);
       if (!Number.isInteger(editionSize) || editionSize < 1) return "The number of copies must be a whole number, or leave it empty for an open edition.";
     }
-    return { painting: draft.painting, title: draft.title.trim(), size: { width, height }, editionSize, priceCents, description: draft.description, images: draft.images, forSale: draft.forSale };
+    return { painting: draft.painting, title: draft.title.trim(), size: { width, height }, editionSize, priceCents, description: draft.description, images: draft.images, forSale: draft.forSale, comingSoon: draft.comingSoon };
   };
 
   const save = async () => {
@@ -465,6 +538,13 @@ function PrintForm({
           <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-1 hover:bg-stone-50">
             <input type="checkbox" className="size-5 accent-stone-900" checked={draft.forSale} onChange={(e) => update({ forSale: e.target.checked })} />
             <span className="text-sm text-stone-800">For sale (shown on the website)</span>
+          </label>
+          <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg px-1 py-2 hover:bg-stone-50">
+            <input type="checkbox" className="mt-0.5 size-5 shrink-0 accent-stone-900" checked={draft.comingSoon} onChange={(e) => update({ comingSoon: e.target.checked })} />
+            <span className="text-sm text-stone-800">
+              Coming soon
+              <span className="block text-stone-500">Shown on the website as "Coming soon" and can't be bought yet. Switch off and save to launch the drop.</span>
+            </span>
           </label>
         </Card>
 

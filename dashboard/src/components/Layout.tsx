@@ -13,6 +13,7 @@ import {
   Mail,
   Menu,
   Newspaper,
+  Package,
   ShieldCheck,
   ShoppingBag,
   UserRound,
@@ -41,7 +42,10 @@ function useNavItems() {
   const main: NavItem[] = [];
   if (pages.has("home")) main.push({ to: "/home", label: "Home", icon: Home });
   if (pages.has("products") || hasProducts) main.push({ to: "/gallery", label: terms.isArt ? "Gallery" : terms.Items, icon: ImageIcon });
-  if ((pages.has("products") || hasProducts) && terms.prints) main.push({ to: "/prints", label: "Prints", icon: ShoppingBag });
+  if ((pages.has("products") || hasProducts) && terms.prints) {
+    main.push({ to: "/prints", label: "Prints", icon: ShoppingBag });
+    main.push({ to: "/orders", label: "Orders", icon: Package });
+  }
   if (pages.has("about")) main.push({ to: "/about", label: "About", icon: Info });
   if (pages.has("faq")) main.push({ to: "/faq", label: "FAQ", icon: HelpCircle });
   if (pages.has("contact")) main.push({ to: "/contact", label: "Contact", icon: Mail });

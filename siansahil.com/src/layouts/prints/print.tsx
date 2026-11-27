@@ -1,4 +1,3 @@
-import {Link} from "@tanstack/react-router";
 import Typography from "@/components/typography";
 import Spacer from "@/components/spacer";
 import Breadcrumb from "@/components/breadcrumb";
@@ -13,7 +12,6 @@ import type {PrintDoc} from "@/lib/api/types.ts";
 import {printListName} from "./list.tsx";
 
 const BUTTON_CLASS = "inline-block rounded-md border border-[var(--color-border)] px-5 py-2 font-serif text-[1rem] transition-colors hover:bg-[var(--color-button-bg)] hover:text-[var(--color-button-text)] cursor-pointer"
-const LINK_CLASS = "underline text-[var(--color-link)] hover:text-[var(--color-link-hover)]"
 
 /** One print: photos, name, price, edition, description and Buy (Stripe checkout). */
 const PrintLayout = ({print}: {print: PrintDoc}) => {
@@ -23,7 +21,7 @@ const PrintLayout = ({print}: {print: PrintDoc}) => {
     const copies = labels.copies ?? "copies";
 
     return (
-        <div className={'bg-[var(--color-surface)] p-6 md:px-22 py-22 relative'}>
+        <div className={'p-6 md:px-22 py-22 relative'}>
             <Background></Background>
             <div className={"relative z-30"}>
                 <Breadcrumb items={[
@@ -38,25 +36,29 @@ const PrintLayout = ({print}: {print: PrintDoc}) => {
                     <div className={"flex-2 space-y-4"}>
                         <Typography level={"2"} value={name} />
                         <div className={getFontStyles("p")}>
-                            <p>{formatPrice(print.priceCents, print.currency.toUpperCase(), locale)}</p>
+                            <p className={"text-[1.6rem] md:text-[2.2rem] font-semibold leading-tight mb-1"}>
+                                {formatPrice(print.priceCents, print.currency.toUpperCase(), locale)}
+                            </p>
                             <p>
                                 {print.sizeLabel} in
                                 {print.editionSize ? ` · ${labels.limitedEdition ?? "Limited edition of"} ${print.editionSize} ${copies}` : ""}
                             </p>
                         </div>
-                        <div>
-                            {print.buyUrl ? (
+                        {/* Extra room under Buy / Inquire before the description. */}
+                        <div className={"pb-8"}>
+                            {print.soldOut ? (
+                                <p className={`${getFontStyles("p")} font-semibold text-[var(--color-sold)]`}>{labels.soldOut ?? "Sold out"}</p>
+                            ) : print.comingSoon ? (
+                                <span aria-disabled={"true"} className={`${BUTTON_CLASS} cursor-not-allowed opacity-60 hover:bg-transparent hover:text-inherit`}>
+                                    {labels.comingSoon ?? "Coming soon"}
+                                </span>
+                            ) : print.buyUrl ? (
                                 <a href={print.buyUrl} className={BUTTON_CLASS}>{labels.buy ?? "Buy"}</a>
                             ) : (
                                 <InquiryButton title={name} kind={"print"} label={labels.inquire ?? "Inquire"} className={BUTTON_CLASS} />
                             )}
                         </div>
                         {print.description && <RichText richText={print.description} />}
-                        <p className={getFontStyles("p")}>
-                            <Link to={"/products/$slug"} params={{slug: print.artwork.slug}} className={LINK_CLASS}>
-                                {labels.viewPainting ?? "View the original painting"}
-                            </Link>
-                        </p>
                     </div>
                 </div>
             </div>

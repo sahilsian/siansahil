@@ -20,7 +20,7 @@ interface ProductLayoutProps {
     availability?: Availability;
 }
 
-const ProductLayout = ({ title, slug, description, image, images, tabs, dateCreated, material, backgroundColor="var(--color-surface)", store, prints, availability}:ProductLayoutProps) => {
+const ProductLayout = ({ title, slug, description, image, images, tabs, dateCreated, material, backgroundColor="transparent", store, prints, availability}:ProductLayoutProps) => {
     return (
         <div style={{backgroundColor: backgroundColor}} className={'p-6 md:px-22 py-22 relative'}>
             <Background></Background>

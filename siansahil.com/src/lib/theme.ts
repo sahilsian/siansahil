@@ -53,7 +53,8 @@ export function themeCss(site: SiteDoc): string {
     vars.push(`--font-heading: ${heading && SAFE_FONT.test(heading) ? quoteFont(heading) : bodyFont};`);
 
     return `:root { ${vars.join(" ")} }
-body { background-color: var(--color-page); color: var(--color-text); }
+html, body { background-color: var(--color-surface); min-height: 100%; }
+body { color: var(--color-text); }
 select option { color: #000000; background-color: #ffffff; } /* native dropdown lists stay legible on any theme */
 .text_button { color: var(--color-button-text); }
 .text_highlighted { color: var(--color-heading); }

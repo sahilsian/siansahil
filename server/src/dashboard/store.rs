@@ -217,6 +217,8 @@ async fn sync_item(
     image: Option<&str>,
     metadata: &[(&str, &str)],
 ) -> Result<Option<Item>, (Option<Item>, StripeError)> {
+    // Made up in local test mode, now with a real key: create it for real.
+    let current = current.filter(|item| !stripe.is_stale_id(&item.stripe_product_id));
     match (current, wanted) {
         (None, None) => Ok(None),
         (None, Some(cents)) => match stripe.create_product(name, image, metadata, currency, cents).await {

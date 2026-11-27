@@ -3,12 +3,18 @@ import type { Block } from "@/lib/api/types.ts";
 import Image from "@/components/image";
 import RichText from "@/components/richText";
 import { getFontStyles } from "@/components/typography/fonts.ts";
+import Col from "@/components/col";
 
-/** Renders the content blocks of a page document (inside PageLayout). */
-const PageBlocks = ({ blocks }: { blocks: Block[] }) => (
+/**
+ * Renders the content blocks of a page document (inside PageLayout, or under the
+ * home page's hero). colHeight: Col blocks' height when they don't set one.
+ */
+const PageBlocks = ({ blocks, colHeight = "auto" }: { blocks: Block[]; colHeight?: "screen" | "auto" }) => (
     <div className={"flex flex-col gap-10"}>
         {blocks.map((block, index) => {
             switch (block.type) {
+                case "col":
+                    return <Col key={index} block={block} defaultHeight={colHeight} />;
                 case "imageText": {
                     const image = (
                         <div className={"w-full max-w-[420px] lg:max-w-none lg:flex-1 lg:basis-0 lg:min-w-0"}>

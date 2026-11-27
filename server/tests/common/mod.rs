@@ -20,6 +20,20 @@ use sqlx::{Executor, PgPool};
 use uuid::Uuid;
 use wiremock::MockServer;
 
+/// The `acme` site's Stripe webhook signing secret in tests.
+#[allow(dead_code)]
+pub const STRIPE_WEBHOOK_SECRET: &str = "whsec_test_acme";
+
+/// A `Stripe-Signature` header for `body`, signed now with `secret` (as Stripe does).
+#[allow(dead_code)]
+pub fn stripe_signature(body: &str, secret: &str) -> String {
+    use hmac::{Hmac, Mac};
+    let t = chrono::Utc::now().timestamp();
+    let mut mac = Hmac::<sha2::Sha256>::new_from_slice(secret.as_bytes()).unwrap();
+    mac.update(format!("{t}.{body}").as_bytes());
+    format!("t={t},v1={}", hex::encode(mac.finalize().into_bytes()))
+}
+
 pub struct TestApp {
     pub address: String,
     pub db_pool: PgPool,
@@ -88,6 +102,7 @@ async fn spawn(migrations: MigrationStatus, use_r2: bool) -> TestApp {
     // Tests exercise the real Stripe calls, so test mode is off even though local.yaml turns it on.
     config.stripe.offline = false;
     config.stripe.secret_keys.insert("acme".into(), Secret::new("sk_test_acme".into()));
+    config.stripe.webhook_secrets.insert("acme".into(), Secret::new(STRIPE_WEBHOOK_SECRET.into()));
 
     let admin_key = config.admin.api_key.expose_secret().clone();
     let server = run(

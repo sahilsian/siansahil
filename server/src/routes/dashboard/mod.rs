@@ -45,6 +45,7 @@ mod auth;
 mod documents;
 mod mailing_list;
 mod media;
+mod orders;
 mod prints;
 pub(crate) mod store;
 mod superadmin;
@@ -154,6 +155,9 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
                 .route(web::put().to(prints::update))
                 .route(web::delete().to(prints::delete)),
         )
+        .route("/sites/{site}/shipping", web::put().to(prints::save_shipping))
+        .route("/sites/{site}/orders", web::get().to(orders::list))
+        .route("/sites/{site}/orders/{id}", web::put().to(orders::update))
         .service(
             web::resource("/sites/{site}/artworks/{slug}/store")
                 .route(web::put().to(store::list))

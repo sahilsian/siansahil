@@ -1,7 +1,7 @@
 mod common;
 
 use common::{spawn_app, spawn_app_with_r2, TestApp};
-use wiremock::matchers::{header, header_exists, method, path_regex};
+use wiremock::matchers::{header, header_exists, method, path, path_regex};
 use wiremock::{Mock, ResponseTemplate};
 use reqwest::{Method, StatusCode};
 use serde_json::{json, Value};
@@ -581,8 +581,17 @@ async fn mount_fake_stripe(app: &TestApp) {
         })
         .mount(&app.stripe_server)
         .await;
+    let rates = counter.clone();
     Mock::given(method("POST"))
-        .and(path_regex(r"^/v1/(products|prices|payment_links)/[a-z_0-9]+$"))
+        .and(path_regex(r"^/v1/shipping_rates$"))
+        .respond_with(move |_: &wiremock::Request| {
+            let n = rates.fetch_add(1, Ordering::SeqCst);
+            ResponseTemplate::new(200).set_body_json(json!({ "id": format!("shr_{n}") }))
+        })
+        .mount(&app.stripe_server)
+        .await;
+    Mock::given(method("POST"))
+        .and(path_regex(r"^/v1/(products|prices|payment_links|shipping_rates)/[a-z_0-9]+$"))
         .respond_with(ResponseTemplate::new(200).set_body_json(json!({ "id": "ok" })))
         .mount(&app.stripe_server)
         .await;
@@ -891,4 +900,176 @@ async fn print_size_names_and_rates_are_checked() {
     }
     let (_, settings) = boss.get("/sites/acme/store").await;
     assert_eq!(settings["originalSizeRate"], 0.2, "defaults when the site hasn't set one");
+}
+
+// ---------------------------------------------------------------- shipping + orders
+
+/// The acme site with a web address and an email recipient for order notifications.
+async fn seed_shop(app: &TestApp) {
+    seed_sites(app).await;
+    admin_put(
+        app,
+        "/tenants/acme/documents/site/main",
+        json!({ "$type": "site", "name": "acme art", "url": "https://acme.test", "currency": "CAD",
+                "integrations": { "email": { "recipient": "artist@acme.test", "fromName": "Acme website" } } }),
+    )
+    .await;
+}
+
+/// POST a webhook event the way Stripe does (signed with the site's secret unless `secret` overrides it).
+async fn deliver(app: &TestApp, site: &str, event: &Value, secret: &str) -> StatusCode {
+    let body = event.to_string();
+    reqwest::Client::new()
+        .post(format!("{}/api/v1/stripe/{site}/webhook", app.address))
+        .header("Stripe-Signature", common::stripe_signature(&body, secret))
+        .header("Content-Type", "application/json")
+        .body(body)
+        .send()
+        .await
+        .unwrap()
+        .status()
+}
+
+fn paid_checkout(session_id: &str, payment_link: &str) -> Value {
+    json!({
+        "type": "checkout.session.completed",
+        "data": { "object": {
+            "id": session_id, "payment_status": "paid", "payment_link": payment_link,
+            "amount_total": 19500, "currency": "cad", "total_details": { "amount_shipping": 1500 },
+            "customer_details": { "name": "Ana Buyer", "email": "ana@example.com" },
+            "collected_information": { "shipping_details": { "name": "Ana Buyer", "address": {
+                "line1": "1 Main St", "city": "Vancouver", "state": "BC", "postal_code": "V5V 1A1", "country": "CA" } } }
+        } }
+    })
+}
+
+#[actix_web::test]
+async fn shipping_and_the_thank_you_page_are_on_every_payment_link() {
+    let app = spawn_app().await;
+    seed_shop(&app).await;
+    mount_fake_stripe(&app).await;
+    let boss = superadmin(&app).await;
+    let artist = editor(&app, &boss).await;
+    let print = json!({ "painting": "old", "title": "Open Edition", "size": { "width": 8, "height": 10 }, "priceCents": 3000 });
+    let (status, created) = artist.post("/sites/acme/prints", json!({ "slug": "old-open", "print": print })).await;
+    assert_eq!(status, StatusCode::CREATED, "{created}");
+    let first_link = created["print"]["stripe"]["paymentLinkId"].clone();
+    let link = stripe_calls(&app).await.into_iter().find(|(p, _)| p == "/v1/payment_links").unwrap();
+    assert!(link.1.contains("after_completion%5Btype%5D=redirect"), "{}", link.1);
+    assert!(link.1.contains("https%3A%2F%2Facme.test%2Forder-complete%3Fsession_id%3D%7BCHECKOUT_SESSION_ID%7D"), "{}", link.1);
+    assert!(!link.1.contains("shipping_options"), "no shipping charge yet: {}", link.1);
+
+    // Setting shipping makes a Stripe rate and remakes the print's link with it.
+    let (status, saved) = artist.put("/sites/acme/shipping", json!({ "shipping": { "label": "Shipping", "amountCents": 1500 } })).await;
+    assert_eq!(status, StatusCode::OK, "{saved}");
+    assert_eq!(saved["updated"], 1);
+    let calls = stripe_calls(&app).await;
+    let rate = calls.iter().find(|(p, _)| p == "/v1/shipping_rates").unwrap();
+    assert!(rate.1.contains("fixed_amount%5Bamount%5D=1500") && rate.1.contains("display_name=Shipping"), "{}", rate.1);
+    let newest_link = calls.iter().filter(|(p, _)| p == "/v1/payment_links").last().unwrap();
+    assert!(newest_link.1.contains("shipping_options%5B0%5D%5Bshipping_rate%5D=shr_"), "{}", newest_link.1);
+    let (_, list) = artist.get("/sites/acme/prints").await;
+    assert_eq!(list["shipping"], json!({ "label": "Shipping", "amountCents": 1500 }));
+    assert_ne!(list["prints"][0]["stripe"]["paymentLinkId"], first_link);
+
+    // Saving the same shipping again changes nothing in Stripe.
+    let before = stripe_calls(&app).await.len();
+    artist.put("/sites/acme/shipping", json!({ "shipping": { "label": "Shipping", "amountCents": 1500 } })).await;
+    let calls = stripe_calls(&app).await[before..].to_vec();
+    assert!(!calls.iter().any(|(p, _)| p == "/v1/shipping_rates" || p == "/v1/payment_links"), "{calls:?}");
+
+    // Bad amounts are refused.
+    let (status, _) = artist.put("/sites/acme/shipping", json!({ "shipping": { "label": "Shipping", "amountCents": -1 } })).await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+    // Another site's shipping is off limits.
+    let (status, _) = artist.put("/sites/other/shipping", json!({ "shipping": null })).await;
+    assert_eq!(status, StatusCode::FORBIDDEN);
+}
+
+#[actix_web::test]
+async fn a_paid_checkout_is_recorded_once_emailed_and_sells_out_the_edition() {
+    let app = spawn_app().await;
+    seed_shop(&app).await;
+    mount_fake_stripe(&app).await;
+    Mock::given(method("POST"))
+        .and(path("/emails"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({ "id": "email-1" })))
+        .expect(1)
+        .mount(&app.email_server)
+        .await;
+    let boss = superadmin(&app).await;
+    let artist = editor(&app, &boss).await;
+    let print = json!({ "painting": "old", "title": "Archival", "size": { "width": 24, "height": 36 }, "editionSize": 1, "priceCents": 18000 });
+    let (_, created) = artist.post("/sites/acme/prints", json!({ "slug": "old-archival", "print": print })).await;
+    let link = created["print"]["stripe"]["paymentLinkId"].as_str().unwrap().to_string();
+
+    // Unsigned or wrongly signed deliveries are refused and change nothing.
+    let event = paid_checkout("cs_test_1", &link);
+    assert_eq!(deliver(&app, "acme", &event, "whsec_wrong").await, StatusCode::BAD_REQUEST);
+    // A site without a webhook secret can't receive them at all.
+    assert_eq!(deliver(&app, "other", &event, common::STRIPE_WEBHOOK_SECRET).await, StatusCode::BAD_REQUEST);
+    let (_, orders) = artist.get("/sites/acme/orders").await;
+    assert_eq!(orders["orders"], json!([]));
+    assert_eq!(orders["connected"], true);
+
+    // The real delivery is recorded; Stripe retrying it doesn't make a second order or email.
+    assert_eq!(deliver(&app, "acme", &event, common::STRIPE_WEBHOOK_SECRET).await, StatusCode::OK);
+    assert_eq!(deliver(&app, "acme", &event, common::STRIPE_WEBHOOK_SECRET).await, StatusCode::OK);
+    let (_, orders) = artist.get("/sites/acme/orders").await;
+    let list = orders["orders"].as_array().unwrap();
+    assert_eq!(list.len(), 1);
+    assert_eq!(list[0]["printName"], "Old | Archival 24 x 36");
+    assert_eq!(list[0]["printSlug"], "old-archival");
+    assert_eq!(list[0]["amountTotalCents"], 19500);
+    assert_eq!(list[0]["shippingCents"], 1500);
+    assert_eq!(list[0]["customerEmail"], "ana@example.com");
+    assert_eq!(list[0]["shippingAddress"]["city"], "Vancouver");
+    assert_eq!(list[0]["shippedAt"], Value::Null);
+
+    // The artist was emailed the buyer and address, with replies going to the buyer.
+    let emails = app.email_server.received_requests().await.unwrap();
+    let email: Value = serde_json::from_slice(&emails[0].body).unwrap();
+    assert!(email["to"].to_string().contains("artist@acme.test"), "{email}");
+    assert!(email["reply_to"].to_string().contains("ana@example.com"), "{email}");
+    let text = email["text"].as_str().unwrap_or_default();
+    assert!(text.contains("Old | Archival 24 x 36") && text.contains("1 Main St") && text.contains("$195.00 CAD"), "{text}");
+
+    // That was the only copy: sold out on the website, with no Buy link.
+    let print = reqwest::get(format!("{}/api/v1/content/acme/prints/old-archival", app.address)).await.unwrap().json::<Value>().await.unwrap();
+    assert_eq!(print["soldOut"], true);
+    assert!(print.get("buyUrl").is_none());
+    let painting = reqwest::get(format!("{}/api/v1/content/acme/products/old", app.address)).await.unwrap().json::<Value>().await.unwrap();
+    assert_eq!(painting["prints"][0]["soldOut"], true);
+
+    // Ticked off as shipped (and back).
+    let id = list[0]["id"].as_str().unwrap();
+    assert_eq!(artist.put(&format!("/sites/acme/orders/{id}"), json!({ "shipped": true })).await.0, StatusCode::NO_CONTENT);
+    let (_, orders) = artist.get("/sites/acme/orders").await;
+    assert!(orders["orders"][0]["shippedAt"].is_string());
+    assert_eq!(artist.put(&format!("/sites/acme/orders/{id}"), json!({ "shipped": false })).await.0, StatusCode::NO_CONTENT);
+    // Another site's orders are off limits.
+    assert_eq!(artist.get("/sites/other/orders").await.0, StatusCode::FORBIDDEN);
+
+    // Unpaid checkouts (e.g. a bank transfer still pending) are acknowledged but not recorded.
+    let mut pending = paid_checkout("cs_test_2", &link);
+    pending["data"]["object"]["payment_status"] = json!("unpaid");
+    assert_eq!(deliver(&app, "acme", &pending, common::STRIPE_WEBHOOK_SECRET).await, StatusCode::OK);
+    let (_, orders) = artist.get("/sites/acme/orders").await;
+    assert_eq!(orders["orders"].as_array().unwrap().len(), 1);
+
+    // Growing the edition puts it back on sale.
+    let mut bigger = print_input_from(&created["print"]);
+    bigger["editionSize"] = json!(5);
+    let (status, updated) = artist.put("/sites/acme/prints/old-archival", json!({ "print": bigger })).await;
+    assert_eq!(status, StatusCode::OK, "{updated}");
+    assert_eq!(updated["print"]["soldOut"], false);
+}
+
+/// The dashboard's print input for an existing print document.
+fn print_input_from(doc: &Value) -> Value {
+    json!({
+        "painting": doc["painting"], "title": doc["title"],
+        "size": { "width": doc["size"]["width"], "height": doc["size"]["height"] },
+        "editionSize": doc["editionSize"], "priceCents": doc["priceCents"], "forSale": doc["forSale"],
+    })
 }

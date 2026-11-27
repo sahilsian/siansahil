@@ -49,10 +49,14 @@ export interface SiteLabels {
     originalAlsoAvailable?: string;
     /** "15 copies" in a limited edition. */
     copies?: string;
+    /** Artwork page print buttons: "24 x 36 (Limited)". */
+    limited?: string;
     /** Print page: "Limited edition of 15 copies". */
     limitedEdition?: string;
     /** Print page: the checkout button. */
     buy?: string;
+    /** Prints not on sale yet (an upcoming drop), in place of Buy. */
+    comingSoon?: string;
     /** Print page: link back to the painting. */
     viewPainting?: string;
     /** Prints page: shown when nothing is for sale. */
@@ -61,6 +65,9 @@ export interface SiteLabels {
     originalAvailableNote?: string;
     /** Inquiry pop-up's starting message when theme.itemInquiry is on; {title} = the item's name. */
     inquiryMessage?: string;
+    /** /order-complete, where buyers land after paying for a print. */
+    orderThanksTitle?: string;
+    orderThanksBody?: string;
 }
 
 export interface SiteMessages {
@@ -148,6 +155,25 @@ export interface ButtonDoc {
     search?: { collection?: string };
 }
 
+/**
+ * Two columns, text and image, side by side and vertically centred; each column is
+ * at least 357px wide, so they stack on phones. Put several in a row to stack sections,
+ * with `reverse` to alternate which side the image is on.
+ */
+export interface ColBlock {
+    type: "col";
+    title?: string;
+    /** Markdown. */
+    body: string;
+    image: Image;
+    /** Image on the left instead of the right. */
+    reverse?: boolean;
+    primary?: ButtonDoc;
+    secondary?: ButtonDoc;
+    /** "screen" (default on the home page): at least the viewport's height on laptops and up. */
+    height?: "screen" | "auto";
+}
+
 export interface PrintClubBlock {
     type: "printClub";
     subscriptionHandle: string;
@@ -177,6 +203,7 @@ export type Block =
       }
     | { type: "collection"; defaultCollection: string; views: { id: string; columns: number }[] }
     | { type: "imageText"; image: Image; imagePosition: "start" | "end"; body: string }
+    | ColBlock
     | { type: "faq"; items: { question: string; answer: string }[] }
     | { type: "richText"; body: string }
     | { type: "form"; formId: string }
@@ -252,6 +279,10 @@ export interface PrintLink {
     /** "24 x 36" */
     sizeLabel: string;
     editionSize?: number;
+    /** Every copy of the limited edition has sold. */
+    soldOut?: boolean;
+    /** Shown, but not buyable until the drop (no `buyUrl`). */
+    comingSoon?: boolean;
 }
 
 /** A print listing (GET /prints, /prints/{slug}). */

@@ -3,6 +3,7 @@
 
 pub mod accounts;
 pub mod media;
+pub mod orders;
 pub mod prints;
 pub mod products;
 pub mod r2;

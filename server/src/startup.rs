@@ -20,7 +20,7 @@ use crate::routes::content;
 use crate::routes::dashboard::{self, require_same_origin, DashboardConfig};
 use crate::routes::diagnostics::{health_check, ready};
 use crate::routes::error::{json_config, query_config};
-use crate::routes::{mailing_list, media};
+use crate::routes::{mailing_list, media, stripe_webhook};
 
 /// Locks the dashboard page down: only its own scripts run, it can only talk to
 /// this server, and no other site can frame it.
@@ -86,6 +86,11 @@ pub fn run(
                                 .wrap(Cors::default().allow_any_origin().allowed_methods(["GET"]).max_age(86_400))
                                 .app_data(query_config())
                                 .configure(content::configure),
+                        )
+                        .service(
+                            // Stripe → us (signed per site; see routes::stripe_webhook). No CORS.
+                            web::scope("/stripe")
+                                .route("/{tenant_id}/webhook", web::post().to(stripe_webhook::receive)),
                         )
                         .service(
                             // Public images uploaded from the dashboard.

@@ -8,6 +8,14 @@
 }
 
 @layer base {
+    /* 16px up to 1920px wide, then grows with the screen (32px at 4K), so layouts
+       keep the same proportions instead of shrinking on very large monitors. */
+    @media (min-width: 1920px) {
+        html {
+            font-size: calc(100vw / 120);
+        }
+    }
+
     body {
         @apply m-0;
         font-family: var(--font-body), serif;
